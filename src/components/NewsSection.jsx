@@ -1,41 +1,101 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+
+const galleryItems = [
+  {
+    title: 'Playful Learning in Action',
+    description: 'Bright spaces, warm teachers, and joyful moments that make each day feel exciting and meaningful.',
+    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Children learning in a bright classroom setting',
+  },
+  {
+    title: 'Growing Through Discovery',
+    description: 'Our children explore, create, and build confidence through hands-on activities and guided curiosity.',
+    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Children exploring creative learning materials',
+  },
+  {
+    title: 'A Community That Cares',
+    description: 'Every child feels seen, supported, and celebrated as part of a warm and connected school family.',
+    image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1200&q=80',
+    alt: 'A smiling school community gathering',
+  },
+];
 
 function NewsSection() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const { data, error } = await supabase.from('posts').select('*').limit(3);
-        if (!error) setPosts(data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const timer = window.setInterval(() => {
+      setActiveIndex((value) => (value + 1) % galleryItems.length);
+    }, 5500);
 
-    fetchPosts();
+    return () => window.clearInterval(timer);
   }, []);
 
+  const goToPrev = () => setActiveIndex((value) => (value - 1 + galleryItems.length) % galleryItems.length);
+  const goToNext = () => setActiveIndex((value) => (value + 1) % galleryItems.length);
+
   return (
-    <section id="events" className="section">
-      <div className="section-heading">
-        <p className="eyebrow">Latest updates</p>
-        <h2>News and events</h2>
+    <section id="gallery" className="section gallery-section" data-aos="fade-up">
+      <div className="section-heading" data-aos="fade-up" data-aos-delay="80">
+        <p className="eyebrow">Gallery highlights</p>
+        <h2>Moments that capture our school spirit</h2>
       </div>
-      {loading ? (
-        <p>Loading updates...</p>
-      ) : (
-        <div className="news-grid">
-          {posts.length > 0 ? posts.map((post) => (
-            <article key={post.id} className="news-card">
-              <h3>{post.title || 'School update'}</h3>
-              <p>{post.content || 'More updates coming soon.'}</p>
-            </article>
-          )) : <p>No content available yet.</p>}
+
+      <div className="gallery-shell" data-aos="fade-up" data-aos-delay="120">
+        <div className="gallery-frame">
+          <div className="gallery-track" style={{ transform: `translateX(-${activeIndex * 100}%)` }}>
+            {galleryItems.map((item) => (
+              <article key={item.title} className="gallery-slide">
+                <img src={item.image} alt={item.alt} />
+                <div className="gallery-copy">
+                  <p className="eyebrow">Featured moment</p>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                  <button className="btn btn-primary" type="button" onClick={() => setSelectedItem(item)}>
+                    Read more
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="gallery-controls">
+          <button className="gallery-control" type="button" onClick={goToPrev} aria-label="Previous slide">
+            ←
+          </button>
+          <div className="gallery-dots">
+            {galleryItems.map((item, index) => (
+              <button
+                key={item.title}
+                type="button"
+                className={`gallery-dot ${index === activeIndex ? 'active' : ''}`}
+                onClick={() => setActiveIndex(index)}
+                aria-label={`Go to ${item.title}`}
+              />
+            ))}
+          </div>
+          <button className="gallery-control" type="button" onClick={goToNext} aria-label="Next slide">
+            →
+          </button>
+        </div>
+      </div>
+
+      {selectedItem && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={() => setSelectedItem(null)}>
+          <div className="modal-card" onClick={(event) => event.stopPropagation()}>
+            <img src={selectedItem.image} alt={selectedItem.alt} />
+            <div className="modal-body">
+              <p className="eyebrow">Full view</p>
+              <h3>{selectedItem.title}</h3>
+              <p>{selectedItem.description}</p>
+              <button className="btn btn-primary" type="button" onClick={() => setSelectedItem(null)}>
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </section>
