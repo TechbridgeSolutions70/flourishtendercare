@@ -1,6 +1,6 @@
 function Footer() {
   return (
-    <footer id="contact" className="footer">
+    <footer id="contact" className="footer" data-aos="fade-up">
       <div>
         <h3>Get in touch</h3>
         <p>#5 Muyibat Ashani Street, Peaceville Estate, Badore, Ajah, Lagos</p>
