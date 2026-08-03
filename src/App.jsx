@@ -1,7 +1,6 @@
 import { useEffect, useState, useLayoutEffect } from 'react';
 import Hero from './components/Hero';
 import NavBar from './components/NavBar';
-import Hero from './components/Hero';
 import HeroPostSection from './components/HeroPostSection';
 import HeroStatsSection from './components/HeroStatsSection';
 import AboutSection from './components/AboutSection';

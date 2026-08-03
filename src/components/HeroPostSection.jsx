@@ -1,49 +1,146 @@
-const heroHighlights = [
-  'Limited spaces available for 2026/2027',
-  'A calm, secure day school experience',
-  'Individual attention from expert caregivers',
-];
+const availableFiles = import.meta.glob('../Public/downloaded files/**/*.*', { eager: true, as: 'url' });
+
+import { useMemo, useState } from 'react';
 
 export default function HeroPostSection() {
-  return (
-    <section id="admissions-highlights" className="section hero-post-section" data-aos="fade-up">
-      <div className="hero-post-shell">
-        <div className="hero-post-copy" data-aos="fade-up" data-aos-delay="80">
-          <p className="eyebrow">Admissions now open</p>
-          <h2>Secure your child’s place at Flourish Tender Care today.</h2>
-          <p>
-            Our school offers a gentle, values-led environment where children grow academically, socially, and emotionally.
-          </p>
-          <ul className="hero-post-list">
-            {heroHighlights.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-          <div className="hero-post-actions">
-            <a className="btn btn-primary" href="https://portal.flourishtendercare.com.ng/apply" target="_blank" rel="noreferrer">
-              Apply via Portal
-            </a>
-            <a className="btn btn-secondary" href="#contact">
-              Request Prospectus
-            </a>
-          </div>
-        </div>
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
-        <div className="hero-post-card" data-aos="fade-up" data-aos-delay="120">
-          <p className="hero-card-label">Welcome Address</p>
-          <h3>We create a joyful path for every learner.</h3>
-          <p className="hero-card-subtitle">
-            Flourish Tender Care is built around safety, warm relationships, and meaningful learning each day.
-          </p>
-          <div className="hero-post-card-meta">
-            <span>Founder message</span>
-            <strong>Mrs. Abiola Johnson</strong>
+  const downloads = useMemo(() => {
+    return Object.entries(availableFiles)
+      .map(([path, url]) => {
+        const name = path.split('/').pop();
+        const extension = name?.split('.').pop()?.toLowerCase();
+        return {
+          name,
+          url,
+          type: extension === 'pdf' ? 'pdf' : 'image',
+        };
+      })
+      .sort((a, b) => {
+        if (a.type === b.type) {
+          return a.name.localeCompare(b.name);
+        }
+        return a.type.localeCompare(b.type);
+      });
+  }, []);
+
+  const pdfFiles = downloads.filter((file) => file.type === 'pdf');
+  const imageFiles = downloads.filter((file) => file.type === 'image');
+
+  const openDownloads = () => {
+    setSelectedFile(downloads[0] ?? null);
+    setDownloadModalOpen(true);
+  };
+
+  return (
+    <>
+      <section className="section hero-admissions-banner" data-aos="fade-up">
+        <div className="hero-admissions-shell">
+          <div className="hero-admissions-copy">
+            <p className="eyebrow">Admissions in progress — 2026/2027</p>
+            <h2>Apply for the 2026/2027 Academic Session</h2>
+            <p>
+              Admission into Flourish Tender Care is now open. Entrance examinations are scheduled for 15th, 20th and 27th March 2025.
+            </p>
+            <div className="hero-admissions-actions">
+              <button type="button" className="btn btn-secondary" onClick={openDownloads}>
+                Download application form
+              </button>
+              <button type="button" className="btn btn-secondary" onClick={openDownloads}>
+                Download Fees Invoice for New Student
+              </button>
+              <a className="btn btn-primary" href="https://portal.flourishtendercare.com.ng/apply" target="_blank" rel="noreferrer">
+                Register online
+              </a>
+            </div>
           </div>
-          <a className="btn btn-secondary" href="#about">
-            Read the welcome message
-          </a>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {downloadModalOpen && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={() => setDownloadModalOpen(false)}>
+          <div className="modal-card modal-full" onClick={(event) => event.stopPropagation()}>
+            <div className="modal-body">
+              <div className="modal-header">
+                <div>
+                  <h3>Download Student Resources</h3>
+                  <p>Select a file to preview and then download it.</p>
+                </div>
+                <button type="button" className="modal-close" onClick={() => setDownloadModalOpen(false)} aria-label="Close modal">
+                  ×
+                </button>
+              </div>
+
+              <div className="download-preview">
+                {selectedFile ? (
+                  selectedFile.type === 'image' ? (
+                    <img src={selectedFile.url} alt={selectedFile.name} />
+                  ) : (
+                    <iframe
+                      title={selectedFile.name}
+                      src={selectedFile.url}
+                      sandbox="allow-same-origin allow-scripts"
+                    />
+                  )
+                ) : (
+                  <div className="preview-empty">
+                    <strong>No file selected.</strong> Click any item below to see a quick preview.
+                  </div>
+                )}
+              </div>
+
+              {pdfFiles.length > 0 && (
+                <div className="download-group">
+                  <h4>PDF files</h4>
+                  <ul className="download-list">
+                    {pdfFiles.map((file) => (
+                      <li
+                        key={file.name}
+                        className={`download-item ${selectedFile?.url === file.url ? 'active-download-item' : ''}`}
+                      >
+                        <button type="button" className="download-select" onClick={() => setSelectedFile(file)}>
+                          {file.name}
+                        </button>
+                        <a className="btn btn-ghost" href={file.url} download>
+                          Download
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {imageFiles.length > 0 && (
+                <div className="download-group">
+                  <h4>Image files</h4>
+                  <ul className="download-list">
+                    {imageFiles.map((file) => (
+                      <li
+                        key={file.name}
+                        className={`download-item ${selectedFile?.url === file.url ? 'active-download-item' : ''}`}
+                      >
+                        <button type="button" className="download-select" onClick={() => setSelectedFile(file)}>
+                          {file.name}
+                        </button>
+                        <a className="btn btn-ghost" href={file.url} download>
+                          Download
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button type="button" className="btn btn-secondary" onClick={() => setDownloadModalOpen(false)}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
