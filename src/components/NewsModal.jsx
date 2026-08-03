@@ -1,37 +1,37 @@
 import { useEffect, useState } from 'react';
-import CrecheImage from '../Public/downloaded files/image/Creche.png';
-import NurseryOneImage from '../Public/downloaded files/image/Nursery 1.png';
-import PlaygroupTwoImage from '../Public/downloaded files/image/playgroup 2.png';
-import PrimarySectionsImage from '../Public/downloaded files/image/primarySections.png';
+import HeroCreche from '../Public/hero/Creche.jpg.jpeg';
+import HeroPic4 from '../Public/hero/hero pic4.jpeg';
+import HeroPic1 from '../Public/hero/heropic1.jpeg';
+import HeroPic5 from '../Public/hero/heropic5.jpeg';
 
 const newsUpdates = [
   {
-    title: 'Creche learning spaces ready for young learners',
-    description: 'Our creche classrooms are designed to be safe, inviting, and full of age-appropriate learning corners for early discovery.',
-    image: CrecheImage,
-    alt: 'Caring creche classroom environment for toddlers',
-    footer: 'Creche updates and early years learning news.',
+    title: 'Creche classroom launch event',
+    description: 'Our creche spaces welcome little learners with warm classrooms, playful learning corners, and caring staff.',
+    image: HeroCreche,
+    alt: 'Creche classroom setup with colourful learning areas',
+    footer: 'Creche admissions and early years news.',
   },
   {
-    title: 'Summer lessons and learning camps',
-    description: 'Explore our summer programme designed to keep curious young minds active, creative, and growing over the break.',
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
-    alt: 'Children doing summer learning activities outdoors',
-    footer: 'Creative lessons, small-group learning, and summer play.',
+    title: 'Active learning day in school',
+    description: 'Students enjoyed a full day of hands-on lessons, teamwork, and creative activities across our learning spaces.',
+    image: HeroPic4,
+    alt: 'Children engaged in a classroom activity',
+    footer: 'School events and student experiences.',
   },
   {
-    title: 'Playgroup discovery days bring joy and friendship',
-    description: 'Our playgroup team supports children through playful learning, social connections, and creative experiences every day.',
-    image: PlaygroupTwoImage,
-    alt: 'Young children playing and learning together in playgroup',
-    footer: 'Playgroup highlights, activities, and stories.',
+    title: 'Nursery programme intake now open',
+    description: 'Our nurturing nursery programme is open for enrollment, offering early literacy, social play, and gentle routines.',
+    image: HeroPic1,
+    alt: 'Nursery children learning together',
+    footer: 'Nursery admissions and programme updates.',
   },
   {
-    title: 'Primary sections ready for vibrant learning',
-    description: 'Explore our colourful primary spaces where learners build literacy, creativity, and confidence through guided activities.',
-    image: PrimarySectionsImage,
-    alt: 'Primary section classroom and activity zones',
-    footer: 'Primary school news and classroom experiences.',
+    title: 'Primary class showcase',
+    description: 'See how our primary sections build confidence through classroom discovery, reading, and group projects.',
+    image: HeroPic5,
+    alt: 'Primary school children in a classroom setting',
+    footer: 'Primary school news and activities.',
   },
 ];
 
