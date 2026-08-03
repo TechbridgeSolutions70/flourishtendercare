@@ -6,6 +6,7 @@ import HeroStatsSection from './components/HeroStatsSection';
 import AboutSection from './components/AboutSection';
 import ProgramsSection from './components/ProgramsSection';
 import NewsSection from './components/NewsSection';
+import TestimonialSection from './components/TestimonialSection';
 import FaqSection from './components/FaqSection';
 import ContactSection from './components/ContactSection';
 import AdmissionsSection from './components/AdmissionsSection';
@@ -30,6 +31,19 @@ function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [showNewsModal, setShowNewsModal] = useState(false);
+  const isSurveyRoute = () => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname.replace(/\/+$/, '');
+    const search = new URLSearchParams(window.location.search);
+    return ['/existing_parent', '/prospective_parent'].includes(path) || search.get('survey') === '1';
+  };
+  const isTestimonialRoute = () => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname.replace(/\/+$/, '');
+    return path === '/testimonial' || path === '/testimonials';
+  };
+  const [surveyPageActive, setSurveyPageActive] = useState(() => isSurveyRoute());
+  const [testimonialPageActive, setTestimonialPageActive] = useState(() => isTestimonialRoute());
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -112,19 +126,54 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const syncRoute = () => {
+      setSurveyPageActive(isSurveyRoute());
+      setTestimonialPageActive(isTestimonialRoute());
+    };
+
+    syncRoute();
+    window.addEventListener('popstate', syncRoute);
+    return () => window.removeEventListener('popstate', syncRoute);
+  }, []);
+
+  useEffect(() => {
     const timer = window.setTimeout(() => setPageReady(true), 900);
     return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
+    if (surveyPageActive || testimonialPageActive) return undefined;
+
     const openModal = window.setTimeout(() => setShowNewsModal(true), 1200);
     return () => window.clearTimeout(openModal);
-  }, []);
+  }, [surveyPageActive, testimonialPageActive]);
 
   const chooseTheme = (nextTheme) => {
     setTheme(nextTheme);
     setShowThemePrompt(false);
   }; 
+
+  if (testimonialPageActive) {
+    return (
+      <div className="page-shell testimonial-page-shell">
+        <NavBar />
+        <main className="testimonial-page-main">
+          <TestimonialSection />
+        </main>
+      </div>
+    );
+  }
+
+  if (surveyPageActive) {
+    return (
+      <div className="page-shell survey-page-shell">
+        <NavBar />
+        <main className="survey-page-main">
+          <HeroPostSection surveyPageMode />
+        </main>
+      </div>
+    );
+  }
 
   if (!pageReady) {
     return (
@@ -246,6 +295,7 @@ function App() {
         <AboutSection />
         <ProgramsSection />
         <NewsSection />
+        <TestimonialSection />
         <FaqSection />
         <AdmissionsSection />
         <ContactSection />

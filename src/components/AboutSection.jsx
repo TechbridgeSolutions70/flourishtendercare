@@ -3,17 +3,17 @@ import { useState } from 'react';
 const aboutSlides = [
   {
     title: 'Our Mission',
-    summary: 'To nurture every child’s potential through joyful learning, strong values, and compassionate guidance.',
+    summary: 'At Flourish TenderCare School, we nurture every child’s potential and character through joyful, inquiry-driven learning, strong values, and diverse opportunities that build creativity and leadership for the 21st century.',
     details: 'We create a secure and stimulating environment where children grow in confidence, curiosity, and character.',
   },
   {
     title: 'Our Vision',
-    summary: 'To raise confident, capable, and future-ready learners who make meaningful contributions to the world.',
+    summary: 'To discover and activate greatness in every child, raising communities of intentional learners nurtured for global relevance.',
     details: 'Our vision is to inspire lifelong learning through excellence, creativity, and purposeful care at every stage.',
   },
   {
     title: 'Core Values',
-    summary: 'Godliness, excellence, creativity, care, and family partnership guide all that we do.',
+    summary: 'GODLINESS: Build positive character in every pupil. EXCELLENCE: Striving for outstanding performance in all endeavours. VALUE-ORIENTED: Embodying values that shape character and actions. CREATIVITY: Encouraging innovation and imagination. CHILD-CENTEREDNESS: Prioritising the needs and well-being of every child. FAMILY CENTEREDNESS: Nurturing strong family bonds and partnerships. FUN: Creating a joyful and engaging learning environment.',
     details: 'These values shape our daily interactions, our teaching, and the warm community we build around every child.',
   },
 ];
@@ -24,10 +24,13 @@ function AboutSection() {
   return (
     <section id="about" className="section about-section" data-aos="fade-up">
       <div className="about-intro" data-aos="fade-up" data-aos-delay="80">
-        <p className="eyebrow">About the school</p>
-        <h2>A caring school community grounded in purpose and warmth.</h2>
+        <p className="eyebrow">About Us</p>
+        <h2>Flourish Tender Care passionately nurtures children in Lagos, Nigeria.</h2>
         <p>
-          Flourish Tender Care is a nurturing environment where children feel secure, inspired, and ready for every next step.
+          Our caring and supportive environment helps children grow into well-rounded, confident, and academically excellent students.
+        </p>
+        <p>
+          We believe in fostering a love for learning and empowering each child to reach their full potential. Join us in cultivating a brighter future for our children, where they can flourish and thrive in their educational journey.
         </p>
       </div>
 
