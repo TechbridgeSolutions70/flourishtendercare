@@ -1,3 +1,5 @@
+import directorPhoto from '../Public/peopel/schmummy1.jpeg';
+
 export default function HeroStatsSection() {
   return (
     <section className="section welcome-address-section" data-aos="fade-up">
@@ -15,9 +17,11 @@ export default function HeroStatsSection() {
           </p>
 
           <div className="welcome-profile-card">
-            <div className="welcome-profile-avatar">EO</div>
+            <div className="welcome-profile-avatar">
+              <img src={directorPhoto} alt="Coach Roseline Iraoya" />
+            </div>
             <div className="welcome-profile-copy">
-              <h3>Mrs. Edna Obaze</h3>
+              <h3>Coach Roseline Iraoya</h3>
               <span>Executive Director, Flourish Tender Care</span>
             </div>
           </div>
