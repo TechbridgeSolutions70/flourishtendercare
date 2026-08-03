@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
+import CrecheImage from '../Public/downloaded files/image/Creche.png';
+import NurseryOneImage from '../Public/downloaded files/image/Nursery 1.png';
+import PlaygroupTwoImage from '../Public/downloaded files/image/playgroup 2.png';
+import PrimarySectionsImage from '../Public/downloaded files/image/primarySections.png';
 
 const newsUpdates = [
   {
-    title: 'Admissions 2026/2027 now open',
-    description: 'Applications are open for the new academic year. Submit your details early to secure a place at Flourish Tender Care.',
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80',
-    alt: 'Children in a bright classroom during school activities',
-    footer: 'Admission dates, registration, and placement details.',
+    title: 'Creche learning spaces ready for young learners',
+    description: 'Our creche classrooms are designed to be safe, inviting, and full of age-appropriate learning corners for early discovery.',
+    image: CrecheImage,
+    alt: 'Caring creche classroom environment for toddlers',
+    footer: 'Creche updates and early years learning news.',
   },
   {
     title: 'Summer lessons and learning camps',
@@ -16,11 +20,18 @@ const newsUpdates = [
     footer: 'Creative lessons, small-group learning, and summer play.',
   },
   {
-    title: 'News roundup: School events ahead',
-    description: 'See the latest from Flourish Tender Care, including open house dates, parent orientation, and student achievement stories.',
-    image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1200&q=80',
-    alt: 'A smiling school community gathering at an event',
-    footer: 'Upcoming events and community celebrations.',
+    title: 'Playgroup discovery days bring joy and friendship',
+    description: 'Our playgroup team supports children through playful learning, social connections, and creative experiences every day.',
+    image: PlaygroupTwoImage,
+    alt: 'Young children playing and learning together in playgroup',
+    footer: 'Playgroup highlights, activities, and stories.',
+  },
+  {
+    title: 'Primary sections ready for vibrant learning',
+    description: 'Explore our colourful primary spaces where learners build literacy, creativity, and confidence through guided activities.',
+    image: PrimarySectionsImage,
+    alt: 'Primary section classroom and activity zones',
+    footer: 'Primary school news and classroom experiences.',
   },
 ];
 
