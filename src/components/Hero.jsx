@@ -1,123 +1,124 @@
-import { useEffect, useState } from 'react';
-import logo from '../Public/logo/logo1.jpeg';
+import { useEffect, useRef, useState } from 'react';
 
 const heroSlides = [
   {
-    caption: 'A joyful, future-focused school',
-    title: 'Where learning meets love, curiosity and confidence.',
+    caption: 'School compound & campus life',
+    title: 'Welcome to our campus — where learning begins with a safe, inspiring environment.',
     description:
-      'We create a warm, child-centered environment where every learner is inspired to thrive academically, socially, and emotionally.',
+      'Tour our gardens, classrooms and activity spaces, designed to support every child’s growth in a caring, confident way.',
     backgroundImage:
       'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1600&q=80',
-    featuredImage:
-      'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=900&q=80',
-    cardSubtitle: 'Play-based learning, powerful growth, and calm support.',
-    cardPoints: ['Play-based exploration', 'Creative thinking practice', 'Hands-on learning labs'],
+    ctaPrimary: 'About the School',
+    ctaPrimaryHref: '#about',
+    ctaSecondary: 'Apply Now',
+    ctaSecondaryHref: 'https://portal.flourishtendercare.com.ng/apply',
   },
   {
-    caption: 'Safe, inspiring classrooms for every child',
-    title: 'Growing creative thinkers with kindness and curiosity.',
+    caption: 'Curiosity in every corner',
+    title: 'Playful discovery that builds confidence in Nursery.',
     description:
-      'Our curriculum blends exploration, imagination, and social-emotional learning for lifelong growth.',
+      'Stories, movement, and hands-on activities turn learning into something exciting and memorable.',
     backgroundImage:
       'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80',
-    featuredImage:
-      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=900&q=80',
-    cardSubtitle: 'A caring community where each student is seen and supported.',
-    cardPoints: ['Gentle guidance from teachers', 'Strong family connection', 'A safe, joyful environment'],
+    highlights: ['Story time', 'Early literacy', 'Social confidence'],
+    ctaPrimary: 'Enroll in Nursery',
+    ctaPrimaryHref: 'https://portal.flourishtendercare.com.ng/apply',
+    ctaSecondary: 'Request Nursery Brochure',
+    ctaSecondaryHref: '#contact',
   },
   {
-    caption: 'Playful learning, meaningful growth',
-    title: 'Hands-on discovery and joyful learning every day.',
+    caption: 'Ready for the next step',
+    title: 'Primary-ready learners with character and purpose.',
     description:
-      'Students build confidence through purposeful play, strong values, and warm relationships.',
+      'We blend academic strength with values, independence, and joyful challenge for lasting growth.',
     backgroundImage:
       'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1600&q=80',
-    featuredImage:
-      'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=900&q=80',
-    cardSubtitle: 'Confidence, curiosity, and character through everyday discovery.',
-    cardPoints: ['Character development', 'Social-emotional support', 'Every child feels valued'],
+    highlights: ['Leadership', 'Values', 'Academic strength'],
+    ctaPrimary: 'Apply for Primary',
+    ctaPrimaryHref: 'https://portal.flourishtendercare.com.ng/apply',
+    ctaSecondary: 'Book a School Tour',
+    ctaSecondaryHref: '#contact',
   },
 ];
 
 function Hero() {
   const [current, setCurrent] = useState(0);
+  const progressRef = useRef(null);
+  const intervalMs = 6500;
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrent((value) => (value + 1) % heroSlides.length);
-    }, 6500);
-
+    const tick = () => setCurrent((value) => (value + 1) % heroSlides.length);
+    const interval = setInterval(tick, intervalMs);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const el = progressRef.current;
+    if (!el) return undefined;
+    el.style.animation = 'none';
+    // force reflow to restart the progress animation
+    // eslint-disable-next-line no-unused-expressions
+    el.offsetWidth;
+    el.style.animation = `progress ${intervalMs}ms linear forwards`;
+    return undefined;
+  }, [current]);
 
   const slide = heroSlides[current];
 
   const handlePrev = () => setCurrent((value) => (value - 1 + heroSlides.length) % heroSlides.length);
   const handleNext = () => setCurrent((value) => (value + 1) % heroSlides.length);
+  const goTo = (index) => setCurrent(index);
+
+ 
 
   return (
     <header className="hero hero-slider" data-aos="fade">
       <div className="hero-background" style={{ backgroundImage: `url(${slide.backgroundImage})` }} />
+      <div className="hero-marquee" aria-hidden>
+        <div className="marquee-inner">ADMISSIONS OPEN — Apply for 2026/2027 • Limited spaces available • Apply now</div>
+      </div>
+      <div className="hero-glow hero-glow-one" />
+      <div className="hero-glow hero-glow-two" />
 
-      <nav className="topbar">
-        <div className="brand">
-          <img src={logo} alt="Flourish Tender Care logo" className="brand-logo" />
-          <div>
-            <h1>Flourish Tender Care</h1>
-            <p>Nurturing minds, shaping futures</p>
-          </div>
-        </div>
-        <div className="nav-links">
-          <a href="#about">About</a>
-          <a href="#programs">Programs</a>
-          <a href="#events">Events</a>
-          <a href="#contact">Contact</a>
-        </div>
-      </nav>
+      
 
       <div className="hero-content">
         <div className="hero-slide">
-          <div className="hero-copy-panel" key={slide.caption} data-aos="fade-right" data-aos-delay="120">
+          <div className="hero-copy-panel" key={slide.caption} data-aos="fade-up" data-aos-delay="120">
             <div className="hero-copy-inner">
               <div className="hero-copy-animated">
+                <p className="hero-badge">Where Every Child Discovers Their Potential</p>
                 <p className="eyebrow">{slide.caption}</p>
-                <h2>{slide.title}</h2>
+                <h2 className="hero-title">{slide.title}</h2>
                 <p className="hero-copy-text">{slide.description}</p>
                 <div className="hero-actions">
-                  <a className="btn btn-primary" href="#contact">
-                    Apply for admission
-                  </a>
-                  <a className="btn btn-secondary" href="#about">
-                    Discover more
-                  </a>
+                  <a className="btn btn-primary" href={slide.ctaPrimaryHref}>{slide.ctaPrimary}</a>
+                  <a className="btn btn-secondary" href={slide.ctaSecondaryHref}>{slide.ctaSecondary}</a>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div className="hero-card" key={`${slide.caption}-card`} data-aos="fade-left" data-aos-delay="220">
-            <div className="hero-card-animated">
-              <p className="hero-card-label">Why parents choose us</p>
-              <h3>What families love</h3>
-              <p className="hero-card-subtitle">{slide.cardSubtitle}</p>
-              <ul>
-                {slide.cardPoints.map((point) => (
-                  <li key={point}>{point}</li>
-                ))}
-              </ul>
             </div>
           </div>
         </div>
       </div>
 
-      <button className="hero-control hero-control-left" type="button" onClick={handlePrev} aria-label="Previous slide">
-        ‹
-      </button>
-
-      <button className="hero-control hero-control-right" type="button" onClick={handleNext} aria-label="Next slide">
-        ›
-      </button>
+      <div className="hero-thumbs" aria-hidden>
+        <div className="thumbs-list">
+          {heroSlides.map((slideItem, index) => (
+            <button
+              key={index}
+              type="button"
+              className={`thumb ${index === current ? 'active' : ''}`}
+              onClick={() => goTo(index)}
+              aria-label={`Go to slide ${index + 1}`}
+            >
+              <img src={slideItem.backgroundImage} alt="" />
+            </button>
+          ))}
+        </div>
+        <div className="thumb-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={(current / heroSlides.length) * 100}>
+          <div ref={progressRef} className="thumb-progress-inner" />
+        </div>
+      </div>
 
       <div className="hero-pagination">
         {heroSlides.map((_, index) => (

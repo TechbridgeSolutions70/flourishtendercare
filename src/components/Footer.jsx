@@ -2,12 +2,12 @@ function Footer() {
   return (
     <footer id="contact" className="footer" data-aos="fade-up">
       <div>
-        <h3>Get in touch</h3>
+        <h3>Visit our school</h3>
         <p>#5 Muyibat Ashani Street, Peaceville Estate, Badore, Ajah, Lagos</p>
         <p>Email: info@flourishtendercare.com.ng</p>
         <p>Phone: (+234) 803 738 3820</p>
       </div>
-      <a className="btn btn-primary" href="mailto:info@flourishtendercare.com.ng">Contact us</a>
+      <a className="btn btn-primary" href="mailto:info@flourishtendercare.com.ng">Schedule a visit</a>
     </footer>
   );
 }
