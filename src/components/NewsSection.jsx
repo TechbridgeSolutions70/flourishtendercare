@@ -28,6 +28,7 @@ const galleryItems = [
     description: 'Every child feels seen, supported, and celebrated as part of a warm and connected school family.',
     image: newsImageUrls[2] || 'https://via.placeholder.com/1200x800.png?text=News+Image+3',
     alt: 'A smiling school community gathering',
+    focusTop: true,
   },
 ];
 
@@ -58,7 +59,7 @@ function NewsSection() {
           <div className="gallery-track" style={{ transform: `translateX(-${activeIndex * 100}%)` }}>
             {galleryItems.map((item) => (
               <article key={item.title} className="gallery-slide">
-                <img src={item.image} alt={item.alt} />
+                <img src={item.image} alt={item.alt} className={item.focusTop ? 'focus-top' : ''} />
                 <div className="gallery-copy">
                   <p className="eyebrow">Featured moment</p>
                   <h3>{item.title}</h3>
