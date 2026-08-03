@@ -696,8 +696,15 @@ main > .section:first-child {
   text-transform: uppercase;
   letter-spacing: 0.35em;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--text-main);
   margin-bottom: 0.9rem;
+}
+
+/* Keep eyebrow white only for hero/banner components */
+.hero-copy-animated > .eyebrow,
+.hero-admissions-copy .eyebrow,
+.hero-post-section .eyebrow {
+  color: #fff;
 }
 .hero-copy-panel h2 {
   font-size: clamp(2rem, 2.8vw, 2.9rem);
