@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import HeroCreche from '../Public/hero/Creche.jpg.jpeg';
-import HeroPic4 from '../Public/hero/hero pic4.jpeg';
-import HeroPicOne from '../Public/hero/heropic1.jpeg';
-import HeroPic5 from '../Public/hero/heropic5.jpeg';
+import HeroCreche from '../Public/news/Creche.jpg.jpeg';
+import HeroPic4 from '../Public/news/hero pic4.jpeg';
+import HeroPicOne from '../Public/news/heropic1.jpeg';
+import HeroPic5 from '../Public/news/heropic5.jpeg';
 
 const newsUpdates = [
   {
