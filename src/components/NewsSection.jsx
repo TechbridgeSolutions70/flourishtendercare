@@ -4,20 +4,20 @@ const galleryItems = [
   {
     title: 'Playful Learning in Action',
     description: 'Bright spaces, warm teachers, and joyful moments that make each day feel exciting and meaningful.',
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80',
-    alt: 'Children learning in a bright classroom setting',
+    image: 'https://via.placeholder.com/1200x800.png?text=News+Image+1',
+    alt: 'Placeholder image for playful learning in action',
   },
   {
     title: 'Growing Through Discovery',
     description: 'Our children explore, create, and build confidence through hands-on activities and guided curiosity.',
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
-    alt: 'Children exploring creative learning materials',
+    image: 'https://via.placeholder.com/1200x800.png?text=News+Image+2',
+    alt: 'Placeholder image for growing through discovery',
   },
   {
     title: 'A Community That Cares',
     description: 'Every child feels seen, supported, and celebrated as part of a warm and connected school family.',
-    image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1200&q=80',
-    alt: 'A smiling school community gathering',
+    image: 'https://via.placeholder.com/1200x800.png?text=News+Image+3',
+    alt: 'Placeholder image for a community that cares',
   },
 ];
 
