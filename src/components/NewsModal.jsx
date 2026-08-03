@@ -61,7 +61,7 @@ export default function NewsModal({ visible, onClose }) {
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
-      <div className="modal-card news-modal-card" onClick={(event) => event.stopPropagation()}>
+      <div className="modal-card news-modal-card news-modal-card--compact" onClick={(event) => event.stopPropagation()}>
         <div className="modal-body">
           <div className="modal-header">
             <div>
