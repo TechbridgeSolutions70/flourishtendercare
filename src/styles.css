@@ -1042,8 +1042,8 @@ main > .section:first-child {
 }
 .welcome-address-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
-  gap: 32px;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.9fr);
+  gap: 28px;
   align-items: center;
   min-width: 0;
 }
@@ -1110,6 +1110,8 @@ main > .section:first-child {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
+  width: 100%;
 }
 .video-frame {
   width: 100%;
@@ -1183,8 +1185,10 @@ main > .section:first-child {
   }
   .welcome-copy,
   .welcome-profile-card,
-  .welcome-video {
+  .welcome-video,
+  .video-frame {
     min-width: 0;
+    width: 100%;
   }
   .welcome-profile-card {
     grid-template-columns: 1fr;
