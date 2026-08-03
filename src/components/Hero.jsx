@@ -34,7 +34,7 @@ const heroSlides = heroImageUrls.length
         title: titles[index % titles.length],
         description: descriptions[index % descriptions.length],
         backgroundImage: imageUrl,
-        backgroundPosition: imageUrl.toLowerCase().includes('heropic1') ? 'center 10%' : 'center 35%',
+        backgroundPosition: imageUrl.toLowerCase().endsWith('heropic1.jpeg') ? 'center 10%' : 'center 35%',
         ctaPrimary: 'Apply Now',
         ctaPrimaryHref: 'https://portal.flourishtendercare.com.ng/apply',
         ctaSecondary: 'Read More',
@@ -100,8 +100,6 @@ function Hero() {
     const el = progressRef.current;
     if (!el) return undefined;
     el.style.animation = 'none';
-    // force reflow to restart the progress animation
-    // eslint-disable-next-line no-unused-expressions
     el.offsetWidth;
     el.style.animation = `progress ${intervalMs}ms linear forwards`;
     return undefined;

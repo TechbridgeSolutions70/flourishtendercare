@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import HeroCreche from '../Public/hero/Creche.jpg.jpeg';
 import HeroPic4 from '../Public/hero/hero pic4.jpeg';
-import HeroPic1 from '../Public/hero/heropic1.jpeg';
+import HeroPicOne from '../Public/hero/heropic1.jpeg';
 import HeroPic5 from '../Public/hero/heropic5.jpeg';
 
 const newsUpdates = [
@@ -22,7 +22,7 @@ const newsUpdates = [
   {
     title: 'Nursery programme intake now open',
     description: 'Our nurturing nursery programme is open for enrollment, offering early literacy, social play, and gentle routines.',
-    image: HeroPic1,
+    image: HeroPicOne,
     alt: 'Nursery children learning together',
     footer: 'Nursery admissions and programme updates.',
   },
