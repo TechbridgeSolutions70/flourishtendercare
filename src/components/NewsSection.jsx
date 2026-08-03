@@ -1,23 +1,33 @@
 import { useEffect, useState } from 'react';
 
+const newsImageFiles = import.meta.glob('../Public/news/*.{jpg,jpeg,png,webp}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
+
+const newsImageUrls = Object.entries(newsImageFiles)
+  .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
+  .map(([, url]) => url);
+
 const galleryItems = [
   {
     title: 'Playful Learning in Action',
     description: 'Bright spaces, warm teachers, and joyful moments that make each day feel exciting and meaningful.',
-    image: 'https://via.placeholder.com/1200x800.png?text=News+Image+1',
-    alt: 'Placeholder image for playful learning in action',
+    image: newsImageUrls[0] || 'https://via.placeholder.com/1200x800.png?text=News+Image+1',
+    alt: 'Children learning in a bright classroom setting',
   },
   {
     title: 'Growing Through Discovery',
     description: 'Our children explore, create, and build confidence through hands-on activities and guided curiosity.',
-    image: 'https://via.placeholder.com/1200x800.png?text=News+Image+2',
-    alt: 'Placeholder image for growing through discovery',
+    image: newsImageUrls[1] || 'https://via.placeholder.com/1200x800.png?text=News+Image+2',
+    alt: 'Children exploring creative learning materials',
   },
   {
     title: 'A Community That Cares',
     description: 'Every child feels seen, supported, and celebrated as part of a warm and connected school family.',
-    image: 'https://via.placeholder.com/1200x800.png?text=News+Image+3',
-    alt: 'Placeholder image for a community that cares',
+    image: newsImageUrls[2] || 'https://via.placeholder.com/1200x800.png?text=News+Image+3',
+    alt: 'A smiling school community gathering',
   },
 ];
 
