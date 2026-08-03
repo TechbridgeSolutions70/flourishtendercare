@@ -42,6 +42,21 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Ensure eyebrow and testimonial headings are readable in light mode */
+:root:not([data-theme='dark']) .testimonial-section .eyebrow,
+:root:not([data-theme='dark']) .testimonial-form-shell .eyebrow,
+:root:not([data-theme='dark']) .testimonial-modal-content .eyebrow,
+:root:not([data-theme='dark']) .modal-card .eyebrow {
+  color: var(--accent-strong);
+  background: transparent;
+}
+
+:root:not([data-theme='dark']) .testimonial-section .section-heading h2,
+:root:not([data-theme='dark']) .testimonial-form-shell h2,
+:root:not([data-theme='dark']) .modal-card h3 {
+  color: var(--text-main);
+}
+
 :root[data-theme='dark'] {
   color-scheme: dark;
   --bg-app: linear-gradient(135deg, #07171d 0%, #072a36 100%);
