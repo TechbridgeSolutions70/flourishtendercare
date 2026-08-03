@@ -190,7 +190,7 @@ export default function HeroPostSection({ surveyPageMode = false }) {
               <button type="button" className="btn btn-secondary" onClick={() => openSurveyModal('existing-parents')}>
                 Take a survey
               </button>
-              <!-- Submit testimonial button removed per request -->
+              
             </div>
           </div>
         </div>
