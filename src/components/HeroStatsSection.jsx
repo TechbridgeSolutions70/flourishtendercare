@@ -32,7 +32,7 @@ export default function HeroStatsSection() {
             <div className="video-badge">WELCOME ADDRESS</div>
             <iframe
               title="Welcome address video"
-              src="https://www.youtube.com/embed/ScMzIvxBSi4"
+              src="https://www.youtube.com/embed/-vOSeWpU1Xs"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
