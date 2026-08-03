@@ -2148,6 +2148,8 @@ main > .section:first-child {
   border-radius: 24px;
   padding: 18px;
   box-shadow: 0 18px 40px rgba(2,6,23,0.32);
+}
+
 .modal-card img {
   width: 100%;
   height: 100%;
@@ -3102,4 +3104,120 @@ main > .section:first-child {
 }
 .scroll-top-button:hover {
   transform: translateY(-2px);
+}
+
+/* Consolidated modal & floating-button overrides
+   These rules normalize modal/backdrop/card/body/close and floating launcher/panel
+   to prevent scattered, conflicting definitions elsewhere in the file. */
+.app-modal-backdrop,
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(6, 12, 28, 0.72);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.modal-card,
+.news-modal-card,
+.survey-modal-card,
+.testimonial-modal-card {
+  width: min(96vw, 760px);
+  max-width: 760px;
+  max-height: calc(100vh - 80px);
+  background: var(--modal-surface);
+  border: 1px solid var(--modal-border);
+  color: var(--text-main);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(2,6,23,0.24);
+  display: grid;
+  grid-template-columns: 1fr;
+  position: relative;
+}
+.modal-body {
+  padding: 20px;
+  display: grid;
+  gap: 18px;
+  align-content: stretch;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  color: var(--text-main);
+}
+.modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: transparent;
+}
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: var(--modal-close-bg);
+  color: var(--text-main);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: grid;
+  place-items: center;
+}
+.modal-close:focus {
+  outline: 3px solid rgba(77,208,200,0.18);
+}
+
+/* Floating launcher/panel */
+.floating-launcher {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1300;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+  color: white;
+  box-shadow: 0 16px 30px rgba(0,0,0,0.22);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.floating-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 88px;
+  z-index: 1299;
+  width: min(92vw, 320px);
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  box-shadow: 0 14px 36px rgba(8,20,40,0.12);
+  border: 1px solid var(--border-color);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.floating-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+/* Dark theme specifics */
+:root[data-theme='dark'] .modal-backdrop,
+:root[data-theme='dark'] .app-modal-backdrop {
+  background: rgba(2,6,12,0.72);
+}
+:root[data-theme='dark'] .modal-card,
+:root[data-theme='dark'] .news-modal-card,
+:root[data-theme='dark'] .survey-modal-card,
+:root[data-theme='dark'] .testimonial-modal-card,
+:root[data-theme='dark'] .floating-panel {
+  background: var(--modal-surface);
+  color: var(--text-main);
+  border-color: var(--modal-border);
 }
