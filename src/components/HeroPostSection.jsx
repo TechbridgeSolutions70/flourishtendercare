@@ -1,4 +1,8 @@
-const availableFiles = import.meta.glob('../Public/downloaded files/**/*.*', { eager: true, as: 'url' });
+const availableFiles = import.meta.glob('../Public/downloaded files/**/*.*', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
 import logo from '../Public/logo/logo1.jpeg';
 
 import { useEffect, useMemo, useRef, useState } from 'react';

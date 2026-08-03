@@ -10,6 +10,7 @@ import FaqSection from './components/FaqSection';
 import ContactSection from './components/ContactSection';
 import AdmissionsSection from './components/AdmissionsSection';
 import Footer from './components/Footer';
+import NewsModal from './components/NewsModal';
 
 function App() {
   const [theme, setTheme] = useState(() => {
@@ -28,6 +29,7 @@ function App() {
   const [panelOpen, setPanelOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [pageReady, setPageReady] = useState(false);
+  const [showNewsModal, setShowNewsModal] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -112,6 +114,11 @@ function App() {
   useEffect(() => {
     const timer = window.setTimeout(() => setPageReady(true), 900);
     return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const openModal = window.setTimeout(() => setShowNewsModal(true), 1200);
+    return () => window.clearTimeout(openModal);
   }, []);
 
   const chooseTheme = (nextTheme) => {
@@ -232,6 +239,7 @@ function App() {
         <ContactSection />
       </main>
       <Footer />
+      <NewsModal visible={showNewsModal} onClose={() => setShowNewsModal(false)} />
     </div>
   );
 }

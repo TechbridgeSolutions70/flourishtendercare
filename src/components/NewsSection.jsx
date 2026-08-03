@@ -37,9 +37,9 @@ function NewsSection() {
   const goToNext = () => setActiveIndex((value) => (value + 1) % galleryItems.length);
 
   return (
-    <section id="gallery" className="section gallery-section" data-aos="fade-up">
+    <section id="news" className="section gallery-section" data-aos="fade-up">
       <div className="section-heading" data-aos="fade-up" data-aos-delay="80">
-        <p className="eyebrow">Gallery highlights</p>
+        <p className="eyebrow">News and events</p>
         <h2>Moments that capture our school spirit</h2>
       </div>
 
