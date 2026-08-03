@@ -1066,6 +1066,8 @@ main > .section:first-child {
   grid-template-columns: auto 1fr;
   gap: 1rem;
   align-items: center;
+  min-width: 0;
+  width: 100%;
   background: #f8fbf8;
   border: 1px solid rgba(22, 78, 56, 0.08);
   border-radius: 24px;
@@ -1087,14 +1089,19 @@ main > .section:first-child {
   object-fit: cover;
   object-position: top center;
 }
+.welcome-profile-copy {
+  min-width: 0;
+}
 .welcome-profile-copy h3 {
   margin: 0;
   font-size: 1.05rem;
   color: #102f3c;
+  word-break: break-word;
 }
 .welcome-profile-copy span {
   font-size: 0.92rem;
   color: #5d6f7b;
+  word-break: break-word;
 }
 .welcome-video {
   display: flex;
@@ -1162,12 +1169,42 @@ main > .section:first-child {
 @media (max-width: 980px) {
   .welcome-address-shell {
     grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .welcome-profile-card {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .welcome-profile-avatar {
+    margin: 0 auto;
+  }
+  .welcome-profile-copy {
+    text-align: center;
+  }
+  .welcome-profile-card .welcome-profile-copy {
+    align-items: center;
   }
 }
 @media (max-width: 780px) {
   .hero-admissions-banner,
   .welcome-address-section {
     padding: 28px 20px 32px;
+  }
+  .welcome-address-shell {
+    gap: 20px;
+  }
+  .welcome-copy h2 {
+    font-size: clamp(1.8rem, 7vw, 2.4rem);
+  }
+  .welcome-profile-card {
+    padding: 18px;
+  }
+  .welcome-profile-copy h3 {
+    font-size: 1rem;
+  }
+  .welcome-profile-copy span {
+    font-size: 0.9rem;
   }
   .hero-admissions-actions {
     justify-content: center;
@@ -2307,8 +2344,11 @@ main > .section:first-child {
   }
   .modal-body {
     padding: 14px;
+    overflow-x: hidden;
   }
-  .survey-input-row {
+  .survey-input-row,
+  .survey-matrix-row,
+  .survey-option-list {
     grid-template-columns: 1fr;
   }
   .survey-section {
@@ -2320,10 +2360,15 @@ main > .section:first-child {
   }
   .survey-category-tabs {
     flex-wrap: wrap;
+    justify-content: stretch;
   }
   .survey-category-tab {
-    flex: 1 1 50%;
+    flex: 1 1 100%;
+    min-width: 0;
     text-align: center;
+  }
+  .survey-fieldset {
+    padding: 0.9rem 1rem;
   }
 }
 
