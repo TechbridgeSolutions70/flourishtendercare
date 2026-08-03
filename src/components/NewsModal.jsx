@@ -25,6 +25,7 @@ const newsUpdates = [
     image: HeroPicOne,
     alt: 'Nursery children learning together',
     footer: 'Nursery admissions and programme updates.',
+    focusTop: true,
   },
   {
     title: 'Primary class showcase',
@@ -74,7 +75,11 @@ export default function NewsModal({ visible, onClose }) {
           </div>
 
           <div className="news-modal-image-wrap">
-            <img src={activeItem.image} alt={activeItem.alt} className="news-modal-image" />
+            <img
+              src={activeItem.image}
+              alt={activeItem.alt}
+              className={`news-modal-image ${activeItem.focusTop ? 'focus-top' : ''}`}
+            />
           </div>
 
           <div className="news-update-actions news-update-actions--centered">

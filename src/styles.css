@@ -2249,6 +2249,9 @@ main > .section:first-child {
   object-fit: cover;
   display: block;
 }
+.focus-top {
+  object-position: top center;
+}
 .news-update-actions {
   display: flex;
   flex-wrap: wrap;
