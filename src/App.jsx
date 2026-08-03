@@ -161,7 +161,7 @@ function App() {
   }
 
   return (
-    <div className="page-shell">
+    <div className="page-shell" onClick={() => setPanelOpen(false)}>
       {showThemePrompt && (
         <div className="theme-choice-overlay" role="dialog" aria-modal="true">
           <div className="theme-choice-card">
@@ -183,17 +183,20 @@ function App() {
       <button
         className={`floating-launcher ${panelOpen ? 'active' : ''}`}
         type="button"
-        onClick={() => setPanelOpen((prev) => !prev)}
-        aria-label="Open theme settings"
+        onClick={(event) => {
+          event.stopPropagation();
+          setPanelOpen((prev) => !prev);
+        }}
+        aria-label="Open WhatsApp and theme settings"
       >
         <span>☁</span>
       </button>
 
-      <div className={`floating-panel ${panelOpen ? 'open' : ''}`}>
+      <div className={`floating-panel ${panelOpen ? 'open' : ''}`} onClick={(event) => event.stopPropagation()}>
         <div className="floating-panel-header">
           <div>
             <p className="panel-label">Quick access</p>
-            <h3>Whatapps</h3>
+            <h3>WhatsApp & Theme</h3>
           </div>
           <button className="panel-close" type="button" onClick={() => setPanelOpen(false)}>
             ×
@@ -201,7 +204,16 @@ function App() {
         </div>
 
         <div className="panel-block">
-          <p className="panel-copy">Switch the experience from bright to cinematic in one tap.</p>
+          <p className="panel-copy">Tap WhatsApp to chat directly, or switch the theme instantly.</p>
+          <a
+            className="btn btn-secondary"
+            href="https://api.whatsapp.com/send?phone=2348037383820&text=Hello%20Flourish%20Tender%20Care%2C%20I%20need%20help%20with%20admissions%20and%20school%20information."
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => setPanelOpen(false)}
+          >
+            Chat on WhatsApp
+          </a>
           <button
             className="theme-toggle"
             type="button"
