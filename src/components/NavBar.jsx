@@ -46,11 +46,6 @@ function NavBar() {
           <a href="#contact" onClick={() => setMobileOpen(false)}>Contact</a>
         </div>
 
-        <div className="topbar-actions">
-          <a className="btn btn-secondary" href="https://portal.flourishtendercare.com.ng/apply" target="_blank" rel="noreferrer">Apply</a>
-          <a className="btn btn-primary" href="https://portal.flourishtendercare.com.ng/signin" target="_blank" rel="noreferrer">Portal</a>
-        </div>
-
         <button
           className={`mobile-toggle ${mobileOpen ? 'open' : ''}`}
           type="button"
@@ -59,6 +54,11 @@ function NavBar() {
         >
           <span className="hamburger" />
         </button>
+
+        <div className="topbar-actions desktop-only">
+          <a className="btn btn-secondary" href="https://portal.flourishtendercare.com.ng/apply" target="_blank" rel="noreferrer">Apply</a>
+          <a className="btn btn-primary" href="https://portal.flourishtendercare.com.ng/signin" target="_blank" rel="noreferrer">Portal</a>
+        </div>
       </nav>
 
       <div className={`mobile-nav ${mobileOpen ? 'open' : ''}`} role="dialog" aria-hidden={!mobileOpen}>
@@ -66,6 +66,8 @@ function NavBar() {
         <a href="#programs" onClick={() => setMobileOpen(false)}>Programs</a>
         <a href="#news" onClick={() => setMobileOpen(false)}>News</a>
         <a href="#contact" onClick={() => setMobileOpen(false)}>Contact</a>
+        <a className="btn btn-secondary mobile-nav-btn" href="https://portal.flourishtendercare.com.ng/apply" target="_blank" rel="noreferrer" onClick={() => setMobileOpen(false)}>Apply</a>
+        <a className="btn btn-primary mobile-nav-btn" href="https://portal.flourishtendercare.com.ng/signin" target="_blank" rel="noreferrer" onClick={() => setMobileOpen(false)}>Portal</a>
       </div>
     </>
   );

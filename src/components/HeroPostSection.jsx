@@ -177,14 +177,6 @@ export default function HeroPostSection() {
                 Take a survey
               </button>
             </div>
-            <div className="survey-link-row">
-              <a className="survey-link" href="/existing_parent">
-                Existing Parents survey
-              </a>
-              <a className="survey-link" href="/prospective_parent">
-                Prospective Parents survey
-              </a>
-            </div>
           </div>
         </div>
       </section>
