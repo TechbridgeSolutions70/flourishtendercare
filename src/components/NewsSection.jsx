@@ -10,25 +10,40 @@ const newsImageUrls = Object.entries(newsImageFiles)
   .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
   .map(([, url]) => url);
 
+const newsImageSources = {
+  creche: newsImageUrls.find((url) => url.toLowerCase().includes('creche')),
+  heroPic4: newsImageUrls.find((url) => url.toLowerCase().includes('hero pic4')),
+  heropic1: newsImageUrls.find((url) => url.toLowerCase().includes('heropic1')),
+  heropic2: newsImageUrls.find((url) => url.toLowerCase().includes('heropic2')),
+  heropic3: newsImageUrls.find((url) => url.toLowerCase().includes('heropic3')),
+  heropic5: newsImageUrls.find((url) => url.toLowerCase().includes('heropic5')),
+};
+
 const galleryItems = [
   {
-    title: 'Playful Learning in Action',
-    description: 'Bright spaces, warm teachers, and joyful moments that make each day feel exciting and meaningful.',
-    image: newsImageUrls[0] || 'https://via.placeholder.com/1200x800.png?text=News+Image+1',
-    alt: 'Children learning in a bright classroom setting',
+    title: 'Creche welcome day',
+    description: 'Little learners arrive in calm, colourful creche spaces designed for curiosity, comfort, and safe exploration.',
+    image: newsImageSources.creche || newsImageUrls[0],
+    alt: 'Young children arriving at a creche learning environment',
   },
   {
-    title: 'Growing Through Discovery',
-    description: 'Our children explore, create, and build confidence through hands-on activities and guided curiosity.',
-    image: newsImageUrls[1] || 'https://via.placeholder.com/1200x800.png?text=News+Image+2',
-    alt: 'Children exploring creative learning materials',
+    title: 'Active class learning',
+    description: 'A busy classroom scene celebrating movement, teamwork, and hands-on learning across early school groups.',
+    image: newsImageSources.heroPic4 || newsImageUrls[1],
+    alt: 'Children engaged in active school activities',
   },
   {
-    title: 'A Community That Cares',
-    description: 'Every child feels seen, supported, and celebrated as part of a warm and connected school family.',
-    image: newsImageUrls[2] || 'https://via.placeholder.com/1200x800.png?text=News+Image+3',
-    alt: 'A smiling school community gathering',
+    title: 'Nursery story time',
+    description: 'Nursery learners gather for story time and social play in a bright, welcoming space built for gentle growth.',
+    image: newsImageSources.heropic1 || newsImageUrls[2],
+    alt: 'Nursery children enjoying story time together',
     focusTop: true,
+  },
+  {
+    title: 'Playful outdoor moments',
+    description: 'Young learners enjoy outdoor play and discovery with friends, building confidence in every step.',
+    image: newsImageSources.heropic3 || newsImageUrls[3],
+    alt: 'Children playing together during outdoor school activities',
   },
 ];
 
