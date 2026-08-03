@@ -6,11 +6,13 @@ const availableFiles = import.meta.glob('../Public/downloaded files/**/*.*', {
 import logo from '../Public/logo/logo1.jpeg';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import TestimonialSection from './TestimonialSection';
 
-export default function HeroPostSection() {
+export default function HeroPostSection({ surveyPageMode = false }) {
   const modalBodyRef = useRef(null);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
   const [surveyModalOpen, setSurveyModalOpen] = useState(false);
+  const [testimonialModalOpen, setTestimonialModalOpen] = useState(false);
   const [surveySubmitted, setSurveySubmitted] = useState(false);
   const [surveyCategory, setSurveyCategory] = useState('existing-parents');
   const [surveyName, setSurveyName] = useState('');
@@ -86,45 +88,56 @@ export default function HeroPostSection() {
   };
 
   const updateSurveyUrl = (category) => {
-    const route = category === 'prospective-parents' ? '/prospective_parent' : '/existing_parent';
-    if (window.location.pathname !== route) {
-      window.history.replaceState({}, '', route);
-    }
+    if (!surveyPageMode) return;
+    const path = category === 'prospective-parents' ? '/prospective_parent' : '/existing_parent';
+    window.history.replaceState({}, '', path);
   };
 
   const openSurveyModal = (category = 'existing-parents') => {
     resetSurveyFields(category);
     setSurveyModalOpen(true);
-    updateSurveyUrl(category);
   };
 
   const closeSurveyModal = () => {
     setSurveyModalOpen(false);
     setSurveySubmitted(false);
-    const currentPath = window.location.pathname;
-    if (currentPath === '/existing_parent' || currentPath === '/prospective_parent') {
-      window.history.replaceState({}, '', '/');
+
+    if (surveyPageMode && window.location.pathname !== '/') {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
   };
 
   useEffect(() => {
-    const path = window.location.pathname.replace(/\/$/, '');
-    if (path === '/existing_parent' || path === '/prospective_parent') {
-      const category = path === '/prospective_parent' ? 'prospective-parents' : 'existing-parents';
-      resetSurveyFields(category);
-      setSurveyModalOpen(true);
-      return;
+    const path = window.location.pathname.replace(/\/+$/, '');
+    const params = new URLSearchParams(window.location.search);
+    const routeCategory = path === '/prospective_parent' ? 'prospective-parents' : path === '/existing_parent' ? 'existing-parents' : null;
+    const queryCategory = ['prospective-parents', 'existing-parents'].includes(params.get('category'))
+      ? params.get('category')
+      : null;
+
+    if (surveyPageMode) {
+      if (routeCategory) {
+        resetSurveyFields(routeCategory);
+      } else if (params.get('survey') === '1') {
+        resetSurveyFields(queryCategory || 'existing-parents');
+      }
+      return undefined;
     }
 
-    const params = new URLSearchParams(window.location.search);
+    if (routeCategory) {
+      resetSurveyFields(routeCategory);
+      setSurveyModalOpen(true);
+      return undefined;
+    }
+
     if (params.get('survey') === '1') {
-      const category = params.get('category');
-      if (category === 'prospective-parents' || category === 'existing-parents') {
-        resetSurveyFields(category);
-      }
+      resetSurveyFields(queryCategory || 'existing-parents');
       setSurveyModalOpen(true);
     }
-  }, []);
+
+    return undefined;
+  }, [surveyPageMode]);
 
   const downloads = useMemo(() => {
     return Object.entries(availableFiles)
@@ -154,8 +167,9 @@ export default function HeroPostSection() {
   };
 
   return (
-    <>
-      <section className="section hero-admissions-banner" data-aos="fade-up">
+    <div className={surveyPageMode ? 'survey-page-mode' : ''}>
+      {!surveyPageMode && (
+        <section className="section hero-admissions-banner" data-aos="fade-up">
         <div className="hero-admissions-shell">
           <div className="hero-admissions-copy">
             <p className="eyebrow">Admissions in progress — 2026/2027</p>
@@ -176,10 +190,16 @@ export default function HeroPostSection() {
               <button type="button" className="btn btn-secondary" onClick={() => openSurveyModal('existing-parents')}>
                 Take a survey
               </button>
+              <!-- Submit testimonial button removed per request -->
             </div>
           </div>
         </div>
-      </section>
+        </section>
+      )}
+
+      {testimonialModalOpen && (
+        <TestimonialSection modalMode onClose={() => setTestimonialModalOpen(false)} />
+      )}
 
       {downloadModalOpen && (
         <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={() => setDownloadModalOpen(false)}>
@@ -265,10 +285,18 @@ export default function HeroPostSection() {
         </div>
       )}
 
-      {surveyModalOpen && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={closeSurveyModal}>
-          <div className="modal-card survey-modal-card" onClick={(event) => event.stopPropagation()}>
-            <div className="modal-body" ref={modalBodyRef}>
+      {(surveyModalOpen || surveyPageMode) && (
+        <div
+          className={surveyPageMode ? 'survey-page-shell' : 'modal-backdrop'}
+          role={surveyPageMode ? undefined : 'dialog'}
+          aria-modal={surveyPageMode ? undefined : 'true'}
+          onClick={surveyPageMode ? undefined : closeSurveyModal}
+        >
+          <div
+            className={surveyPageMode ? 'survey-page-card' : 'modal-card survey-modal-card'}
+            onClick={surveyPageMode ? undefined : (event) => event.stopPropagation()}
+          >
+            <div className={surveyPageMode ? 'survey-page-body' : 'modal-body'} ref={modalBodyRef}>
               <div className="modal-header">
                 <div className="survey-letterhead">
                   <div>
@@ -709,17 +737,19 @@ export default function HeroPostSection() {
                 </form>
               )}
             </div>
-            <button
-              type="button"
-              className="modal-scroll-top"
-              onClick={() => modalBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
-              aria-label="Scroll to top"
-            >
-              ↑
-            </button>
+            {!surveyPageMode && (
+              <button
+                type="button"
+                className="modal-scroll-top"
+                onClick={() => modalBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+                aria-label="Scroll to top"
+              >
+                ↑
+              </button>
+            )}
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

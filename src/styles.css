@@ -2078,6 +2078,29 @@ main > .section:first-child {
   color: var(--text-main);
 }
 
+/* Strong overrides placed near testimonial styles to beat earlier .eyebrow rules */
+.testimonial-section .eyebrow,
+.testimonial-form-shell .eyebrow,
+.testimonial-modal-content .eyebrow,
+.modal-card .eyebrow {
+  color: var(--accent-strong) !important;
+  background: transparent !important;
+}
+
+.testimonial-section .section-heading h2,
+.testimonial-form-shell h2,
+.testimonial-modal-content h3,
+.modal-card h3 {
+  color: var(--text-main) !important;
+}
+
+/* Ensure quoted testimonial text in light mode uses deep text color */
+.testimonial-quote,
+.testimonial-slide p,
+.testimonial-modal-content p {
+  color: var(--text-main) !important;
+}
+
 .testimonial-modal-content .testimonial-actions {
   display: flex;
   justify-content: space-between;
