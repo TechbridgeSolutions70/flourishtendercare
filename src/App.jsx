@@ -2,6 +2,7 @@ import { useEffect, useState, useLayoutEffect } from 'react';
 import Hero from './components/Hero';
 import NavBar from './components/NavBar';
 import HeroPostSection from './components/HeroPostSection';
+import SurveyPage from './pages/SurveyPage';
 import HeroStatsSection from './components/HeroStatsSection';
 import AboutSection from './components/AboutSection';
 import ProgramsSection from './components/ProgramsSection';
@@ -35,7 +36,7 @@ function App() {
     if (typeof window === 'undefined') return false;
     const path = window.location.pathname.replace(/\/+$/, '');
     const search = new URLSearchParams(window.location.search);
-    return ['/existing_parent', '/prospective_parent'].includes(path) || search.get('survey') === '1';
+    return ['/existing_parent', '/prospective_parent', '/survey'].includes(path) || search.get('survey') === '1';
   };
   const isTestimonialRoute = () => {
     if (typeof window === 'undefined') return false;
@@ -165,14 +166,7 @@ function App() {
   }
 
   if (surveyPageActive) {
-    return (
-      <div className="page-shell survey-page-shell">
-        <NavBar />
-        <main className="survey-page-main">
-          <HeroPostSection surveyPageMode />
-        </main>
-      </div>
-    );
+    return <SurveyPage />;
   }
 
   if (!pageReady) {
