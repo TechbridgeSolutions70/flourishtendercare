@@ -39,11 +39,11 @@ function NavBar() {
           </div>
         </div>
         <div className="nav-links">
-          <a href="#about" onClick={() => setMobileOpen(false)}>About</a>
-          <a href="#programs" onClick={() => setMobileOpen(false)}>Programs</a>
-          <a href="#gallery" onClick={() => setMobileOpen(false)}>Gallery</a>
-          <a href="#news" onClick={() => setMobileOpen(false)}>News</a>
-          <a href="#contact" onClick={() => setMobileOpen(false)}>Contact</a>
+          <a href="/#about" onClick={() => setMobileOpen(false)}>About</a>
+          <a href="/#programs" onClick={() => setMobileOpen(false)}>Programs</a>
+          <a href="/#gallery" onClick={() => setMobileOpen(false)}>Gallery</a>
+          <a href="/#news" onClick={() => setMobileOpen(false)}>News</a>
+          <a href="/#contact" onClick={() => setMobileOpen(false)}>Contact</a>
         </div>
 
         <button
@@ -62,10 +62,10 @@ function NavBar() {
       </nav>
 
       <div className={`mobile-nav ${mobileOpen ? 'open' : ''}`} role="dialog" aria-hidden={!mobileOpen}>
-        <a href="#about" onClick={() => setMobileOpen(false)}>About</a>
-        <a href="#programs" onClick={() => setMobileOpen(false)}>Programs</a>
-        <a href="#news" onClick={() => setMobileOpen(false)}>News</a>
-        <a href="#contact" onClick={() => setMobileOpen(false)}>Contact</a>
+        <a href="/#about" onClick={() => setMobileOpen(false)}>About</a>
+        <a href="/#programs" onClick={() => setMobileOpen(false)}>Programs</a>
+        <a href="/#news" onClick={() => setMobileOpen(false)}>News</a>
+        <a href="/#contact" onClick={() => setMobileOpen(false)}>Contact</a>
         <a className="btn btn-secondary mobile-nav-btn" href="https://portal.flourishtendercare.com.ng/apply" target="_blank" rel="noreferrer" onClick={() => setMobileOpen(false)}>Apply</a>
         <a className="btn btn-primary mobile-nav-btn" href="https://portal.flourishtendercare.com.ng/signin" target="_blank" rel="noreferrer" onClick={() => setMobileOpen(false)}>Portal</a>
       </div>
