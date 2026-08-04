@@ -82,14 +82,28 @@ function App() {
 
   useEffect(() => {
     // Active nav link highlighting + smooth scroll behavior
+    const resolveAnchor = (href) => {
+      if (!href) return null;
+      const hashIndex = href.indexOf('#');
+      if (hashIndex === -1) return null;
+      const selector = href.slice(hashIndex);
+      return selector && selector !== '#' ? selector : null;
+    };
+
     const links = Array.from(document.querySelectorAll('.nav-links a'));
     if (!links.length) return undefined;
 
-    const sections = links.map((l) => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+    const sections = links
+      .map((l) => {
+        const selector = resolveAnchor(l.getAttribute('href'));
+        return selector ? document.querySelector(selector) : null;
+      })
+      .filter(Boolean);
 
     const onClick = (e) => {
       e.preventDefault();
-      const target = document.querySelector(e.currentTarget.getAttribute('href'));
+      const selector = resolveAnchor(e.currentTarget.getAttribute('href'));
+      const target = selector ? document.querySelector(selector) : null;
       if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       document.documentElement.classList.remove('mobile-nav-open');
     };
