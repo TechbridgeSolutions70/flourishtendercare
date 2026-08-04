@@ -281,7 +281,9 @@ export default function Survey() {
     progressFill: { height: '100%', borderRadius: '999px', background: 'linear-gradient(90deg, #7c3aed, #3b82f6)', transition: 'width 0.25s ease' },
     sectionIndicator: { marginBottom: '0.9rem', fontSize: '0.95rem', fontWeight: 700, color: '#475569', letterSpacing: '0.01em' },
     tabRow: { display: 'flex', flexWrap: 'nowrap', gap: '0.5rem', justifyContent: 'space-between', alignItems: 'stretch' },
+    tabRowMobile: { display: 'flex', flexWrap: 'nowrap', gap: '0.5rem', overflowX: 'hidden', justifyContent: 'center', alignItems: 'center', paddingBottom: '0.25rem' },
     tabButton: { display: 'flex', alignItems: 'center', gap: '0.45rem', minHeight: '62px', flex: '1 1 0', minWidth: 0, padding: '0.66rem 0.6rem', borderRadius: '12px', border: '1px solid #e5e7eb', background: '#ffffff', color: '#475569', fontWeight: 700, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 6px 14px rgba(15, 23, 42, 0.04)' },
+    tabButtonMobile: { display: 'flex', alignItems: 'center', gap: '0.45rem', minHeight: '58px', minWidth: '140px', flex: '0 0 auto', padding: '0.55rem 0.6rem' },
     tabButtonActive: { borderColor: '#7c3aed', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.14), rgba(59, 130, 246, 0.1))', color: '#6d28d9', boxShadow: '0 9px 20px rgba(124, 58, 237, 0.16)' },
     tabButtonComplete: { borderColor: '#34d399', background: 'rgba(236, 253, 245, 0.9)', color: '#047857' },
     tabNumber: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.75rem', height: '1.75rem', borderRadius: '999px', background: 'rgba(124, 58, 237, 0.12)', color: '#7c3aed', fontSize: '0.88rem', flexShrink: 0 },
@@ -405,6 +407,14 @@ export default function Survey() {
     </div>
   );
 
+  // Determine visible tabs on mobile: show active and next (or previous+active at end)
+  const visibleStart = isMobile
+    ? activeSection === sectionMeta.length - 1
+      ? Math.max(0, activeSection - 1)
+      : activeSection
+    : 0;
+  const visibleTabs = isMobile ? sectionMeta.slice(visibleStart, visibleStart + 2) : sectionMeta;
+
   return (
     <section style={styles.section} className="survey-section">
       <div style={styles.container} className="survey-container">
@@ -421,9 +431,10 @@ export default function Survey() {
             </div>
             <div style={styles.sectionIndicator}>Step {activeSection + 1} of {sectionMeta.length} • {sectionMeta[activeSection].title}</div>
             <div style={isMobile ? styles.tabRowMobile : styles.tabRow}>
-              {sectionMeta.map((section, index) => {
-                const isActive = activeSection === index;
-                const isComplete = index < activeSection;
+              {visibleTabs.map((section, idx) => {
+                const originalIndex = visibleStart + idx;
+                const isActive = activeSection === originalIndex;
+                const isComplete = originalIndex < activeSection;
                 const base = styles.tabButton;
                 const mobileExtra = isMobile ? styles.tabButtonMobile : {};
                 return (
@@ -431,7 +442,7 @@ export default function Survey() {
                     key={section.id}
                     type="button"
                     style={{ ...base, ...mobileExtra, ...(isActive ? styles.tabButtonActive : {}), ...(isComplete && !isActive ? styles.tabButtonComplete : {}) }}
-                    onClick={() => setActiveSection(index)}
+                    onClick={() => setActiveSection(originalIndex)}
                   >
                     <span style={styles.tabNumber}>{isComplete ? '✓' : section.number}</span>
                     <span style={styles.tabTitle}>{section.title}</span>
