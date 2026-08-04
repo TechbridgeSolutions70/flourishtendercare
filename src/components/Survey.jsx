@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const styles = {
   section: {
@@ -381,6 +381,7 @@ export default function Survey() {
   const [submitted, setSubmitted] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 820);
+  const sectionContentRef = useRef(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -388,6 +389,19 @@ export default function Survey() {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const scrollToSectionTop = () => {
+      if (!sectionContentRef.current) return;
+      const top = sectionContentRef.current.getBoundingClientRect().top + window.scrollY - 28;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    };
+
+    const timer = window.setTimeout(scrollToSectionTop, 60);
+    return () => window.clearTimeout(timer);
+  }, [activeSection]);
 
   const sectionMeta = [
     { id: 'parent-info', number: 'A', title: 'Parent Information' },
@@ -472,10 +486,11 @@ export default function Survey() {
             </div>
           </div>
 
-          {activeSection === 0 && (
-            <>
-              <SectionTitle number="A" title="Parent Information" />
-              <div style={styles.gridContainer} className="survey-gridContainer">
+          <div ref={sectionContentRef} style={{ scrollMarginTop: '100px' }}>
+            {activeSection === 0 && (
+              <>
+                <SectionTitle number="A" title="Parent Information" />
+                <div style={styles.gridContainer} className="survey-gridContainer">
                 <TextInput name="parentName" label="Parent/Guardian Name *" placeholder="Full Name" value={formData.parentName} onChange={handleInputChange} />
                 <TextInput name="childrenNames" label="Child(ren) Name(s) *" placeholder="Names" value={formData.childrenNames} onChange={handleInputChange} />
               </div>
@@ -500,9 +515,9 @@ export default function Survey() {
             </>
           )}
 
-          {activeSection === 1 && (
-            <>
-              <SectionTitle number="B" title="Overall School Experience" />
+            {activeSection === 1 && (
+              <>
+                <SectionTitle number="B" title="Overall School Experience" />
               <QuestionGroup title="1. How satisfied are you with Flourish Tender Care overall?">
                 <SelectorGroup name="overallSatisfaction" value={formData.overallSatisfaction} onChange={handleInputChange} options={['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied']} />
               </QuestionGroup>
@@ -524,9 +539,9 @@ export default function Survey() {
             </>
           )}
 
-          {activeSection === 2 && (
-            <>
-              <SectionTitle number="C" title="Teachers & Learning Experience" />
+            {activeSection === 2 && (
+              <>
+                <SectionTitle number="C" title="Teachers & Learning Experience" />
               <QuestionGroup title="1. How satisfied are you with your child's class teacher?">
                 <SelectorGroup name="teacherSatisfaction" value={formData.teacherSatisfaction} onChange={handleInputChange} options={['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied']} />
               </QuestionGroup>
@@ -563,9 +578,9 @@ export default function Survey() {
             </>
           )}
 
-          {activeSection === 3 && (
-            <>
-              <SectionTitle number="D" title="School Portal Feedback" />
+            {activeSection === 3 && (
+              <>
+                <SectionTitle number="D" title="School Portal Feedback" />
               <QuestionGroup title="1. How frequently do you use the school portal?">
                 <SelectorGroup name="portalUsage" value={formData.portalUsage} onChange={handleInputChange} options={['Daily', 'Weekly', 'Monthly', 'Rarely', 'Never']} />
               </QuestionGroup>
@@ -578,9 +593,9 @@ export default function Survey() {
             </>
           )}
 
-          {activeSection === 4 && (
-            <>
-              <SectionTitle number="E" title="Areas for Improvement" />
+            {activeSection === 4 && (
+              <>
+                <SectionTitle number="E" title="Areas for Improvement" />
               <QuestionGroup title="1. What area would you prioritize for improvement?">
                 <SelectorGroup name="improvementPriority" value={formData.improvementPriority} onChange={handleInputChange} options={['Academic Excellence', 'Facilities & Infrastructure', 'Teacher Quality', 'School Communication', 'Student Welfare', 'Other']} />
               </QuestionGroup>
@@ -588,12 +603,13 @@ export default function Survey() {
             </>
           )}
 
-          {activeSection === 5 && (
-            <>
-              <SectionTitle number="F" title="Final Comments" />
+            {activeSection === 5 && (
+              <>
+                <SectionTitle number="F" title="Final Comments" />
               <TextArea name="generalComments" label="Is there anything else you'd like us to know?" placeholder="Additional comments..." value={formData.generalComments} onChange={handleInputChange} rows={4} />
             </>
           )}
+          </div>
 
           <div style={styles.navigationRow}>
             <button type="button" style={{ ...styles.navButton, ...(activeSection === 0 ? styles.navButtonDisabled : {}) }} onClick={goPrev} disabled={activeSection === 0}>← Previous</button>
