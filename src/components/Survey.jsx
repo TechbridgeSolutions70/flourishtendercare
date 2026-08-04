@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Survey() {
   const [formData, setFormData] = useState({
@@ -13,6 +13,14 @@ export default function Survey() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 820);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onResize = () => setIsMobile(window.innerWidth < 820);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const sectionMeta = [
     { id: 'parent-info', number: 'A', title: 'Parent Information' },
@@ -412,15 +420,17 @@ export default function Survey() {
               <div style={{ ...styles.progressFill, width: `${((activeSection + 1) / sectionMeta.length) * 100}%` }} />
             </div>
             <div style={styles.sectionIndicator}>Step {activeSection + 1} of {sectionMeta.length} • {sectionMeta[activeSection].title}</div>
-            <div style={styles.tabRow}>
+            <div style={isMobile ? styles.tabRowMobile : styles.tabRow}>
               {sectionMeta.map((section, index) => {
                 const isActive = activeSection === index;
                 const isComplete = index < activeSection;
+                const base = styles.tabButton;
+                const mobileExtra = isMobile ? styles.tabButtonMobile : {};
                 return (
                   <button
                     key={section.id}
                     type="button"
-                    style={{ ...styles.tabButton, ...(isActive ? styles.tabButtonActive : {}), ...(isComplete && !isActive ? styles.tabButtonComplete : {}) }}
+                    style={{ ...base, ...mobileExtra, ...(isActive ? styles.tabButtonActive : {}), ...(isComplete && !isActive ? styles.tabButtonComplete : {}) }}
                     onClick={() => setActiveSection(index)}
                   >
                     <span style={styles.tabNumber}>{isComplete ? '✓' : section.number}</span>
@@ -565,7 +575,7 @@ export default function Survey() {
 
           <div style={styles.submitContainer} className="survey-submitContainer">
             {!submitted && (
-              <p style={styles.footerText}>* Required fields. Thank you for taking the time to complete this survey.</p>
+              <p style={styles.footerText}>© 2026 Flourish Tender Care. All rights reserved. <a href="/privacy" style={{ color: '#6d28d9', fontWeight: 700, textDecoration: 'none' }}>Data privacy policy</a></p>
             )}
           </div>
         </form>
