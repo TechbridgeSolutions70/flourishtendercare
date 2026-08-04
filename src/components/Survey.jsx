@@ -12,6 +12,24 @@ export default function Survey() {
     improvementComments: '', generalComments: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [activeSection, setActiveSection] = useState(0);
+
+  const sectionMeta = [
+    { id: 'parent-info', number: 'A', title: 'Parent Information' },
+    { id: 'school-experience', number: 'B', title: 'Overall School Experience' },
+    { id: 'teachers-learning', number: 'C', title: 'Teachers & Learning Experience' },
+    { id: 'portal-feedback', number: 'D', title: 'School Portal Feedback' },
+    { id: 'improvement', number: 'E', title: 'Areas for Improvement' },
+    { id: 'final-comments', number: 'F', title: 'Final Comments' }
+  ];
+
+  const goNext = () => {
+    setActiveSection((prev) => (prev < sectionMeta.length - 1 ? prev + 1 : prev));
+  };
+
+  const goPrev = () => {
+    setActiveSection((prev) => (prev > 0 ? prev - 1 : prev));
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -249,7 +267,21 @@ export default function Survey() {
     successSecondaryButton: { padding: '0.8rem 1.2rem', borderRadius: '999px', background: '#f3f4f6', color: '#374151', border: 'none', fontWeight: 700, cursor: 'pointer' },
     footerText: { margin: '1rem 0 0', color: '#6b7280', fontSize: 'clamp(0.85rem, 1.6vw, 0.9rem)' },
     gridContainer: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'clamp(1rem, 2vw, 1.25rem)', marginBottom: 'clamp(1rem, 2vw, 1.25rem)' },
-    responsiveTableWrapper: { overflowX: 'auto', borderRadius: '12px', marginBottom: '0.75rem' }
+    responsiveTableWrapper: { overflowX: 'auto', borderRadius: '12px', marginBottom: '0.75rem' },
+    progressContainer: { marginBottom: '1.4rem', padding: '1rem', borderRadius: '18px', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.06), rgba(59, 130, 246, 0.05))', border: '1px solid rgba(124, 58, 237, 0.12)' },
+    progressTrack: { width: '100%', height: '10px', borderRadius: '999px', background: '#e5e7eb', overflow: 'hidden', marginBottom: '0.9rem', boxShadow: 'inset 0 1px 2px rgba(15, 23, 42, 0.08)' },
+    progressFill: { height: '100%', borderRadius: '999px', background: 'linear-gradient(90deg, #7c3aed, #3b82f6)', transition: 'width 0.25s ease' },
+    sectionIndicator: { marginBottom: '0.9rem', fontSize: '0.95rem', fontWeight: 700, color: '#475569', letterSpacing: '0.01em' },
+    tabRow: { display: 'flex', flexWrap: 'nowrap', gap: '0.5rem', justifyContent: 'space-between', alignItems: 'stretch' },
+    tabButton: { display: 'flex', alignItems: 'center', gap: '0.45rem', minHeight: '62px', flex: '1 1 0', minWidth: 0, padding: '0.66rem 0.6rem', borderRadius: '12px', border: '1px solid #e5e7eb', background: '#ffffff', color: '#475569', fontWeight: 700, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 6px 14px rgba(15, 23, 42, 0.04)' },
+    tabButtonActive: { borderColor: '#7c3aed', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.14), rgba(59, 130, 246, 0.1))', color: '#6d28d9', boxShadow: '0 9px 20px rgba(124, 58, 237, 0.16)' },
+    tabButtonComplete: { borderColor: '#34d399', background: 'rgba(236, 253, 245, 0.9)', color: '#047857' },
+    tabNumber: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.75rem', height: '1.75rem', borderRadius: '999px', background: 'rgba(124, 58, 237, 0.12)', color: '#7c3aed', fontSize: '0.88rem', flexShrink: 0 },
+    tabTitle: { fontSize: 'clamp(0.72rem, 1.05vw, 0.88rem)', lineHeight: 1.25, wordBreak: 'break-word' },
+    navigationRow: { display: 'flex', justifyContent: 'space-between', gap: '0.75rem', marginTop: '1.5rem', flexWrap: 'wrap' },
+    navButton: { padding: '0.8rem 1.1rem', borderRadius: '999px', border: '1px solid #e5e7eb', background: '#ffffff', color: '#334155', fontWeight: 700, cursor: 'pointer', boxShadow: '0 6px 14px rgba(15, 23, 42, 0.04)' },
+    navButtonPrimary: { background: 'linear-gradient(135deg, #7c3aed, #8b5cf6)', color: '#ffffff', border: 'none', boxShadow: '0 10px 24px rgba(124, 58, 237, 0.22)' },
+    navButtonDisabled: { opacity: 0.6, cursor: 'not-allowed', boxShadow: 'none' }
   };
 
   const SelectorGroup = ({ name, options, value, onChange, placeholder = 'Click to select' }) => {
@@ -339,27 +371,27 @@ export default function Survey() {
   };
 
   const TextInput = ({ name, label, placeholder, value, onChange, type = 'text' }) => (
-    <div style={styles.inputGroup} data-aos="fade-up" data-aos-delay="80" className="survey-input-group">
+    <div style={styles.inputGroup} className="survey-input-group">
       {label && <label style={styles.inputLabel}>{label}</label>}
       <input className="survey-text-input" type={type} name={name} value={value} onChange={onChange} placeholder={placeholder} style={styles.textInput} onFocus={(e) => Object.assign(e.target.style, styles.textInputFocus)} onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; }} />
     </div>
   );
 
   const TextArea = ({ name, label, placeholder, value, onChange, rows = 3 }) => (
-    <div style={styles.inputGroup} data-aos="fade-up" data-aos-delay="80" className="survey-input-group">
+    <div style={styles.inputGroup} className="survey-input-group">
       {label && <label style={styles.inputLabel}>{label}</label>}
       <textarea className="survey-textarea" name={name} value={value} onChange={onChange} placeholder={placeholder} rows={rows} style={styles.textarea} onFocus={(e) => Object.assign(e.target.style, styles.textInputFocus)} onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; }} />
     </div>
   );
 
   const SectionTitle = ({ number, title }) => (
-    <div style={styles.sectionTitle} data-aos="fade-up" data-aos-delay="70" className="survey-section-title">
+    <div style={styles.sectionTitle} className="survey-section-title">
       <h3 style={styles.sectionTitleText}><span style={styles.sectionNumber}>Section {number}:</span>{title}</h3>
     </div>
   );
 
-  const QuestionGroup = ({ title, children, delay = 0 }) => (
-    <div style={styles.questionGroup} data-aos="fade-up" data-aos-delay={delay} className="survey-question-group">
+  const QuestionGroup = ({ title, children }) => (
+    <div style={styles.questionGroup} className="survey-question-group">
       <p style={styles.questionTitle}>{title}</p>
       {children}
     </div>
@@ -374,112 +406,166 @@ export default function Survey() {
           <p style={styles.subtitle}>We value your feedback! This survey helps us understand your experience and continuously improve our services. Your honest opinions matter.</p>
         </div>
 
-        <form onSubmit={handleSubmit} style={styles.form} data-aos="fade-up" data-aos-delay="120" className="survey-form">
-          <SectionTitle number="A" title="Parent Information" />
-          <div style={styles.gridContainer} className="survey-gridContainer">
-            <TextInput name="parentName" label="Parent/Guardian Name *" placeholder="Full Name" value={formData.parentName} onChange={handleInputChange} />
-            <TextInput name="childrenNames" label="Child(ren) Name(s) *" placeholder="Names" value={formData.childrenNames} onChange={handleInputChange} />
-          </div>
-          <div style={styles.gridContainer} className="survey-gridContainer">
-            <div style={styles.inputGroup} data-aos="fade-up" data-aos-delay="80">
-              <label style={styles.inputLabel}>Class/Grade</label>
-              <SelectorGroup
-                name="class"
-                value={formData.class}
-                onChange={handleInputChange}
-                options={['Creche', 'Playgroup 1', 'Playgroup 2', 'Nursery 1', 'Nursery 2', 'Basic 1', 'Basic 2', 'Basic 3', 'Basic 4', 'Basic 5', 'Basic 6']}
-              />
+        <form onSubmit={handleSubmit} style={styles.form} className="survey-form">
+          <div style={styles.progressContainer}>
+            <div style={styles.progressTrack}>
+              <div style={{ ...styles.progressFill, width: `${((activeSection + 1) / sectionMeta.length) * 100}%` }} />
             </div>
-            <TextInput name="email" label="Email Address *" placeholder="your@email.com" value={formData.email} onChange={handleInputChange} type="email" />
-          </div>
-          <div style={styles.gridContainer}>
-            <TextInput name="phone" label="Phone Number" placeholder="+234..." value={formData.phone} onChange={handleInputChange} type="tel" />
-          </div>
-          <QuestionGroup title="Parent Type *" delay={70}>
-            <SelectorGroup name="parentType" value={formData.parentType} onChange={handleInputChange} options={['Current Parent', 'Prospective Parent']} />
-          </QuestionGroup>
-
-          <SectionTitle number="B" title="Overall School Experience" />
-          <QuestionGroup title="1. How satisfied are you with Flourish Tender Care overall?" delay={80}>
-            <SelectorGroup name="overallSatisfaction" value={formData.overallSatisfaction} onChange={handleInputChange} options={['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied']} />
-          </QuestionGroup>
-          <QuestionGroup title="2. How would you rate the overall school environment and facilities?" delay={90}>
-            <SelectorGroup name="schoolEnvironment" value={formData.schoolEnvironment} onChange={handleInputChange} options={['Excellent', 'Good', 'Fair', 'Poor']} />
-          </QuestionGroup>
-          <QuestionGroup title="3. How would you rate communication from the school?" delay={100}>
-            <SelectorGroup name="communicationSchool" value={formData.communicationSchool} onChange={handleInputChange} options={['Excellent', 'Good', 'Fair', 'Poor']} />
-          </QuestionGroup>
-          <QuestionGroup title="4. Would you recommend Flourish Tender Care to other parents?" delay={110}>
-            <SelectorGroup name="couldRecommend" value={formData.couldRecommend} onChange={handleInputChange} options={['Definitely Yes', 'Probably Yes', 'Neutral', 'Probably Not', 'Definitely Not']} />
-          </QuestionGroup>
-          <QuestionGroup title="5. How satisfied are you with the school facilities and resources?" delay={120}>
-            <SelectorGroup name="schoolFacilities" value={formData.schoolFacilities} onChange={handleInputChange} options={['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied']} />
-          </QuestionGroup>
-          <QuestionGroup title="6. Does the school reflect and uphold the values important to your family?" delay={130}>
-            <SelectorGroup name="schoolValues" value={formData.schoolValues} onChange={handleInputChange} options={['Strongly Agree', 'Agree', 'Neutral', 'Disagree', 'Strongly Disagree']} />
-          </QuestionGroup>
-
-          <SectionTitle number="C" title="Teachers & Learning Experience" />
-          <QuestionGroup title="1. How satisfied are you with your child's class teacher?" delay={80}>
-            <SelectorGroup name="teacherSatisfaction" value={formData.teacherSatisfaction} onChange={handleInputChange} options={['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied']} />
-          </QuestionGroup>
-          <QuestionGroup title="2. How would you rate your child's teacher in the following areas?" delay={90}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
-              {['Teaching Quality', 'Classroom Management', 'Communication with Parents', 'Care and Concern for Pupils', 'Professionalism', 'Encouragement of Learning'].map(area => (
-                <MatrixSelector key={area} area={area} value={formData.teacherMatrix[area]} onChange={handleMatrixChange} />
-              ))}
+            <div style={styles.sectionIndicator}>Step {activeSection + 1} of {sectionMeta.length} • {sectionMeta[activeSection].title}</div>
+            <div style={styles.tabRow}>
+              {sectionMeta.map((section, index) => {
+                const isActive = activeSection === index;
+                const isComplete = index < activeSection;
+                return (
+                  <button
+                    key={section.id}
+                    type="button"
+                    style={{ ...styles.tabButton, ...(isActive ? styles.tabButtonActive : {}), ...(isComplete && !isActive ? styles.tabButtonComplete : {}) }}
+                    onClick={() => setActiveSection(index)}
+                  >
+                    <span style={styles.tabNumber}>{isComplete ? '✓' : section.number}</span>
+                    <span style={styles.tabTitle}>{section.title}</span>
+                  </button>
+                );
+              })}
             </div>
-          </QuestionGroup>
-          <QuestionGroup title="3. Does your child's teacher communicate effectively about your child's progress?" delay={100}>
-            <SelectorGroup name="teacherCommunication" value={formData.teacherCommunication} onChange={handleInputChange} options={['Always', 'Often', 'Sometimes', 'Rarely', 'Never']} />
-          </QuestionGroup>
-          <QuestionGroup title="4. Do you feel your child is treated with love, patience, and respect by the teachers?" delay={110}>
-            <SelectorGroup name="childTreatedWithLove" value={formData.childTreatedWithLove} onChange={handleInputChange} options={['Always', 'Most of the Time', 'Sometimes', 'Rarely', 'Never']} />
-          </QuestionGroup>
-          <QuestionGroup title="5. How approachable are your child's teachers when you have concerns or questions?" delay={120}>
-            <SelectorGroup name="teacherApproachability" value={formData.teacherApproachability} onChange={handleInputChange} options={['Very Approachable', 'Approachable', 'Neutral', 'Difficult to Reach', 'Not Approachable']} />
-          </QuestionGroup>
-          <QuestionGroup title="6. Do you believe your child's teacher motivates and encourages learning?" delay={130}>
-            <SelectorGroup name="teacherMotivation" value={formData.teacherMotivation} onChange={handleInputChange} options={['Strongly Agree', 'Agree', 'Neutral', 'Disagree', 'Strongly Disagree']} />
-          </QuestionGroup>
-          <QuestionGroup title="7. Have you ever had a concern regarding a teacher?" delay={140}>
-            <SelectorGroup name="hadTeacherConcern" value={formData.hadTeacherConcern} onChange={handleInputChange} options={['Yes', 'No']} />
-            {formData.hadTeacherConcern === 'Yes' && (
-              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
-                <p style={styles.questionTitle}>If Yes, was it resolved satisfactorily?</p>
-                <SelectorGroup name="concernResolution" value={formData.concernResolution} onChange={handleInputChange} options={['Yes', 'Partially', 'No']} />
+          </div>
+
+          {activeSection === 0 && (
+            <>
+              <SectionTitle number="A" title="Parent Information" />
+              <div style={styles.gridContainer} className="survey-gridContainer">
+                <TextInput name="parentName" label="Parent/Guardian Name *" placeholder="Full Name" value={formData.parentName} onChange={handleInputChange} />
+                <TextInput name="childrenNames" label="Child(ren) Name(s) *" placeholder="Names" value={formData.childrenNames} onChange={handleInputChange} />
               </div>
+              <div style={styles.gridContainer} className="survey-gridContainer">
+                <div style={styles.inputGroup}>
+                  <label style={styles.inputLabel}>Class/Grade</label>
+                  <SelectorGroup
+                    name="class"
+                    value={formData.class}
+                    onChange={handleInputChange}
+                    options={['Creche', 'Playgroup 1', 'Playgroup 2', 'Nursery 1', 'Nursery 2', 'Basic 1', 'Basic 2', 'Basic 3', 'Basic 4', 'Basic 5', 'Basic 6']}
+                  />
+                </div>
+                <TextInput name="email" label="Email Address *" placeholder="your@email.com" value={formData.email} onChange={handleInputChange} type="email" />
+              </div>
+              <div style={styles.gridContainer}>
+                <TextInput name="phone" label="Phone Number" placeholder="+234..." value={formData.phone} onChange={handleInputChange} type="tel" />
+              </div>
+              <QuestionGroup title="Parent Type *">
+                <SelectorGroup name="parentType" value={formData.parentType} onChange={handleInputChange} options={['Current Parent', 'Prospective Parent']} />
+              </QuestionGroup>
+            </>
+          )}
+
+          {activeSection === 1 && (
+            <>
+              <SectionTitle number="B" title="Overall School Experience" />
+              <QuestionGroup title="1. How satisfied are you with Flourish Tender Care overall?">
+                <SelectorGroup name="overallSatisfaction" value={formData.overallSatisfaction} onChange={handleInputChange} options={['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied']} />
+              </QuestionGroup>
+              <QuestionGroup title="2. How would you rate the overall school environment and facilities?">
+                <SelectorGroup name="schoolEnvironment" value={formData.schoolEnvironment} onChange={handleInputChange} options={['Excellent', 'Good', 'Fair', 'Poor']} />
+              </QuestionGroup>
+              <QuestionGroup title="3. How would you rate communication from the school?">
+                <SelectorGroup name="communicationSchool" value={formData.communicationSchool} onChange={handleInputChange} options={['Excellent', 'Good', 'Fair', 'Poor']} />
+              </QuestionGroup>
+              <QuestionGroup title="4. Would you recommend Flourish Tender Care to other parents?">
+                <SelectorGroup name="couldRecommend" value={formData.couldRecommend} onChange={handleInputChange} options={['Definitely Yes', 'Probably Yes', 'Neutral', 'Probably Not', 'Definitely Not']} />
+              </QuestionGroup>
+              <QuestionGroup title="5. How satisfied are you with the school facilities and resources?">
+                <SelectorGroup name="schoolFacilities" value={formData.schoolFacilities} onChange={handleInputChange} options={['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied']} />
+              </QuestionGroup>
+              <QuestionGroup title="6. Does the school reflect and uphold the values important to your family?">
+                <SelectorGroup name="schoolValues" value={formData.schoolValues} onChange={handleInputChange} options={['Strongly Agree', 'Agree', 'Neutral', 'Disagree', 'Strongly Disagree']} />
+              </QuestionGroup>
+            </>
+          )}
+
+          {activeSection === 2 && (
+            <>
+              <SectionTitle number="C" title="Teachers & Learning Experience" />
+              <QuestionGroup title="1. How satisfied are you with your child's class teacher?">
+                <SelectorGroup name="teacherSatisfaction" value={formData.teacherSatisfaction} onChange={handleInputChange} options={['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied']} />
+              </QuestionGroup>
+              <QuestionGroup title="2. How would you rate your child's teacher in the following areas?">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+                  {['Teaching Quality', 'Classroom Management', 'Communication with Parents', 'Care and Concern for Pupils', 'Professionalism', 'Encouragement of Learning'].map(area => (
+                    <MatrixSelector key={area} area={area} value={formData.teacherMatrix[area]} onChange={handleMatrixChange} />
+                  ))}
+                </div>
+              </QuestionGroup>
+              <QuestionGroup title="3. Does your child's teacher communicate effectively about your child's progress?">
+                <SelectorGroup name="teacherCommunication" value={formData.teacherCommunication} onChange={handleInputChange} options={['Always', 'Often', 'Sometimes', 'Rarely', 'Never']} />
+              </QuestionGroup>
+              <QuestionGroup title="4. Do you feel your child is treated with love, patience, and respect by the teachers?">
+                <SelectorGroup name="childTreatedWithLove" value={formData.childTreatedWithLove} onChange={handleInputChange} options={['Always', 'Most of the Time', 'Sometimes', 'Rarely', 'Never']} />
+              </QuestionGroup>
+              <QuestionGroup title="5. How approachable are your child's teachers when you have concerns or questions?">
+                <SelectorGroup name="teacherApproachability" value={formData.teacherApproachability} onChange={handleInputChange} options={['Very Approachable', 'Approachable', 'Neutral', 'Difficult to Reach', 'Not Approachable']} />
+              </QuestionGroup>
+              <QuestionGroup title="6. Do you believe your child's teacher motivates and encourages learning?">
+                <SelectorGroup name="teacherMotivation" value={formData.teacherMotivation} onChange={handleInputChange} options={['Strongly Agree', 'Agree', 'Neutral', 'Disagree', 'Strongly Disagree']} />
+              </QuestionGroup>
+              <QuestionGroup title="7. Have you ever had a concern regarding a teacher?">
+                <SelectorGroup name="hadTeacherConcern" value={formData.hadTeacherConcern} onChange={handleInputChange} options={['Yes', 'No']} />
+                {formData.hadTeacherConcern === 'Yes' && (
+                  <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
+                    <p style={styles.questionTitle}>If Yes, was it resolved satisfactorily?</p>
+                    <SelectorGroup name="concernResolution" value={formData.concernResolution} onChange={handleInputChange} options={['Yes', 'Partially', 'No']} />
+                  </div>
+                )}
+              </QuestionGroup>
+              <TextArea name="appreciateTeacher" label="8. What do you appreciate most about your child's teacher?" placeholder="Share your thoughts..." value={formData.appreciateTeacher} onChange={handleInputChange} rows={3} />
+              <TextArea name="improvementSuggestions" label="9. What improvements would you like to see from our teaching staff?" placeholder="Share your suggestions..." value={formData.improvementSuggestions} onChange={handleInputChange} rows={3} />
+            </>
+          )}
+
+          {activeSection === 3 && (
+            <>
+              <SectionTitle number="D" title="School Portal Feedback" />
+              <QuestionGroup title="1. How frequently do you use the school portal?">
+                <SelectorGroup name="portalUsage" value={formData.portalUsage} onChange={handleInputChange} options={['Daily', 'Weekly', 'Monthly', 'Rarely', 'Never']} />
+              </QuestionGroup>
+              <QuestionGroup title="2. How would you rate the functionality and ease of use of the school portal?">
+                <SelectorGroup name="portalFunctionality" value={formData.portalFunctionality} onChange={handleInputChange} options={['Excellent', 'Good', 'Fair', 'Poor']} />
+              </QuestionGroup>
+              <QuestionGroup title="3. Which portal features are most valuable to you?">
+                <SelectorGroup name="portalFeatures" value={formData.portalFeatures} onChange={handleInputChange} options={['Academic Progress Tracking', 'Communication with Teachers', 'Payment/Fees', 'Class Schedules', 'All of the Above']} />
+              </QuestionGroup>
+            </>
+          )}
+
+          {activeSection === 4 && (
+            <>
+              <SectionTitle number="E" title="Areas for Improvement" />
+              <QuestionGroup title="1. What area would you prioritize for improvement?">
+                <SelectorGroup name="improvementPriority" value={formData.improvementPriority} onChange={handleInputChange} options={['Academic Excellence', 'Facilities & Infrastructure', 'Teacher Quality', 'School Communication', 'Student Welfare', 'Other']} />
+              </QuestionGroup>
+              <TextArea name="improvementComments" label="2. Please provide any additional comments or suggestions for improvement:" placeholder="Your suggestions..." value={formData.improvementComments} onChange={handleInputChange} rows={3} />
+            </>
+          )}
+
+          {activeSection === 5 && (
+            <>
+              <SectionTitle number="F" title="Final Comments" />
+              <TextArea name="generalComments" label="Is there anything else you'd like us to know?" placeholder="Additional comments..." value={formData.generalComments} onChange={handleInputChange} rows={4} />
+            </>
+          )}
+
+          <div style={styles.navigationRow}>
+            <button type="button" style={{ ...styles.navButton, ...(activeSection === 0 ? styles.navButtonDisabled : {}) }} onClick={goPrev} disabled={activeSection === 0}>← Previous</button>
+            {activeSection < sectionMeta.length - 1 ? (
+              <button type="button" style={{ ...styles.navButton, ...styles.navButtonPrimary }} onClick={goNext}>Next →</button>
+            ) : (
+              <button type="submit" style={{ ...styles.navButton, ...styles.navButtonPrimary }}>{submitted ? 'Submitted' : 'Submit Survey'}</button>
             )}
-          </QuestionGroup>
-          <TextArea name="appreciateTeacher" label="8. What do you appreciate most about your child's teacher?" placeholder="Share your thoughts..." value={formData.appreciateTeacher} onChange={handleInputChange} rows={3} />
-          <TextArea name="improvementSuggestions" label="9. What improvements would you like to see from our teaching staff?" placeholder="Share your suggestions..." value={formData.improvementSuggestions} onChange={handleInputChange} rows={3} />
+          </div>
 
-          <SectionTitle number="D" title="School Portal Feedback" />
-          <QuestionGroup title="1. How frequently do you use the school portal?" delay={80}>
-            <SelectorGroup name="portalUsage" value={formData.portalUsage} onChange={handleInputChange} options={['Daily', 'Weekly', 'Monthly', 'Rarely', 'Never']} />
-          </QuestionGroup>
-          <QuestionGroup title="2. How would you rate the functionality and ease of use of the school portal?" delay={90}>
-            <SelectorGroup name="portalFunctionality" value={formData.portalFunctionality} onChange={handleInputChange} options={['Excellent', 'Good', 'Fair', 'Poor']} />
-          </QuestionGroup>
-          <QuestionGroup title="3. Which portal features are most valuable to you?" delay={100}>
-            <SelectorGroup name="portalFeatures" value={formData.portalFeatures} onChange={handleInputChange} options={['Academic Progress Tracking', 'Communication with Teachers', 'Payment/Fees', 'Class Schedules', 'All of the Above']} />
-          </QuestionGroup>
-
-          <SectionTitle number="E" title="Areas for Improvement" />
-          <QuestionGroup title="1. What area would you prioritize for improvement?" delay={80}>
-            <SelectorGroup name="improvementPriority" value={formData.improvementPriority} onChange={handleInputChange} options={['Academic Excellence', 'Facilities & Infrastructure', 'Teacher Quality', 'School Communication', 'Student Welfare', 'Other']} />
-          </QuestionGroup>
-          <TextArea name="improvementComments" label="2. Please provide any additional comments or suggestions for improvement:" placeholder="Your suggestions..." value={formData.improvementComments} onChange={handleInputChange} rows={3} />
-
-          <SectionTitle number="F" title="Final Comments" />
-          <TextArea name="generalComments" label="Is there anything else you'd like us to know?" placeholder="Additional comments..." value={formData.generalComments} onChange={handleInputChange} rows={4} />
-
-          <div style={styles.submitContainer} data-aos="fade-up" data-aos-delay="80" className="survey-submitContainer">
+          <div style={styles.submitContainer} className="survey-submitContainer">
             {!submitted && (
-              <>
-                <button type="submit" style={styles.submitButton} onMouseEnter={(e) => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 14px 28px rgba(124, 58, 237, 0.32)'; }} onMouseLeave={(e) => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 10px 24px rgba(124, 58, 237, 0.25)'; }}>Submit Survey</button>
-                <p style={styles.footerText}>* Required fields. Thank you for taking the time to complete this survey.</p>
-              </>
+              <p style={styles.footerText}>* Required fields. Thank you for taking the time to complete this survey.</p>
             )}
           </div>
         </form>
