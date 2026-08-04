@@ -1,5 +1,372 @@
 import { useState, useEffect } from 'react';
 
+const styles = {
+  section: {
+    minHeight: 'auto',
+    padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 3vw, 2rem)',
+    background: 'linear-gradient(135deg, #f8fbff 0%, #f4f7ff 45%, #eef5ff 100%)',
+    position: 'relative',
+    overflow: 'hidden'
+  },
+  container: { width: '100%', maxWidth: '1000px', margin: '0 auto' },
+  header: {
+    marginBottom: 'clamp(1.5rem, 4vw, 2.5rem)',
+    textAlign: 'center',
+    padding: 'clamp(1.5rem, 3vw, 2.4rem)',
+    borderRadius: '24px',
+    background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.09), rgba(14, 165, 233, 0.08))',
+    border: '1px solid rgba(124, 58, 237, 0.14)',
+    boxShadow: '0 18px 40px rgba(15, 23, 42, 0.06)'
+  },
+  eyebrow: { margin: 0, marginBottom: '0.7rem', fontSize: 'clamp(0.78rem, 2vw, 0.9rem)', fontWeight: 800, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#7c3aed' },
+  title: { margin: '0 0 0.95rem', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800, color: '#111827' },
+  subtitle: { margin: '0 auto', lineHeight: 1.8, color: '#4b5563', fontSize: 'clamp(0.94rem, 2vw, 1.05rem)', maxWidth: '700px' },
+  form: {
+    background: 'rgba(255, 255, 255, 0.96)',
+    padding: 'clamp(1.25rem, 3vw, 2.4rem)',
+    borderRadius: '24px',
+    boxShadow: '0 18px 42px rgba(15, 23, 42, 0.08)',
+    border: '1px solid rgba(15, 23, 42, 0.04)'
+  },
+  sectionTitle: {
+    marginBottom: '1.25rem',
+    marginTop: 'clamp(1.6rem, 3vw, 2.2rem)',
+    padding: '0.95rem 1rem',
+    borderRadius: '14px',
+    background: 'linear-gradient(90deg, rgba(124, 58, 237, 0.09), rgba(14, 165, 233, 0.05))',
+    border: '1px solid rgba(124, 58, 237, 0.12)'
+  },
+  sectionTitleText: { margin: 0, fontSize: 'clamp(1.05rem, 2.8vw, 1.3rem)', fontWeight: 700, color: '#111827' },
+  sectionNumber: { color: '#7c3aed', marginRight: '0.5rem', fontWeight: 800 },
+  questionGroup: {
+    marginBottom: 'clamp(1rem, 2.4vw, 1.4rem)',
+    padding: '1rem 1rem 1.1rem',
+    borderRadius: '16px',
+    background: 'rgba(248, 250, 252, 0.9)',
+    border: '1px solid #eef2f7'
+  },
+  questionTitle: { margin: '0 0 0.9rem', fontSize: 'clamp(0.95rem, 2.2vw, 1.06rem)', fontWeight: 600, color: '#1f2937', lineHeight: 1.5 },
+  selectorWrapper: { width: '100%' },
+  selectorButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '0.55rem',
+    width: '100%',
+    padding: '0.8rem 0.95rem',
+    borderRadius: '12px',
+    border: '1px solid #e2e8f0',
+    background: '#ffffff',
+    color: '#334155',
+    fontSize: '0.95rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 6px 16px rgba(15, 23, 42, 0.03)',
+    textAlign: 'left'
+  },
+  selectorButtonActive: {
+    borderColor: '#7c3aed',
+    background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+    color: '#ffffff',
+    boxShadow: '0 10px 22px rgba(124, 58, 237, 0.22)'
+  },
+  selectorButtonMuted: {
+    color: '#64748b',
+    background: '#f8fafc'
+  },
+  selectorDropdown: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.4rem',
+    marginTop: '0.45rem',
+    padding: '0.5rem',
+    borderRadius: '12px',
+    border: '1px solid #e2e8f0',
+    background: '#ffffff',
+    boxShadow: '0 14px 32px rgba(15, 23, 42, 0.12)',
+    zIndex: 20
+  },
+  selectorOption: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0.7rem 0.8rem',
+    borderRadius: '10px',
+    border: '1px solid transparent',
+    background: '#fff',
+    color: '#334155',
+    fontSize: '0.92rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    textAlign: 'left'
+  },
+  selectorOptionActive: {
+    background: 'rgba(124, 58, 237, 0.08)',
+    borderColor: 'rgba(124, 58, 237, 0.2)',
+    color: '#6d28d9'
+  },
+  selectorDot: { fontSize: '0.95rem', lineHeight: 1 },
+  inputLabel: { display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#1f2937', fontSize: 'clamp(0.9rem, 1.6vw, 0.95rem)' },
+  textInput: { width: '100%', padding: 'clamp(0.7rem, 1.8vw, 0.9rem)', border: '2px solid #e5e7eb', borderRadius: '12px', fontSize: 'clamp(0.9rem, 1.6vw, 0.95rem)', boxSizing: 'border-box', transition: 'all 0.3s ease', fontFamily: 'inherit', background: '#fff' },
+  textInputFocus: { borderColor: '#7c3aed', outline: 'none', boxShadow: '0 0 0 3px rgba(124, 58, 237, 0.12)' },
+  textarea: { width: '100%', padding: 'clamp(0.7rem, 1.8vw, 0.9rem)', border: '2px solid #e5e7eb', borderRadius: '12px', fontSize: 'clamp(0.9rem, 1.6vw, 0.95rem)', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical', transition: 'all 0.3s ease', background: '#fff' },
+  inputGroup: { marginBottom: 'clamp(1rem, 2vw, 1.25rem)' },
+  matrixRow: { display: 'flex', flexDirection: 'column', gap: '0.45rem', padding: '0.75rem 0.85rem', borderRadius: '12px', background: '#ffffff', border: '1px solid #e5e7eb' },
+  matrixLabel: { fontSize: '0.95rem', fontWeight: 600, color: '#334155' },
+  matrixSelectWrapper: { width: '100%' },
+  matrixSelectButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    padding: '0.7rem 0.8rem',
+    borderRadius: '10px',
+    border: '1px solid #e2e8f0',
+    background: '#f8fafc',
+    color: '#334155',
+    fontSize: '0.92rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    textAlign: 'left'
+  },
+  matrixSelectButtonActive: {
+    borderColor: '#7c3aed',
+    background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+    color: '#ffffff'
+  },
+  matrixSelectButtonMuted: {
+    color: '#64748b',
+    background: '#f8fafc'
+  },
+  matrixSelectDropdown: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.4rem',
+    marginTop: '0.45rem',
+    padding: '0.45rem',
+    borderRadius: '10px',
+    border: '1px solid #e2e8f0',
+    background: '#ffffff',
+    boxShadow: '0 10px 24px rgba(15, 23, 42, 0.1)'
+  },
+  matrixSelectOption: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0.65rem 0.7rem',
+    borderRadius: '8px',
+    border: '1px solid transparent',
+    background: '#fff',
+    color: '#334155',
+    fontSize: '0.9rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    textAlign: 'left'
+  },
+  matrixSelectOptionActive: {
+    background: 'rgba(124, 58, 237, 0.08)',
+    borderColor: 'rgba(124, 58, 237, 0.2)',
+    color: '#6d28d9'
+  },
+  submitContainer: { marginTop: 'clamp(1.8rem, 4vw, 2.5rem)', paddingTop: 'clamp(1.2rem, 3vw, 1.8rem)', borderTop: '2px solid #e5e7eb', textAlign: 'center' },
+  submitButton: { padding: 'clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2.3rem)', borderRadius: '999px', background: 'linear-gradient(135deg, #7c3aed, #8b5cf6)', color: '#ffffff', border: 'none', fontSize: 'clamp(0.95rem, 2vw, 1rem)', fontWeight: 700, cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: '0 10px 24px rgba(124, 58, 237, 0.25)' },
+  successOverlay: {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(2, 6, 23, 0.65)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '1rem',
+    zIndex: 9999
+  },
+  successCard: {
+    width: '100%',
+    maxWidth: '520px',
+    padding: 'clamp(1.4rem, 3vw, 2rem)',
+    borderRadius: '24px',
+    background: '#ffffff',
+    border: '1px solid rgba(15, 23, 42, 0.08)',
+    color: '#065f46',
+    textAlign: 'center',
+    boxShadow: '0 24px 60px rgba(2, 6, 23, 0.24)',
+    position: 'relative'
+  },
+  successCloseButton: {
+    position: 'absolute',
+    top: '0.85rem',
+    right: '0.85rem',
+    border: 'none',
+    background: '#f3f4f6',
+    color: '#374151',
+    width: '2.1rem',
+    height: '2.1rem',
+    borderRadius: '999px',
+    fontSize: '1rem',
+    cursor: 'pointer'
+  },
+  successIcon: { fontSize: '2.3rem', marginBottom: '0.7rem' },
+  successTitle: { margin: '0 0 0.65rem', fontSize: 'clamp(1.2rem, 2.6vw, 1.5rem)', fontWeight: 800, color: '#111827' },
+  successText: { margin: 0, lineHeight: 1.7, color: '#4b5563', fontSize: 'clamp(0.95rem, 2vw, 1rem)' },
+  successButtonRow: { display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' },
+  successButton: { padding: '0.8rem 1.2rem', borderRadius: '999px', background: '#059669', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer' },
+  successSecondaryButton: { padding: '0.8rem 1.2rem', borderRadius: '999px', background: '#f3f4f6', color: '#374151', border: 'none', fontWeight: 700, cursor: 'pointer' },
+  footerText: { margin: '1rem 0 0', color: '#6b7280', fontSize: 'clamp(0.85rem, 1.6vw, 0.9rem)' },
+  gridContainer: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'clamp(1rem, 2vw, 1.25rem)', marginBottom: 'clamp(1rem, 2vw, 1.25rem)' },
+  responsiveTableWrapper: { overflowX: 'auto', borderRadius: '12px', marginBottom: '0.75rem' },
+  progressContainer: { marginBottom: '1.4rem', padding: '1rem', borderRadius: '18px', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.06), rgba(59, 130, 246, 0.05))', border: '1px solid rgba(124, 58, 237, 0.12)' },
+  progressTrack: { width: '100%', height: '10px', borderRadius: '999px', background: '#e5e7eb', overflow: 'hidden', marginBottom: '0.9rem', boxShadow: 'inset 0 1px 2px rgba(15, 23, 42, 0.08)' },
+  progressFill: { height: '100%', borderRadius: '999px', background: 'linear-gradient(90deg, #7c3aed, #3b82f6)', transition: 'width 0.25s ease' },
+  sectionIndicator: { marginBottom: '0.9rem', fontSize: '0.95rem', fontWeight: 700, color: '#475569', letterSpacing: '0.01em' },
+  tabRow: { display: 'flex', flexWrap: 'nowrap', gap: '0.5rem', justifyContent: 'space-between', alignItems: 'stretch' },
+  tabRowMobile: { display: 'flex', flexWrap: 'nowrap', gap: '0.5rem', overflowX: 'hidden', justifyContent: 'center', alignItems: 'center', paddingBottom: '0.25rem' },
+  tabButton: { display: 'flex', alignItems: 'center', gap: '0.45rem', minHeight: '62px', flex: '1 1 0', minWidth: 0, padding: '0.66rem 0.6rem', borderRadius: '12px', border: '1px solid #e5e7eb', background: '#ffffff', color: '#475569', fontWeight: 700, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 6px 14px rgba(15, 23, 42, 0.04)' },
+  tabButtonMobile: { display: 'flex', alignItems: 'center', gap: '0.45rem', minHeight: '58px', minWidth: '140px', flex: '0 0 auto', padding: '0.55rem 0.6rem' },
+  tabButtonActive: { borderColor: '#7c3aed', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.14), rgba(59, 130, 246, 0.1))', color: '#6d28d9', boxShadow: '0 9px 20px rgba(124, 58, 237, 0.16)' },
+  tabButtonComplete: { borderColor: '#34d399', background: 'rgba(236, 253, 245, 0.9)', color: '#047857' },
+  tabNumber: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.75rem', height: '1.75rem', borderRadius: '999px', background: 'rgba(124, 58, 237, 0.12)', color: '#7c3aed', fontSize: '0.88rem', flexShrink: 0 },
+  tabTitle: { fontSize: 'clamp(0.72rem, 1.05vw, 0.88rem)', lineHeight: 1.25, wordBreak: 'break-word' },
+  navigationRow: { display: 'flex', justifyContent: 'space-between', gap: '0.75rem', marginTop: '1.5rem', flexWrap: 'wrap' },
+  navButton: { padding: '0.8rem 1.1rem', borderRadius: '999px', border: '1px solid #e5e7eb', background: '#ffffff', color: '#334155', fontWeight: 700, cursor: 'pointer', boxShadow: '0 6px 14px rgba(15, 23, 42, 0.04)' },
+  navButtonPrimary: { background: 'linear-gradient(135deg, #7c3aed, #8b5cf6)', color: '#ffffff', border: 'none', boxShadow: '0 10px 24px rgba(124, 58, 237, 0.22)' },
+  navButtonDisabled: { opacity: 0.6, cursor: 'not-allowed', boxShadow: 'none' }
+};
+
+const TextInput = ({ name, label, placeholder, value, onChange, type = 'text' }) => (
+  <div style={styles.inputGroup} className="survey-input-group">
+    {label && <label style={styles.inputLabel}>{label}</label>}
+    <input
+      className="survey-text-input"
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      style={styles.textInput}
+      onFocus={(e) => Object.assign(e.target.style, styles.textInputFocus)}
+      onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; }}
+    />
+  </div>
+);
+
+const TextArea = ({ name, label, placeholder, value, onChange, rows = 3 }) => (
+  <div style={styles.inputGroup} className="survey-input-group">
+    {label && <label style={styles.inputLabel}>{label}</label>}
+    <textarea
+      className="survey-textarea"
+      name={name}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      rows={rows}
+      style={styles.textarea}
+      onFocus={(e) => Object.assign(e.target.style, styles.textInputFocus)}
+      onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; }}
+    />
+  </div>
+);
+
+const SectionTitle = ({ number, title }) => (
+  <div style={styles.sectionTitle} className="survey-section-title">
+    <h3 style={styles.sectionTitleText}><span style={styles.sectionNumber}>Section {number}:</span>{title}</h3>
+  </div>
+);
+
+const QuestionGroup = ({ title, children }) => (
+  <div style={styles.questionGroup} className="survey-question-group">
+    <p style={styles.questionTitle}>{title}</p>
+    {children}
+  </div>
+);
+
+const SelectorGroup = ({ name, options, value, onChange, placeholder = 'Click to select' }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleSelect = (selectedValue) => {
+    onChange({ target: { name, value: selectedValue } });
+    setIsOpen(false);
+  };
+
+  return (
+    <div style={styles.selectorWrapper}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(prev => !prev)}
+        style={{ ...styles.selectorButton, ...(value ? styles.selectorButtonActive : styles.selectorButtonMuted) }}
+      >
+        <span>{value || placeholder}</span>
+        <span style={styles.selectorDot}>{isOpen ? '▲' : '▼'}</span>
+      </button>
+
+      {isOpen && (
+        <div style={styles.selectorDropdown}>
+          {options.map(option => {
+            const isActive = value === option;
+            return (
+              <button
+                key={option}
+                type="button"
+                onClick={() => handleSelect(option)}
+                style={{ ...styles.selectorOption, ...(isActive ? styles.selectorOptionActive : {}) }}
+              >
+                <span>{option}</span>
+                <span style={styles.selectorDot}>{isActive ? '●' : '○'}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const MatrixSelector = ({ area, value, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const ratings = ['Excellent', 'Good', 'Fair', 'Poor'];
+
+  const handleSelect = (rating) => {
+    onChange(area, rating);
+    setIsOpen(false);
+  };
+
+  return (
+    <div style={styles.matrixRow}>
+      <div style={styles.matrixLabel}>{area}</div>
+      <div style={styles.matrixSelectWrapper}>
+        <button
+          type="button"
+          onClick={() => setIsOpen(prev => !prev)}
+          style={{ ...styles.matrixSelectButton, ...(value ? styles.matrixSelectButtonActive : styles.matrixSelectButtonMuted) }}
+        >
+          <span>{value || 'Select rating'}</span>
+          <span style={styles.selectorDot}>{isOpen ? '▲' : '▼'}</span>
+        </button>
+
+        {isOpen && (
+          <div style={styles.matrixSelectDropdown}>
+            {ratings.map(rating => {
+              const isActive = value === rating;
+              return (
+                <button
+                  key={rating}
+                  type="button"
+                  onClick={() => handleSelect(rating)}
+                  style={{ ...styles.matrixSelectOption, ...(isActive ? styles.matrixSelectOptionActive : {}) }}
+                >
+                  <span>{rating}</span>
+                  <span style={styles.selectorDot}>{isActive ? '●' : '○'}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default function Survey() {
   const [formData, setFormData] = useState({
     parentName: '', childrenNames: '', class: '', email: '', phone: '', parentType: '',
@@ -59,353 +426,6 @@ export default function Survey() {
       window.location.href = '/';
     }
   };
-
-  const styles = {
-    section: {
-      minHeight: 'auto',
-      padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 3vw, 2rem)',
-      background: 'linear-gradient(135deg, #f8fbff 0%, #f4f7ff 45%, #eef5ff 100%)',
-      position: 'relative',
-      overflow: 'hidden'
-    },
-    container: { width: '100%', maxWidth: '1000px', margin: '0 auto' },
-    header: {
-      marginBottom: 'clamp(1.5rem, 4vw, 2.5rem)',
-      textAlign: 'center',
-      padding: 'clamp(1.5rem, 3vw, 2.4rem)',
-      borderRadius: '24px',
-      background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.09), rgba(14, 165, 233, 0.08))',
-      border: '1px solid rgba(124, 58, 237, 0.14)',
-      boxShadow: '0 18px 40px rgba(15, 23, 42, 0.06)'
-    },
-    eyebrow: { margin: 0, marginBottom: '0.7rem', fontSize: 'clamp(0.78rem, 2vw, 0.9rem)', fontWeight: 800, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#7c3aed' },
-    title: { margin: '0 0 0.95rem', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800, color: '#111827' },
-    subtitle: { margin: '0 auto', lineHeight: 1.8, color: '#4b5563', fontSize: 'clamp(0.94rem, 2vw, 1.05rem)', maxWidth: '700px' },
-    form: {
-      background: 'rgba(255, 255, 255, 0.96)',
-      padding: 'clamp(1.25rem, 3vw, 2.4rem)',
-      borderRadius: '24px',
-      boxShadow: '0 18px 42px rgba(15, 23, 42, 0.08)',
-      border: '1px solid rgba(15, 23, 42, 0.04)'
-    },
-    sectionTitle: {
-      marginBottom: '1.25rem',
-      marginTop: 'clamp(1.6rem, 3vw, 2.2rem)',
-      padding: '0.95rem 1rem',
-      borderRadius: '14px',
-      background: 'linear-gradient(90deg, rgba(124, 58, 237, 0.09), rgba(14, 165, 233, 0.05))',
-      border: '1px solid rgba(124, 58, 237, 0.12)'
-    },
-    sectionTitleText: { margin: 0, fontSize: 'clamp(1.05rem, 2.8vw, 1.3rem)', fontWeight: 700, color: '#111827' },
-    sectionNumber: { color: '#7c3aed', marginRight: '0.5rem', fontWeight: 800 },
-    questionGroup: {
-      marginBottom: 'clamp(1rem, 2.4vw, 1.4rem)',
-      padding: '1rem 1rem 1.1rem',
-      borderRadius: '16px',
-      background: 'rgba(248, 250, 252, 0.9)',
-      border: '1px solid #eef2f7'
-    },
-    questionTitle: { margin: '0 0 0.9rem', fontSize: 'clamp(0.95rem, 2.2vw, 1.06rem)', fontWeight: 600, color: '#1f2937', lineHeight: 1.5 },
-    selectorWrapper: { width: '100%' },
-    selectorButton: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: '0.55rem',
-      width: '100%',
-      padding: '0.8rem 0.95rem',
-      borderRadius: '12px',
-      border: '1px solid #e2e8f0',
-      background: '#ffffff',
-      color: '#334155',
-      fontSize: '0.95rem',
-      fontWeight: 600,
-      cursor: 'pointer',
-      transition: 'all 0.2s ease',
-      boxShadow: '0 6px 16px rgba(15, 23, 42, 0.03)',
-      textAlign: 'left'
-    },
-    selectorButtonActive: {
-      borderColor: '#7c3aed',
-      background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
-      color: '#ffffff',
-      boxShadow: '0 10px 22px rgba(124, 58, 237, 0.22)'
-    },
-    selectorButtonMuted: {
-      color: '#64748b',
-      background: '#f8fafc'
-    },
-    selectorDropdown: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '0.4rem',
-      marginTop: '0.45rem',
-      padding: '0.5rem',
-      borderRadius: '12px',
-      border: '1px solid #e2e8f0',
-      background: '#ffffff',
-      boxShadow: '0 14px 32px rgba(15, 23, 42, 0.12)',
-      zIndex: 20
-    },
-    selectorOption: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0.7rem 0.8rem',
-      borderRadius: '10px',
-      border: '1px solid transparent',
-      background: '#fff',
-      color: '#334155',
-      fontSize: '0.92rem',
-      fontWeight: 600,
-      cursor: 'pointer',
-      transition: 'all 0.2s ease',
-      textAlign: 'left'
-    },
-    selectorOptionActive: {
-      background: 'rgba(124, 58, 237, 0.08)',
-      borderColor: 'rgba(124, 58, 237, 0.2)',
-      color: '#6d28d9'
-    },
-    selectorDot: { fontSize: '0.95rem', lineHeight: 1 },
-    inputLabel: { display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#1f2937', fontSize: 'clamp(0.9rem, 1.6vw, 0.95rem)' },
-    textInput: { width: '100%', padding: 'clamp(0.7rem, 1.8vw, 0.9rem)', border: '2px solid #e5e7eb', borderRadius: '12px', fontSize: 'clamp(0.9rem, 1.6vw, 0.95rem)', boxSizing: 'border-box', transition: 'all 0.3s ease', fontFamily: 'inherit', background: '#fff' },
-    textInputFocus: { borderColor: '#7c3aed', outline: 'none', boxShadow: '0 0 0 3px rgba(124, 58, 237, 0.12)' },
-    textarea: { width: '100%', padding: 'clamp(0.7rem, 1.8vw, 0.9rem)', border: '2px solid #e5e7eb', borderRadius: '12px', fontSize: 'clamp(0.9rem, 1.6vw, 0.95rem)', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical', transition: 'all 0.3s ease', background: '#fff' },
-    inputGroup: { marginBottom: 'clamp(1rem, 2vw, 1.25rem)' },
-    matrixRow: { display: 'flex', flexDirection: 'column', gap: '0.45rem', padding: '0.75rem 0.85rem', borderRadius: '12px', background: '#ffffff', border: '1px solid #e5e7eb' },
-    matrixLabel: { fontSize: '0.95rem', fontWeight: 600, color: '#334155' },
-    matrixSelectWrapper: { width: '100%' },
-    matrixSelectButton: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      width: '100%',
-      padding: '0.7rem 0.8rem',
-      borderRadius: '10px',
-      border: '1px solid #e2e8f0',
-      background: '#f8fafc',
-      color: '#334155',
-      fontSize: '0.92rem',
-      fontWeight: 600,
-      cursor: 'pointer',
-      textAlign: 'left'
-    },
-    matrixSelectButtonActive: {
-      borderColor: '#7c3aed',
-      background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
-      color: '#ffffff'
-    },
-    matrixSelectButtonMuted: {
-      color: '#64748b',
-      background: '#f8fafc'
-    },
-    matrixSelectDropdown: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '0.4rem',
-      marginTop: '0.45rem',
-      padding: '0.45rem',
-      borderRadius: '10px',
-      border: '1px solid #e2e8f0',
-      background: '#ffffff',
-      boxShadow: '0 10px 24px rgba(15, 23, 42, 0.1)'
-    },
-    matrixSelectOption: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0.65rem 0.7rem',
-      borderRadius: '8px',
-      border: '1px solid transparent',
-      background: '#fff',
-      color: '#334155',
-      fontSize: '0.9rem',
-      fontWeight: 600,
-      cursor: 'pointer',
-      textAlign: 'left'
-    },
-    matrixSelectOptionActive: {
-      background: 'rgba(124, 58, 237, 0.08)',
-      borderColor: 'rgba(124, 58, 237, 0.2)',
-      color: '#6d28d9'
-    },
-    submitContainer: { marginTop: 'clamp(1.8rem, 4vw, 2.5rem)', paddingTop: 'clamp(1.2rem, 3vw, 1.8rem)', borderTop: '2px solid #e5e7eb', textAlign: 'center' },
-    submitButton: { padding: 'clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2.3rem)', borderRadius: '999px', background: 'linear-gradient(135deg, #7c3aed, #8b5cf6)', color: '#ffffff', border: 'none', fontSize: 'clamp(0.95rem, 2vw, 1rem)', fontWeight: 700, cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: '0 10px 24px rgba(124, 58, 237, 0.25)' },
-    successOverlay: {
-      position: 'fixed',
-      inset: 0,
-      background: 'rgba(2, 6, 23, 0.65)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1rem',
-      zIndex: 9999
-    },
-    successCard: {
-      width: '100%',
-      maxWidth: '520px',
-      padding: 'clamp(1.4rem, 3vw, 2rem)',
-      borderRadius: '24px',
-      background: '#ffffff',
-      border: '1px solid rgba(15, 23, 42, 0.08)',
-      color: '#065f46',
-      textAlign: 'center',
-      boxShadow: '0 24px 60px rgba(2, 6, 23, 0.24)',
-      position: 'relative'
-    },
-    successCloseButton: {
-      position: 'absolute',
-      top: '0.85rem',
-      right: '0.85rem',
-      border: 'none',
-      background: '#f3f4f6',
-      color: '#374151',
-      width: '2.1rem',
-      height: '2.1rem',
-      borderRadius: '999px',
-      fontSize: '1rem',
-      cursor: 'pointer'
-    },
-    successIcon: { fontSize: '2.3rem', marginBottom: '0.7rem' },
-    successTitle: { margin: '0 0 0.65rem', fontSize: 'clamp(1.2rem, 2.6vw, 1.5rem)', fontWeight: 800, color: '#111827' },
-    successText: { margin: 0, lineHeight: 1.7, color: '#4b5563', fontSize: 'clamp(0.95rem, 2vw, 1rem)' },
-    successButtonRow: { display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' },
-    successButton: { padding: '0.8rem 1.2rem', borderRadius: '999px', background: '#059669', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer' },
-    successSecondaryButton: { padding: '0.8rem 1.2rem', borderRadius: '999px', background: '#f3f4f6', color: '#374151', border: 'none', fontWeight: 700, cursor: 'pointer' },
-    footerText: { margin: '1rem 0 0', color: '#6b7280', fontSize: 'clamp(0.85rem, 1.6vw, 0.9rem)' },
-    gridContainer: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'clamp(1rem, 2vw, 1.25rem)', marginBottom: 'clamp(1rem, 2vw, 1.25rem)' },
-    responsiveTableWrapper: { overflowX: 'auto', borderRadius: '12px', marginBottom: '0.75rem' },
-    progressContainer: { marginBottom: '1.4rem', padding: '1rem', borderRadius: '18px', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.06), rgba(59, 130, 246, 0.05))', border: '1px solid rgba(124, 58, 237, 0.12)' },
-    progressTrack: { width: '100%', height: '10px', borderRadius: '999px', background: '#e5e7eb', overflow: 'hidden', marginBottom: '0.9rem', boxShadow: 'inset 0 1px 2px rgba(15, 23, 42, 0.08)' },
-    progressFill: { height: '100%', borderRadius: '999px', background: 'linear-gradient(90deg, #7c3aed, #3b82f6)', transition: 'width 0.25s ease' },
-    sectionIndicator: { marginBottom: '0.9rem', fontSize: '0.95rem', fontWeight: 700, color: '#475569', letterSpacing: '0.01em' },
-    tabRow: { display: 'flex', flexWrap: 'nowrap', gap: '0.5rem', justifyContent: 'space-between', alignItems: 'stretch' },
-    tabRowMobile: { display: 'flex', flexWrap: 'nowrap', gap: '0.5rem', overflowX: 'hidden', justifyContent: 'center', alignItems: 'center', paddingBottom: '0.25rem' },
-    tabButton: { display: 'flex', alignItems: 'center', gap: '0.45rem', minHeight: '62px', flex: '1 1 0', minWidth: 0, padding: '0.66rem 0.6rem', borderRadius: '12px', border: '1px solid #e5e7eb', background: '#ffffff', color: '#475569', fontWeight: 700, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 6px 14px rgba(15, 23, 42, 0.04)' },
-    tabButtonMobile: { display: 'flex', alignItems: 'center', gap: '0.45rem', minHeight: '58px', minWidth: '140px', flex: '0 0 auto', padding: '0.55rem 0.6rem' },
-    tabButtonActive: { borderColor: '#7c3aed', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.14), rgba(59, 130, 246, 0.1))', color: '#6d28d9', boxShadow: '0 9px 20px rgba(124, 58, 237, 0.16)' },
-    tabButtonComplete: { borderColor: '#34d399', background: 'rgba(236, 253, 245, 0.9)', color: '#047857' },
-    tabNumber: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.75rem', height: '1.75rem', borderRadius: '999px', background: 'rgba(124, 58, 237, 0.12)', color: '#7c3aed', fontSize: '0.88rem', flexShrink: 0 },
-    tabTitle: { fontSize: 'clamp(0.72rem, 1.05vw, 0.88rem)', lineHeight: 1.25, wordBreak: 'break-word' },
-    navigationRow: { display: 'flex', justifyContent: 'space-between', gap: '0.75rem', marginTop: '1.5rem', flexWrap: 'wrap' },
-    navButton: { padding: '0.8rem 1.1rem', borderRadius: '999px', border: '1px solid #e5e7eb', background: '#ffffff', color: '#334155', fontWeight: 700, cursor: 'pointer', boxShadow: '0 6px 14px rgba(15, 23, 42, 0.04)' },
-    navButtonPrimary: { background: 'linear-gradient(135deg, #7c3aed, #8b5cf6)', color: '#ffffff', border: 'none', boxShadow: '0 10px 24px rgba(124, 58, 237, 0.22)' },
-    navButtonDisabled: { opacity: 0.6, cursor: 'not-allowed', boxShadow: 'none' }
-  };
-
-  const SelectorGroup = ({ name, options, value, onChange, placeholder = 'Click to select' }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    const handleSelect = (selectedValue) => {
-      onChange({ target: { name, value: selectedValue } });
-      setIsOpen(false);
-    };
-
-    return (
-      <div style={styles.selectorWrapper}>
-        <button
-          type="button"
-          onClick={() => setIsOpen(prev => !prev)}
-          style={{ ...styles.selectorButton, ...(value ? styles.selectorButtonActive : styles.selectorButtonMuted) }}
-        >
-          <span>{value || placeholder}</span>
-          <span style={styles.selectorDot}>{isOpen ? '▲' : '▼'}</span>
-        </button>
-
-        {isOpen && (
-          <div style={styles.selectorDropdown}>
-            {options.map(option => {
-              const isActive = value === option;
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => handleSelect(option)}
-                  style={{ ...styles.selectorOption, ...(isActive ? styles.selectorOptionActive : {}) }}
-                >
-                  <span>{option}</span>
-                  <span style={styles.selectorDot}>{isActive ? '●' : '○'}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const MatrixSelector = ({ area, value, onChange }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const ratings = ['Excellent', 'Good', 'Fair', 'Poor'];
-
-    const handleSelect = (rating) => {
-      onChange(area, rating);
-      setIsOpen(false);
-    };
-
-    return (
-      <div style={styles.matrixRow}>
-        <div style={styles.matrixLabel}>{area}</div>
-        <div style={styles.matrixSelectWrapper}>
-          <button
-            type="button"
-            onClick={() => setIsOpen(prev => !prev)}
-            style={{ ...styles.matrixSelectButton, ...(value ? styles.matrixSelectButtonActive : styles.matrixSelectButtonMuted) }}
-          >
-            <span>{value || 'Select rating'}</span>
-            <span style={styles.selectorDot}>{isOpen ? '▲' : '▼'}</span>
-          </button>
-
-          {isOpen && (
-            <div style={styles.matrixSelectDropdown}>
-              {ratings.map(rating => {
-                const isActive = value === rating;
-                return (
-                  <button
-                    key={rating}
-                    type="button"
-                    onClick={() => handleSelect(rating)}
-                    style={{ ...styles.matrixSelectOption, ...(isActive ? styles.matrixSelectOptionActive : {}) }}
-                  >
-                    <span>{rating}</span>
-                    <span style={styles.selectorDot}>{isActive ? '●' : '○'}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  const TextInput = ({ name, label, placeholder, value, onChange, type = 'text' }) => (
-    <div style={styles.inputGroup} className="survey-input-group">
-      {label && <label style={styles.inputLabel}>{label}</label>}
-      <input className="survey-text-input" type={type} name={name} value={value} onChange={onChange} placeholder={placeholder} style={styles.textInput} onFocus={(e) => Object.assign(e.target.style, styles.textInputFocus)} onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; }} />
-    </div>
-  );
-
-  const TextArea = ({ name, label, placeholder, value, onChange, rows = 3 }) => (
-    <div style={styles.inputGroup} className="survey-input-group">
-      {label && <label style={styles.inputLabel}>{label}</label>}
-      <textarea className="survey-textarea" name={name} value={value} onChange={onChange} placeholder={placeholder} rows={rows} style={styles.textarea} onFocus={(e) => Object.assign(e.target.style, styles.textInputFocus)} onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; }} />
-    </div>
-  );
-
-  const SectionTitle = ({ number, title }) => (
-    <div style={styles.sectionTitle} className="survey-section-title">
-      <h3 style={styles.sectionTitleText}><span style={styles.sectionNumber}>Section {number}:</span>{title}</h3>
-    </div>
-  );
-
-  const QuestionGroup = ({ title, children }) => (
-    <div style={styles.questionGroup} className="survey-question-group">
-      <p style={styles.questionTitle}>{title}</p>
-      {children}
-    </div>
-  );
 
   // Determine visible tabs on mobile: show active and next (or previous+active at end)
   const visibleStart = isMobile
