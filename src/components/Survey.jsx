@@ -274,6 +274,40 @@ const SectionTitle = ({ number, title }) => (
   </div>
 );
 
+const STORAGE_KEY = 'flourish-survey-progress-v1';
+
+const DEFAULT_FORM_DATA = {
+  parentName: '', childrenNames: '', class: '', email: '', phone: '', parentType: '',
+  overallSatisfaction: '', schoolEnvironment: '', communicationSchool: '', couldRecommend: '',
+  schoolFacilities: '', schoolValues: '', teacherSatisfaction: '', teacherMatrix: {},
+  teacherCommunication: '', childTreatedWithLove: '', teacherApproachability: '',
+  teacherMotivation: '', hadTeacherConcern: '', concernResolution: '',
+  appreciateTeacher: '', improvementSuggestions: '', portalUsage: '',
+  portalFunctionality: '', portalFeatures: '', improvementPriority: '',
+  improvementComments: '', generalComments: ''
+};
+
+const sectionMeta = [
+  { id: 'parent-info', number: 'A', title: 'Parent Information' },
+  { id: 'school-experience', number: 'B', title: 'Overall School Experience' },
+  { id: 'teachers-learning', number: 'C', title: 'Teachers & Learning Experience' },
+  { id: 'portal-feedback', number: 'D', title: 'School Portal Feedback' },
+  { id: 'improvement', number: 'E', title: 'Areas for Improvement' },
+  { id: 'final-comments', number: 'F', title: 'Final Comments' }
+];
+
+const getPersistedSurveyState = () => {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const storedValue = window.localStorage.getItem(STORAGE_KEY);
+    return storedValue ? JSON.parse(storedValue) : null;
+  } catch (error) {
+    console.warn('Unable to load saved survey progress', error);
+    return null;
+  }
+};
+
 const QuestionGroup = ({ title, children }) => (
   <div style={styles.questionGroup} className="survey-question-group">
     <p style={styles.questionTitle}>{title}</p>
@@ -368,18 +402,18 @@ const MatrixSelector = ({ area, value, onChange }) => {
 };
 
 export default function Survey() {
-  const [formData, setFormData] = useState({
-    parentName: '', childrenNames: '', class: '', email: '', phone: '', parentType: '',
-    overallSatisfaction: '', schoolEnvironment: '', communicationSchool: '', couldRecommend: '',
-    schoolFacilities: '', schoolValues: '', teacherSatisfaction: '', teacherMatrix: {},
-    teacherCommunication: '', childTreatedWithLove: '', teacherApproachability: '',
-    teacherMotivation: '', hadTeacherConcern: '', concernResolution: '',
-    appreciateTeacher: '', improvementSuggestions: '', portalUsage: '',
-    portalFunctionality: '', portalFeatures: '', improvementPriority: '',
-    improvementComments: '', generalComments: ''
+  const persistedSurvey = getPersistedSurveyState();
+  const [formData, setFormData] = useState(() => ({
+    ...DEFAULT_FORM_DATA,
+    ...(persistedSurvey?.formData || {})
+  }));
+  const [submitted, setSubmitted] = useState(() => Boolean(persistedSurvey?.submitted));
+  const [activeSection, setActiveSection] = useState(() => {
+    const savedSection = Number(persistedSurvey?.activeSection);
+    return Number.isInteger(savedSection) && savedSection >= 0 && savedSection < sectionMeta.length
+      ? savedSection
+      : 0;
   });
-  const [submitted, setSubmitted] = useState(false);
-  const [activeSection, setActiveSection] = useState(0);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 820);
   const sectionContentRef = useRef(null);
 
@@ -403,14 +437,24 @@ export default function Survey() {
     return () => window.clearTimeout(timer);
   }, [activeSection]);
 
-  const sectionMeta = [
-    { id: 'parent-info', number: 'A', title: 'Parent Information' },
-    { id: 'school-experience', number: 'B', title: 'Overall School Experience' },
-    { id: 'teachers-learning', number: 'C', title: 'Teachers & Learning Experience' },
-    { id: 'portal-feedback', number: 'D', title: 'School Portal Feedback' },
-    { id: 'improvement', number: 'E', title: 'Areas for Improvement' },
-    { id: 'final-comments', number: 'F', title: 'Final Comments' }
-  ];
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (submitted) {
+      window.localStorage.removeItem(STORAGE_KEY);
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        activeSection,
+        formData,
+        submitted
+      }));
+    } catch (error) {
+      console.warn('Unable to save survey progress', error);
+    }
+  }, [activeSection, formData, submitted]);
 
   const goNext = () => {
     setActiveSection((prev) => (prev < sectionMeta.length - 1 ? prev + 1 : prev));
