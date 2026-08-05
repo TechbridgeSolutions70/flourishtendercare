@@ -13,26 +13,29 @@ const safeQuery = async (query) => {
     return makeError('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
   }
 
-  const result = await query;
-  return result;
+  try {
+    const result = await query;
+    return result;
+  } catch (error) {
+    console.error('Supabase query failed', error);
+    return makeError(error?.message || 'An unexpected Supabase error occurred.');
+  }
 };
 
+const saveRecord = async (table, payload) => safeQuery(
+  supabase.from(table).insert([{ ...payload, created_at: new Date().toISOString() }])
+);
+
 export async function saveSurveyResponse(payload) {
-  return safeQuery(
-    supabase.from('survey_responses').insert([{ ...payload, created_at: new Date().toISOString() }])
-  );
+  return saveRecord('survey_responses', payload);
 }
 
 export async function saveContactMessage(payload) {
-  return safeQuery(
-    supabase.from('contact_messages').insert([{ ...payload, created_at: new Date().toISOString() }])
-  );
+  return saveRecord('contact_messages', payload);
 }
 
 export async function saveTestimonial(payload) {
-  return safeQuery(
-    supabase.from('parent_testimonials').insert([{ ...payload, created_at: new Date().toISOString() }])
-  );
+  return saveRecord('parent_testimonials', payload);
 }
 
 export async function fetchSurveyResponses() {
