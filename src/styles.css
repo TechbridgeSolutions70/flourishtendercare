@@ -986,6 +986,14 @@ a { color: inherit; text-decoration: none; }
     min-width: 90px;
     padding: 0.35rem 0.55rem;
     font-size: 0.86rem;
+    align-items: flex-start;
+    max-width: 110px;
+  }
+  .admin-dashboard-tab-label {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word;
   }
   .admin-dashboard-tab-count {
     width: 1.3rem;
