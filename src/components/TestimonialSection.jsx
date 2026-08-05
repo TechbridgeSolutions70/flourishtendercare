@@ -119,18 +119,24 @@ function TestimonialSection({ modalMode = false, onClose }) {
                     event.preventDefault();
                     setSubmitError('');
 
-                    const { error } = await saveTestimonial({ name: testimonialName, text: testimonialText });
-                    if (error) {
+                    try {
+                      const { error } = await saveTestimonial({ name: testimonialName, text: testimonialText });
+                      if (error) {
+                        setSubmitError('Unable to send testimonial. Please try again.');
+                        addToast('Unable to send testimonial. Please try again.', { type: 'error', duration: 5000 });
+                        console.error('Testimonial save error', error);
+                        return;
+                      }
+
+                      setSubmitted(true);
+                      setTestimonialName('');
+                      setTestimonialText('');
+                      addToast('Testimonial sent successfully. Thank you!', { type: 'success', duration: 5000 });
+                    } catch (unexpectedError) {
                       setSubmitError('Unable to send testimonial. Please try again.');
                       addToast('Unable to send testimonial. Please try again.', { type: 'error', duration: 5000 });
-                      console.error('Testimonial save error', error);
-                      return;
+                      console.error('Testimonial save unexpected error', unexpectedError);
                     }
-
-                    setSubmitted(true);
-                    setTestimonialName('');
-                    setTestimonialText('');
-                    addToast('Testimonial sent successfully. Thank you!', { type: 'success', duration: 5000 });
                   }}
                 >
                   <div className="testimonial-input-row">

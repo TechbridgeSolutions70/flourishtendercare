@@ -16,18 +16,24 @@ function ContactSection() {
     event.preventDefault();
     setStatus('sending');
 
-    const { error } = await saveContactMessage(formData);
+    try {
+      const { error } = await saveContactMessage(formData);
 
-    if (error) {
-      console.error('Contact save error', error);
+      if (error) {
+        console.error('Contact save error', error);
+        setStatus('error');
+        addToast('Unable to send your message. Please try again.', { type: 'error', duration: 5000 });
+        return;
+      }
+
+      setStatus('sent');
+      addToast('Message sent successfully. We will get back to you soon.', { type: 'success', duration: 5000 });
+      setFormData({ name: '', email: '', message: '' });
+    } catch (unexpectedError) {
+      console.error('Contact save unexpected error', unexpectedError);
       setStatus('error');
       addToast('Unable to send your message. Please try again.', { type: 'error', duration: 5000 });
-      return;
     }
-
-    setStatus('sent');
-    addToast('Message sent successfully. We will get back to you soon.', { type: 'success', duration: 5000 });
-    setFormData({ name: '', email: '', message: '' });
   };
 
   return (

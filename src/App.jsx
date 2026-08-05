@@ -33,26 +33,30 @@ function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [showNewsModal, setShowNewsModal] = useState(false);
+  const normalizePath = () => {
+    if (typeof window === 'undefined') return '';
+    return window.location.pathname.replace(/\/+$/, '').toLowerCase();
+  };
+
   const isSurveyRoute = () => {
-    if (typeof window === 'undefined') return false;
-    const path = window.location.pathname.replace(/\/+$/, '');
+    const path = normalizePath();
     const search = new URLSearchParams(window.location.search);
     return ['/existing_parent', '/prospective_parent', '/survey'].includes(path) || search.get('survey') === '1';
   };
+
   const isTestimonialRoute = () => {
-    if (typeof window === 'undefined') return false;
-    const path = window.location.pathname.replace(/\/+$/, '');
+    const path = normalizePath();
     return path === '/testimonial' || path === '/testimonials';
   };
+
   const isAdminLoginRoute = () => {
-    if (typeof window === 'undefined') return false;
-    const path = window.location.pathname.replace(/\/+$/, '');
-    return path === '/login' || path === '/admins' || path === '/admins/login';
+    const path = normalizePath();
+    return ['/login', '/admin', '/admin/login', '/admins', '/admins/login'].includes(path);
   };
+
   const isAdminRoute = () => {
-    if (typeof window === 'undefined') return false;
-    const path = window.location.pathname.replace(/\/+$/, '');
-    return path === '/dashboard' || path === '/admins/dashboard';
+    const path = normalizePath();
+    return ['/dashboard', '/admin/dashboard', '/admins/dashboard'].includes(path);
   };
   const [surveyPageActive, setSurveyPageActive] = useState(() => isSurveyRoute());
   const [testimonialPageActive, setTestimonialPageActive] = useState(() => isTestimonialRoute());
@@ -70,7 +74,9 @@ function App() {
 
     const updateTopbarSpace = () => {
       const topbar = document.querySelector('.topbar');
+      const topStrip = document.querySelector('.top-strip');
       const extraSpacing = 8; // smaller breathing room
+      const topStripHeight = topStrip ? Math.ceil(topStrip.getBoundingClientRect().height) : 0;
       if (topbar) {
         // clamp to avoid extreme values
         const measured = Math.ceil(topbar.getBoundingClientRect().height + extraSpacing);
@@ -79,6 +85,7 @@ function App() {
       } else {
         document.documentElement.style.setProperty('--topbar-space', '56px');
       }
+      document.documentElement.style.setProperty('--topbar-offset', `${topStripHeight}px`);
     };
 
     updateTopbarSpace();

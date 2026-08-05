@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import useResponsive from '../hooks/useResponsive';
 import { Mail, KeyRound } from 'lucide-react';
 import { adminSignIn, getCurrentSession, supabase } from '../lib/supabaseClient';
@@ -156,12 +157,16 @@ export default function AdminLogin() {
             {error && <div className="admin-alert" style={styles.alert}>{error}</div>}
             <div className="admin-login-info" style={styles.info}>Enter your administrator credentials to access the dashboard.</div>
           </form>
-          <div className="admin-floating-theme" aria-hidden>
-            <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>{theme === 'dark' ? 'Dark' : 'Light'}</span>
-            <button type="button" onClick={toggleTheme} aria-label="Toggle theme">{theme === 'dark' ? '☾' : '☀'}</button>
-          </div>
+          {/* floating theme toggle is rendered to document.body via portal (see below) */}
         </div>
       </div>
+      {typeof document !== 'undefined' && createPortal(
+        <div className="admin-floating-theme" aria-hidden>
+          <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>{theme === 'dark' ? 'Dark' : 'Light'}</span>
+          <button type="button" onClick={toggleTheme} aria-label="Toggle theme">{theme === 'dark' ? '☾' : '☀'}</button>
+        </div>,
+        document.body
+      )}
     </main>
   );
 }

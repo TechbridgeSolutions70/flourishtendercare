@@ -483,18 +483,25 @@ export default function Survey() {
     setSubmitStatus('sending');
     setSubmitError('');
 
-    const { error } = await saveSurveyResponse(formData);
-    if (error) {
-      console.error('Survey save error', error);
+    try {
+      const { error } = await saveSurveyResponse(formData);
+      if (error) {
+        console.error('Survey save error', error);
+        setSubmitStatus('error');
+        setSubmitError('Unable to save your response. Please try again.');
+        addToast('Unable to save your response. Please try again.', { type: 'error', duration: 5000 });
+        return;
+      }
+
+      setSubmitted(true);
+      addToast('Survey submitted successfully. Thank you for your feedback.', { type: 'success', duration: 5000 });
+      setSubmitStatus('success');
+    } catch (unexpectedError) {
+      console.error('Survey save unexpected error', unexpectedError);
       setSubmitStatus('error');
       setSubmitError('Unable to save your response. Please try again.');
       addToast('Unable to save your response. Please try again.', { type: 'error', duration: 5000 });
-      return;
     }
-
-    setSubmitted(true);
-    addToast('Survey submitted successfully. Thank you for your feedback.', { type: 'success', duration: 5000 });
-    setSubmitStatus('success');
   };
 
   const handleSuccessClose = () => {

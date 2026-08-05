@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import useResponsive from '../hooks/useResponsive';
 import {
   adminSignOut,
@@ -22,7 +23,7 @@ const styles = {
   title: { margin: 0, fontSize: 'clamp(1.25rem, 2.2vw, 1.6rem)' },
   subtitle: { margin: '0.35rem 0 0', color: 'var(--text-muted)', fontSize: '0.95rem' },
   button: { borderRadius: '999px', border: 'none', padding: '0.6rem 0.9rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.95rem' },
-  primaryButton: { background: '#7c3aed', color: '#fff' },
+  primaryButton: { background: 'var(--accent)', color: '#fff' },
   secondaryButton: { background: 'var(--bg-surface-alt)', color: 'var(--text-main)' },
   cardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', marginTop: '0.6rem' },
   card: { background: 'var(--card-bg)', borderRadius: '12px', padding: '0.6rem', minHeight: '64px' },
@@ -78,7 +79,7 @@ function DataTable({ title, items, columns, emptyText }) {
       </div>
       <div ref={tableRef} className="admin-table-wrapper" style={styles.tableWrapper}>
         {items.length === 0 ? (
-          <p style={{ margin: '1rem 0', color: '#6b7280' }}>{emptyText}</p>
+          <p style={{ margin: '1rem 0', color: 'var(--text-muted)' }}>{emptyText}</p>
         ) : (
           <table className="admin-table" style={styles.table}>
             <thead className="admin-table-head" style={styles.tableHead}>
@@ -330,28 +331,83 @@ export default function AdminDashboard() {
     <main className="admin-dashboard-page" style={styles.page}>
       <div className="admin-panel-container" style={styles.container}>
         <div className="admin-dashboard-panel" style={styles.panel}>
-          <div className="admin-dashboard-header" style={styles.sectionHeader}>
-            <div>
+          <div className="admin-dashboard-header" style={{
+            ...styles.sectionHeader,
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: isMobile ? 'flex-start' : 'space-between',
+            alignItems: isMobile ? 'flex-start' : 'center',
+            gap: isMobile ? '0.35rem' : '0.75rem',
+            width: '100%',
+          }}>
+            <div style={{ width: isMobile ? '100%' : 'auto' }}>
               <h1 className="admin-dashboard-title" style={localStyles.title}>Admin dashboard</h1>
               <p className="admin-dashboard-subtitle" style={localStyles.subtitle}>Overview of survey responses, contact submissions, and parent testimonials.</p>
             </div>
-            <div className="admin-dashboard-controls" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button className="admin-action-btn admin-action-secondary" style={{ ...styles.button, ...styles.secondaryButton }} type="button" onClick={refreshData} disabled={loading}>
-                {loading ? 'Refreshing…' : 'Refresh'}
+            <div className="admin-dashboard-controls" style={{ display: 'flex', gap: '0.55rem', flexWrap: 'wrap', alignItems: 'center', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'flex-start' : 'flex-end' }}>
+              <button className="admin-action-btn admin-action-secondary" style={{ ...styles.button, ...styles.secondaryButton, display: 'inline-flex', alignItems: 'center' }} type="button" onClick={refreshData} disabled={loading}>
+                {loading ? <span className="btn-spinner" aria-hidden /> : <RefreshCw size={16} />}
+                <span>{loading ? 'Processing' : 'Refresh'}</span>
               </button>
-              <button className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton }} type="button" onClick={handleSignOut} disabled={loading}>
-                <LogOut size={16} /> Sign out
+              <button className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton, display: 'inline-flex', alignItems: 'center' }} type="button" onClick={handleSignOut} disabled={loading}>
+                {loading ? <span className="btn-spinner" aria-hidden /> : <LogOut size={16} />}
+                <span>Sign out</span>
               </button>
             </div>
           </div>
 
-          <div className="admin-dashboard-card-grid" style={localStyles.cardGrid}>
-            <SummaryCard title="Survey responses" value={surveys.length} icon={FileText} />
-            <SummaryCard title="Contact messages" value={contacts.length} icon={Mail} />
-            <SummaryCard title="Testimonials" value={testimonials.length} icon={MessageCircle} />
+          {/* Stats row like the screenshot: 4 colored stat boxes */}
+          <div className="dashboard-stats-grid">
+            <div className="stat-box stat-orange">
+              <div className="stat-label">Students</div>
+              <div className="stat-value">{surveys.length}</div>
+            </div>
+            <div className="stat-box stat-green">
+              <div className="stat-label">Teachers</div>
+              <div className="stat-value">{12}</div>
+            </div>
+            <div className="stat-box stat-red">
+              <div className="stat-label">Classes</div>
+              <div className="stat-value">{8}</div>
+            </div>
+            <div className="stat-box stat-blue">
+              <div className="stat-label">Visitors</div>
+              <div className="stat-value">{contacts.length}</div>
+            </div>
           </div>
 
-          <section className="admin-email-notification" style={{ marginTop: '1.75rem', borderRadius: '20px', padding: '1.35rem', background: 'rgba(239, 246, 255, 0.9)', border: '1px solid rgba(124, 58, 237, 0.18)' }}>
+          {/* Main dashboard grid: small left card and large right map/card */}
+          <div className="dashboard-main-grid">
+            <div className="dashboard-left">
+              <div className="admin-card" style={{ padding: '1rem' }}>
+                <h3 style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.95rem' }}>Task</h3>
+                <div style={{ marginTop: '0.75rem' }}>
+                  <div style={{ width: '100%', height: '120px', display: 'grid', placeItems: 'center' }}>
+                    <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'conic-gradient(var(--accent) 0 75%, var(--accent-soft) 0)', display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 700 }}>80%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="dashboard-right">
+              <div className="admin-card" style={{ padding: '1rem' }}>
+                <h3 style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.95rem' }}>World Map</h3>
+                <p style={{ marginTop: '0.45rem', color: 'var(--text-muted)' }}>Map of the distribution of users around the world</p>
+                <div style={{ marginTop: '0.75rem', width: '100%', height: 160, background: 'linear-gradient(180deg, var(--preview-surface), var(--card-bg))', borderRadius: 8 }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Traffic log table */}
+          <section style={{ marginTop: '0.85rem' }}>
+            <h3 style={{ margin: '0 0 0.6rem 0', color: 'var(--text-main)' }}>Traffic log</h3>
+            <DataTable
+              title="Recent visitors"
+              items={contacts}
+              columns={contactColumns}
+              emptyText="No visitors logged yet."
+            />
+          </section>
+
+          <section className="admin-email-notification" style={{ marginTop: '1.75rem', borderRadius: '20px', padding: '1.35rem', background: 'var(--modal-surface-alt)', border: '1px solid var(--modal-border)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
               <div>
                 <h2 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-main)' }}>Send notification email</h2>
@@ -407,12 +463,16 @@ export default function AdminDashboard() {
             columns={testimonialColumns}
             emptyText="No testimonials have been submitted yet."
           />
-          <div className="admin-floating-theme" aria-hidden>
-            <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>{theme === 'dark' ? 'Dark' : 'Light'}</span>
-            <button type="button" onClick={toggleTheme} aria-label="Toggle theme">{theme === 'dark' ? '☾' : '☀'}</button>
-          </div>
+          {/* floating theme toggle rendered into document.body via portal below */}
         </div>
       </div>
+      {typeof document !== 'undefined' && createPortal(
+        <div className="admin-floating-theme" aria-hidden>
+          <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>{theme === 'dark' ? 'Dark' : 'Light'}</span>
+          <button type="button" onClick={toggleTheme} aria-label="Toggle theme">{theme === 'dark' ? '☾' : '☀'}</button>
+        </div>,
+        document.body
+      )}
     </main>
   );
 }
