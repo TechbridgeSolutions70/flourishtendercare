@@ -14,10 +14,10 @@ import { useToast } from '../components/ToastProvider';
 let hasShownSupabaseWarning = false;
 
 const styles = {
-  page: { minHeight: '100vh', padding: '1.25rem', background: '#f8fafc', color: '#111827' },
+  page: { minHeight: '100vh', padding: '1.25rem', background: 'var(--bg-app)', color: 'var(--text-main)' },
   container: { maxWidth: '1040px', margin: '0 auto' },
   header: { marginBottom: '1rem' },
-  panel: { background: '#fff', borderRadius: '14px', boxShadow: '0 12px 30px rgba(15, 23, 42, 0.06)', padding: '1.2rem' },
+  panel: { background: 'var(--bg-surface)', borderRadius: '14px', boxShadow: '0 12px 30px rgba(15, 23, 42, 0.06)', padding: '1.2rem', border: '1px solid var(--modal-border)' },
   sectionHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.6rem' },
   title: { margin: 0, fontSize: 'clamp(1.25rem, 2.2vw, 1.6rem)' },
   subtitle: { margin: '0.35rem 0 0', color: '#475569', fontSize: '0.95rem' },
@@ -25,7 +25,7 @@ const styles = {
   primaryButton: { background: '#7c3aed', color: '#fff' },
   secondaryButton: { background: '#f3f4f6', color: '#111827' },
   cardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', marginTop: '0.6rem' },
-  card: { background: '#eef2ff', borderRadius: '12px', padding: '0.6rem', minHeight: '64px' },
+  card: { background: 'var(--card-bg)', borderRadius: '12px', padding: '0.6rem', minHeight: '64px' },
   cardTitle: { margin: 0, fontSize: '0.88rem', color: '#475569', marginBottom: '0.35rem' },
   cardValue: { fontSize: '1.1rem', margin: 0, color: '#111827' },
   tableWrapper: { overflowX: 'auto', marginTop: '1rem' },
