@@ -6,11 +6,11 @@ import { useToast } from '../components/ToastProvider';
 import logoUrl from '../Public/logo/logo1.jpeg';
 
 const styles = {
-  page: { minHeight: '100vh', padding: '0', background: '#f8fafc', color: '#111827' },
-  panel: { background: 'rgba(255,255,255,0.98)', borderRadius: '28px', boxShadow: '0 24px 60px rgba(15, 23, 42, 0.12)', padding: '2rem 1.75rem', width: '100%', maxWidth: '420px', backdropFilter: 'blur(16px)' },
+  page: { minHeight: '100vh', padding: '0', background: 'var(--bg-app)', color: 'var(--text-main)' },
+  panel: { background: 'var(--bg-surface)', borderRadius: '28px', boxShadow: '0 24px 60px rgba(15, 23, 42, 0.12)', padding: '2rem 1.75rem', width: '100%', maxWidth: '420px', backdropFilter: 'blur(16px)', border: '1px solid var(--modal-border)' },
   container: { width: '100%', maxWidth: '420px', margin: '0 auto', padding: '1rem' },
-  input: { width: '100%', padding: '0.75rem 1rem', borderRadius: '14px', border: '1px solid rgba(15, 23, 42, 0.12)', background: '#ffffff', fontSize: '0.95rem', minHeight: '3rem' },
-  submit: { borderRadius: '999px', border: 'none', padding: '0.85rem 1rem', background: '#7c3aed', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem', width: '100%', minHeight: '3.2rem' },
+  input: { width: '100%', padding: '0.75rem 1rem', borderRadius: '14px', border: '1px solid var(--border-color)', background: 'var(--card-bg)', color: 'var(--text-main)', fontSize: '0.95rem', minHeight: '3rem' },
+  submit: { borderRadius: '999px', border: 'none', padding: '0.85rem 1rem', background: 'var(--accent)', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem', width: '100%', minHeight: '3.2rem' },
   alert: { marginTop: '0.6rem', padding: '0.8rem 1rem', background: '#fee2e2', borderRadius: '10px', color: '#991b1b', fontSize: '0.95rem' },
   info: { marginTop: '0.75rem', textAlign: 'center', color: '#475569', fontSize: '0.92rem' },
 };
