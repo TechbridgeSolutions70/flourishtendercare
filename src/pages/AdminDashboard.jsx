@@ -108,6 +108,23 @@ function Skeleton({ style: inlineStyle }) {
 }
 
 export default function AdminDashboard() {
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'light';
+    const stored = window.localStorage.getItem('flurish-theme');
+    if (stored === 'dark' || stored === 'light') return stored;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.style.colorScheme = theme;
+      window.localStorage.setItem('flurish-theme', theme);
+    }
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [session, setSession] = useState(null);
@@ -390,6 +407,10 @@ export default function AdminDashboard() {
             columns={testimonialColumns}
             emptyText="No testimonials have been submitted yet."
           />
+          <div className="admin-floating-theme" aria-hidden>
+            <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>{theme === 'dark' ? 'Dark' : 'Light'}</span>
+            <button type="button" onClick={toggleTheme} aria-label="Toggle theme">{theme === 'dark' ? '☾' : '☀'}</button>
+          </div>
         </div>
       </div>
     </main>
