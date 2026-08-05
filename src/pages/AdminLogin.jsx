@@ -11,8 +11,8 @@ const styles = {
   container: { width: '100%', maxWidth: '420px', margin: '0 auto', padding: '1rem' },
   input: { width: '100%', padding: '0.75rem 1rem', borderRadius: '14px', border: '1px solid var(--border-color)', background: 'var(--card-bg)', color: 'var(--text-main)', fontSize: '0.95rem', minHeight: '3rem' },
   submit: { borderRadius: '999px', border: 'none', padding: '0.85rem 1rem', background: 'var(--accent)', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem', width: '100%', minHeight: '3.2rem' },
-  alert: { marginTop: '0.6rem', padding: '0.8rem 1rem', background: '#fee2e2', borderRadius: '10px', color: '#991b1b', fontSize: '0.95rem' },
-  info: { marginTop: '0.75rem', textAlign: 'center', color: '#475569', fontSize: '0.92rem' },
+  alert: { marginTop: '0.6rem', padding: '0.8rem 1rem', background: 'var(--accent-soft)', borderRadius: '10px', color: 'var(--accent-strong)', fontSize: '0.95rem' },
+  info: { marginTop: '0.75rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.92rem' },
 };
 
 export default function AdminLogin() {

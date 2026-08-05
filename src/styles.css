@@ -303,6 +303,7 @@ a { color: inherit; text-decoration: none; }
   max-width: 1040px;
   margin: 0 auto;
   padding: 1rem;
+  position: relative; /* allow absolutely positioned controls inside the panel */
 }
 
 /* Keep the login view compact while allowing dashboard to grow on larger screens */
@@ -1072,20 +1073,24 @@ a { color: inherit; text-decoration: none; }
 
 /* Floating theme toggle for admin pages */
 .admin-floating-theme {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  z-index: 11000;
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1100;
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   background: var(--bg-surface);
   border: 1px solid var(--modal-border);
-  padding: 0.45rem 0.6rem;
+  padding: 0.35rem 0.6rem;
   border-radius: 999px;
-  box-shadow: 0 12px 28px rgba(15,23,42,0.08);
+  box-shadow: 0 8px 18px rgba(15,23,42,0.06);
 }
 .admin-floating-theme button { background: transparent; border: none; cursor: pointer; color: var(--text-main); font-weight: 700; }
+
+@media (max-width: 700px) {
+  .admin-floating-theme { position: fixed; right: 1rem; bottom: 1rem; top: auto; z-index: 11000; }
+}
 
 @keyframes toast-slide-up {
   from {
