@@ -273,6 +273,99 @@ export default function AdminDashboard() {
     []
   );
 
+  const [activeTab, setActiveTab] = useState('visitors');
+
+  const tabDefinitions = useMemo(
+    () => [
+      { key: 'visitors', label: 'Visitors', count: contacts.length, subtitle: 'Visitors on the main site' },
+      { key: 'survey', label: 'Survey Submitted', count: surveys.length, subtitle: 'Survey responses received' },
+      { key: 'messages', label: 'Messages Sent', count: testimonials.length, subtitle: 'Testimonials and messages' },
+    ],
+    [contacts.length, surveys.length, testimonials.length]
+  );
+
+  const renderTabContent = () => {
+    if (activeTab === 'survey') {
+      return (
+        <section className="admin-dashboard-tab-panel">
+          <h3>Survey Submitted</h3>
+          <p className="admin-dashboard-tab-description">Survey submissions received from families.</p>
+          <DataTable
+            title="Survey responses"
+            items={surveys}
+            columns={surveyColumns}
+            emptyText="No survey submissions yet."
+          />
+        </section>
+      );
+    }
+
+    if (activeTab === 'messages') {
+      return (
+        <section className="admin-dashboard-tab-panel">
+          <h3>Messages Sent</h3>
+          <p className="admin-dashboard-tab-description">Messages submitted through the site.</p>
+          <DataTable
+            title="Messages"
+            items={testimonials}
+            columns={testimonialColumns}
+            emptyText="No messages sent yet."
+          />
+        </section>
+      );
+    }
+
+    return (
+      <section className="admin-dashboard-tab-panel">
+        <h3>Visitors</h3>
+        <p className="admin-dashboard-tab-description">Visitors logged from the main site.</p>
+        <DataTable
+          title="Visitor records"
+          items={contacts}
+          columns={contactColumns}
+          emptyText="No visitor records yet."
+        />
+        <div className="admin-email-notification" style={{ marginTop: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-main)' }}>Send notification email</h2>
+              <p style={{ margin: '0.6rem 0 0', color: 'var(--text-muted)', lineHeight: 1.6 }}>Send a notification directly from the visitors tab.</p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <span style={{ padding: '0.5rem 0.9rem', borderRadius: '999px', background: 'var(--accent-soft)', color: 'var(--accent-strong)' }}>Email service: SendGrid</span>
+            </div>
+          </div>
+
+          <form onSubmit={sendEmailNotification} style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
+            <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
+              Subject
+              <input
+                type="text"
+                value={emailSubject}
+                onChange={(event) => setEmailSubject(event.target.value)}
+                style={{ width: '100%', minHeight: '3rem', borderRadius: '14px', border: '1px solid rgba(15, 23, 42, 0.14)', padding: '0.9rem 1rem', fontSize: '1rem' }}
+              />
+            </label>
+
+            <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
+              Body
+              <textarea
+                value={emailBody}
+                onChange={(event) => setEmailBody(event.target.value)}
+                rows={5}
+                style={{ width: '100%', borderRadius: '14px', border: '1px solid rgba(15, 23, 42, 0.14)', padding: '0.9rem 1rem', fontSize: '1rem', resize: 'vertical' }}
+              />
+            </label>
+
+            <button type="submit" className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton, width: 'fit-content' }} disabled={sendingEmail}>
+              {sendingEmail ? 'Sending…' : 'Send notification'}
+            </button>
+          </form>
+        </div>
+      </section>
+    );
+  };
+
   if (!supabaseReady) {
     return (
       <main style={styles.page}>
@@ -395,114 +488,33 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Stats row like the screenshot: 4 colored stat boxes */}
-          <div className="dashboard-stats-grid">
-            <div className="stat-box stat-orange">
-              <div className="stat-label">Students</div>
-              <div className="stat-value">{surveys.length}</div>
-            </div>
-            <div className="stat-box stat-green">
-              <div className="stat-label">Teachers</div>
-              <div className="stat-value">{12}</div>
-            </div>
-            <div className="stat-box stat-red">
-              <div className="stat-label">Classes</div>
-              <div className="stat-value">{8}</div>
-            </div>
-            <div className="stat-box stat-blue">
-              <div className="stat-label">Visitors</div>
-              <div className="stat-value">{contacts.length}</div>
-            </div>
+          <div className="dashboard-stats-grid admin-dashboard-card-row">
+            {tabDefinitions.map((tab) => (
+              <div
+                key={tab.key}
+                className={`stat-box ${tab.key === 'visitors' ? 'stat-blue' : tab.key === 'survey' ? 'stat-orange' : 'stat-green'}`}
+              >
+                <div className="stat-label">{tab.label}</div>
+                <div className="stat-value">{tab.count}</div>
+              </div>
+            ))}
           </div>
 
-          {/* Main dashboard grid: small left card and large right map/card */}
-          <div className="dashboard-main-grid">
-            <div className="dashboard-left">
-              <div className="admin-card" style={{ padding: '1rem' }}>
-                <h3 style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.95rem' }}>Task</h3>
-                <div style={{ marginTop: '0.75rem' }}>
-                  <div style={{ width: '100%', height: '120px', display: 'grid', placeItems: 'center' }}>
-                    <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'conic-gradient(var(--accent) 0 75%, var(--accent-soft) 0)', display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 700 }}>80%</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="dashboard-right">
-              <div className="admin-card" style={{ padding: '1rem' }}>
-                <h3 style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.95rem' }}>World Map</h3>
-                <p style={{ marginTop: '0.45rem', color: 'var(--text-muted)' }}>Map of the distribution of users around the world</p>
-                <div style={{ marginTop: '0.75rem', width: '100%', height: 160, background: 'linear-gradient(180deg, var(--preview-surface), var(--card-bg))', borderRadius: 8 }} />
-              </div>
-            </div>
-          </div>
-
-          {/* Traffic log table */}
-          <section style={{ marginTop: '0.85rem' }}>
-            <h3 style={{ margin: '0 0 0.6rem 0', color: 'var(--text-main)' }}>Traffic log</h3>
-            <DataTable
-              title="Recent visitors"
-              items={contacts}
-              columns={contactColumns}
-              emptyText="No visitors logged yet."
-            />
-          </section>
-
-          <section className="admin-email-notification" style={{ marginTop: '1.75rem', borderRadius: '20px', padding: '1.35rem', background: 'var(--modal-surface-alt)', border: '1px solid var(--modal-border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
-              <div>
-                <h2 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-main)' }}>Send notification email</h2>
-                <p style={{ margin: '0.6rem 0 0', color: 'var(--text-muted)', lineHeight: 1.6 }}>Configure the subject and body, then send a message through the mail API.</p>
-              </div>
-              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <span style={{ padding: '0.5rem 0.9rem', borderRadius: '999px', background: 'var(--accent-soft)', color: 'var(--accent-strong)' }}>Email service: SendGrid</span>
-              </div>
-            </div>
-
-            <form onSubmit={sendEmailNotification} style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
-              <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
-                Subject
-                <input
-                  type="text"
-                  value={emailSubject}
-                  onChange={(event) => setEmailSubject(event.target.value)}
-                  style={{ width: '100%', minHeight: '3rem', borderRadius: '14px', border: '1px solid rgba(15, 23, 42, 0.14)', padding: '0.9rem 1rem', fontSize: '1rem' }}
-                />
-              </label>
-
-              <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
-                Body
-                <textarea
-                  value={emailBody}
-                  onChange={(event) => setEmailBody(event.target.value)}
-                  rows={5}
-                  style={{ width: '100%', borderRadius: '14px', border: '1px solid rgba(15, 23, 42, 0.14)', padding: '0.9rem 1rem', fontSize: '1rem', resize: 'vertical' }}
-                />
-              </label>
-
-              <button type="submit" className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton, width: 'fit-content' }} disabled={sendingEmail}>
-                {sendingEmail ? 'Sending…' : 'Send notification'}
+          <div className="admin-dashboard-tabs">
+            {tabDefinitions.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                className={`admin-dashboard-tab ${activeTab === tab.key ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab.key)}
+              >
+                <span className="admin-dashboard-tab-label">{tab.label}</span>
+                <span className="admin-dashboard-tab-count">{tab.count}</span>
               </button>
-            </form>
-          </section>
+            ))}
+          </div>
 
-          <DataTable
-            title="Latest survey responses"
-            items={surveys}
-            columns={surveyColumns}
-            emptyText="No survey responses have been received yet."
-          />
-          <DataTable
-            title="Latest contact messages"
-            items={contacts}
-            columns={contactColumns}
-            emptyText="No contact messages have been received yet."
-          />
-          <DataTable
-            title="Latest testimonials"
-            items={testimonials}
-            columns={testimonialColumns}
-            emptyText="No testimonials have been submitted yet."
-          />
+          {renderTabContent()}
           {/* floating theme toggle rendered into document.body via portal below */}
         </div>
       </div>
