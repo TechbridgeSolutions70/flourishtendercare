@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import AOS from 'aos';
 
 const heroImageFiles = import.meta.glob('../Public/hero/*.{jpg,jpeg,png,webp}', {
@@ -142,6 +143,16 @@ function Hero() {
                 <p className="eyebrow">{slide.caption}</p>
                 <h2 className="hero-title">{slide.title}</h2>
                 <p className="hero-copy-text">{slide.description}</p>
+                {slide.highlights && (
+                  <div className="hero-highlights">
+                    {slide.highlights.map((item) => (
+                      <div key={item} className="hero-highlight-item">
+                        <Sparkles size={16} />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <div className="hero-actions">
                   <a className="btn btn-primary" href={slide.ctaPrimaryHref}>{slide.ctaPrimary}</a>
                   <a className="btn btn-secondary" href={slide.ctaSecondaryHref}>{slide.ctaSecondary}</a>

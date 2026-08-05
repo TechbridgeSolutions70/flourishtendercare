@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { saveContactMessage } from '../lib/supabaseClient';
+import { useToast } from './ToastProvider';
 
 function ContactSection() {
+  const { addToast } = useToast();
   const [status, setStatus] = useState('idle');
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
 
@@ -9,9 +12,21 @@ function ContactSection() {
     setFormData((current) => ({ ...current, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setStatus('sending');
+
+    const { error } = await saveContactMessage(formData);
+
+    if (error) {
+      console.error('Contact save error', error);
+      setStatus('error');
+      addToast('Unable to send your message. Please try again.', { type: 'error', duration: 5000 });
+      return;
+    }
+
     setStatus('sent');
+    addToast('Message sent successfully. We will get back to you soon.', { type: 'success', duration: 5000 });
     setFormData({ name: '', email: '', message: '' });
   };
 
@@ -74,11 +89,14 @@ function ContactSection() {
               placeholder="Tell us how we can help"
             />
           </label>
-          <button type="submit" className="btn btn-primary">
-            {status === 'sent' ? 'Message sent' : 'Send message'}
+          <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
+            {status === 'sent' ? 'Message sent' : status === 'sending' ? 'Sending…' : 'Send message'}
           </button>
           {status === 'sent' && (
             <p className="form-success">Thanks! We’ll reach out soon.</p>
+          )}
+          {status === 'error' && (
+            <p className="form-error">Unable to send your message. Please try again.</p>
           )}
         </form>
       </div>

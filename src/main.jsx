@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import App from './App';
+import { ToastProvider } from './components/ToastProvider';
 import './styles.css';
 
 function Root() {
@@ -20,6 +21,8 @@ function Root() {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Root />
+    <ToastProvider>
+      <Root />
+    </ToastProvider>
   </React.StrictMode>
 );
