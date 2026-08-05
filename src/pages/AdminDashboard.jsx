@@ -10,6 +10,8 @@ import {
 import { Mail, FileText, MessageCircle, RefreshCw, LogOut, ShieldCheck } from 'lucide-react';
 import { useToast } from '../components/ToastProvider';
 
+let hasShownSupabaseWarning = false;
+
 const styles = {
   page: { minHeight: '100vh', padding: '2rem', background: '#f8fafc', color: '#111827' },
   container: { maxWidth: '1180px', margin: '0 auto' },
@@ -106,6 +108,9 @@ export default function AdminDashboard() {
   const [password, setPassword] = useState('');
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [emailSubject, setEmailSubject] = useState('Admin dashboard notification');
+  const [emailBody, setEmailBody] = useState('Here is an important update from the admin dashboard.');
+  const [sendingEmail, setSendingEmail] = useState(false);
   const { addToast } = useToast();
   const [surveys, setSurveys] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -131,6 +136,34 @@ export default function AdminDashboard() {
     setContacts(contactResult.data || []);
     setTestimonials(testimonialResult.data || []);
     setLoading(false);
+  };
+
+  const sendEmailNotification = async (event) => {
+    event.preventDefault();
+    if (!emailSubject.trim() || !emailBody.trim()) {
+      addToast('Subject and body are required to send the notification.', { type: 'error' });
+      return;
+    }
+
+    setSendingEmail(true);
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject: emailSubject, body: emailBody }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send notification email.');
+      }
+
+      addToast('Notification email sent successfully.', { type: 'success' });
+    } catch (error) {
+      addToast(error.message || 'Failed to send notification email.', { type: 'error' });
+    } finally {
+      setSendingEmail(false);
+    }
   };
 
   useEffect(() => {
@@ -167,8 +200,9 @@ export default function AdminDashboard() {
   }, [initialized, session]);
 
   useEffect(() => {
-    if (!supabaseReady) {
+    if (!supabaseReady && !hasShownSupabaseWarning) {
       addToast('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.', { type: 'error', duration: 8000 });
+      hasShownSupabaseWarning = true;
     }
   }, [supabaseReady, addToast]);
 
@@ -265,6 +299,44 @@ export default function AdminDashboard() {
             <SummaryCard title="Contact messages" value={contacts.length} icon={Mail} />
             <SummaryCard title="Testimonials" value={testimonials.length} icon={MessageCircle} />
           </div>
+
+          <section className="admin-email-notification" style={{ marginTop: '1.75rem', borderRadius: '20px', padding: '1.35rem', background: 'rgba(239, 246, 255, 0.9)', border: '1px solid rgba(124, 58, 237, 0.18)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '1.1rem', color: '#111827' }}>Send notification email</h2>
+                <p style={{ margin: '0.6rem 0 0', color: '#475569', lineHeight: 1.6 }}>Configure the subject and body, then send a message through the mail API.</p>
+              </div>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <span style={{ padding: '0.5rem 0.9rem', borderRadius: '999px', background: '#eef2ff', color: '#4338ca' }}>Email service: SendGrid</span>
+              </div>
+            </div>
+
+            <form onSubmit={sendEmailNotification} style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
+              <label style={{ display: 'grid', gap: '0.5rem', color: '#111827', fontWeight: 700 }}>
+                Subject
+                <input
+                  type="text"
+                  value={emailSubject}
+                  onChange={(event) => setEmailSubject(event.target.value)}
+                  style={{ width: '100%', minHeight: '3rem', borderRadius: '14px', border: '1px solid rgba(15, 23, 42, 0.14)', padding: '0.9rem 1rem', fontSize: '1rem' }}
+                />
+              </label>
+
+              <label style={{ display: 'grid', gap: '0.5rem', color: '#111827', fontWeight: 700 }}>
+                Body
+                <textarea
+                  value={emailBody}
+                  onChange={(event) => setEmailBody(event.target.value)}
+                  rows={5}
+                  style={{ width: '100%', borderRadius: '14px', border: '1px solid rgba(15, 23, 42, 0.14)', padding: '0.9rem 1rem', fontSize: '1rem', resize: 'vertical' }}
+                />
+              </label>
+
+              <button type="submit" className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton, width: 'fit-content' }} disabled={sendingEmail}>
+                {sendingEmail ? 'Sending…' : 'Send notification'}
+              </button>
+            </form>
+          </section>
 
           <DataTable
             title="Latest survey responses"
