@@ -1,21 +1,18 @@
 import { useState, useEffect } from 'react';
-import { ShieldCheck, Mail, KeyRound } from 'lucide-react';
+import useResponsive from '../hooks/useResponsive';
+import { Mail, KeyRound } from 'lucide-react';
 import { adminSignIn, getCurrentSession, supabase } from '../lib/supabaseClient';
 import { useToast } from '../components/ToastProvider';
+import logoUrl from '../Public/logo/logo1.jpeg';
 
 const styles = {
-  page: { minHeight: '100vh', padding: '2rem', background: '#f8fafc', color: '#111827' },
-  container: { maxWidth: '560px', margin: '0 auto' },
-  panel: { background: '#fff', borderRadius: '20px', boxShadow: '0 18px 50px rgba(15, 23, 42, 0.08)', padding: '2rem' },
-  header: { marginBottom: '1.25rem' },
-  title: { margin: 0, fontSize: 'clamp(1.95rem, 3vw, 2.5rem)' },
-  subtitle: { margin: '0.85rem 0 0', color: '#475569', lineHeight: 1.6 },
-  form: { display: 'grid', gap: '1rem' },
-  label: { display: 'grid', gap: '0.5rem', fontWeight: 700, color: '#111827' },
-  input: { width: '100%', padding: '0.95rem 1rem', borderRadius: '14px', border: '1px solid #cbd5e1', background: '#fff', fontSize: '1rem' },
-  submit: { marginTop: '1rem', borderRadius: '999px', border: 'none', padding: '0.95rem 1rem', background: '#7c3aed', color: '#fff', fontWeight: 700, cursor: 'pointer' },
-  alert: { marginTop: '1rem', padding: '1rem 1.2rem', background: '#fee2e2', borderRadius: '14px', color: '#991b1b' },
-  info: { marginTop: '1rem', padding: '1rem 1.2rem', background: '#eff6ff', borderRadius: '14px', color: '#1d4ed8' },
+  page: { minHeight: '100vh', padding: '0', background: '#f8fafc', color: '#111827' },
+  panel: { background: 'rgba(255,255,255,0.98)', borderRadius: '28px', boxShadow: '0 24px 60px rgba(15, 23, 42, 0.12)', padding: '2rem 1.75rem', width: '100%', maxWidth: '420px', backdropFilter: 'blur(16px)' },
+  container: { width: '100%', maxWidth: '420px', margin: '0 auto', padding: '1rem' },
+  input: { width: '100%', padding: '0.75rem 1rem', borderRadius: '14px', border: '1px solid rgba(15, 23, 42, 0.12)', background: '#ffffff', fontSize: '0.95rem', minHeight: '3rem' },
+  submit: { borderRadius: '999px', border: 'none', padding: '0.85rem 1rem', background: '#7c3aed', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem', width: '100%', minHeight: '3.2rem' },
+  alert: { marginTop: '0.6rem', padding: '0.8rem 1rem', background: '#fee2e2', borderRadius: '10px', color: '#991b1b', fontSize: '0.95rem' },
+  info: { marginTop: '0.75rem', textAlign: 'center', color: '#475569', fontSize: '0.92rem' },
 };
 
 export default function AdminLogin() {
@@ -25,6 +22,16 @@ export default function AdminLogin() {
   const [error, setError] = useState('');
   const [sessionExists, setSessionExists] = useState(false);
   const { addToast } = useToast();
+  const { isMobile } = useResponsive();
+
+  const localInputStyle = {
+    ...styles.input,
+    paddingTop: isMobile ? '0.7rem' : '0.75rem',
+    paddingRight: isMobile ? '0.9rem' : '1rem',
+    paddingBottom: isMobile ? '0.7rem' : '0.75rem',
+    paddingLeft: isMobile ? '3.2rem' : '3.8rem',
+    fontSize: isMobile ? '0.92rem' : styles.input.fontSize,
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -33,6 +40,7 @@ export default function AdminLogin() {
         setSessionExists(true);
       }
     };
+
     init();
 
     const listener = supabase.auth.onAuthStateChange((event, authSession) => {
@@ -70,8 +78,8 @@ export default function AdminLogin() {
       <main className="admin-login-page" style={styles.page}>
         <div className="admin-panel-container" style={styles.container}>
           <div className="admin-login-panel" style={styles.panel}>
-            <h1 className="admin-login-title" style={styles.title}>Already signed in</h1>
-            <p className="admin-login-subtitle" style={styles.subtitle}>You are signed in and can now access the admin dashboard at <strong>/dashboard</strong>.</p>
+            <h1 className="admin-login-title">Already signed in</h1>
+            <p className="admin-login-subtitle">You're already signed in. Redirecting to your dashboard.</p>
           </div>
         </div>
       </main>
@@ -80,24 +88,19 @@ export default function AdminLogin() {
 
   return (
     <main className="admin-login-page" style={styles.page}>
+      <div className="admin-login-background" />
       <div className="admin-panel-container" style={styles.container}>
         <div className="admin-login-panel" style={styles.panel}>
-          <header className="admin-login-header" style={styles.header}>
-            <div className="admin-login-hero">
-              <ShieldCheck size={32} className="admin-login-hero-icon" />
-              <div>
-                <h1 style={styles.title}>Secure admin portal</h1>
-                <p style={styles.subtitle}>Authorized team members only. Enter your administrator credentials to continue.</p>
-              </div>
+          <div className="admin-login-brand">
+            <img src={logoUrl} alt="School logo" className="admin-login-logo" />
+            <div>
+              <p className="admin-login-tag">Your Webapp Admin portal</p>
+              <h1 className="admin-login-title">Admin Login</h1>
             </div>
-            <div className="admin-login-illustration">
-              <div className="admin-illustration-shape" />
-              <p className="admin-illustration-copy">Secure operations, fast review, and trusted access for your school administration.</p>
-            </div>
-          </header>
+          </div>
 
-          <form onSubmit={handleSubmit} style={styles.form} className="admin-login-form">
-            <label style={styles.label} className="admin-login-label">
+          <form onSubmit={handleSubmit} className="admin-login-form">
+            <label className="admin-login-label">
               Email
               <div className="admin-input-with-icon">
                 <Mail size={16} className="admin-input-icon" />
@@ -105,15 +108,15 @@ export default function AdminLogin() {
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  placeholder="name@company.com"
-                  style={styles.input}
+                  placeholder="you@example.com"
+                  style={localInputStyle}
                   className="admin-login-input"
                   required
                 />
               </div>
             </label>
 
-            <label style={styles.label} className="admin-login-label">
+            <label className="admin-login-label">
               Password
               <div className="admin-input-with-icon">
                 <KeyRound size={16} className="admin-input-icon" />
@@ -121,8 +124,8 @@ export default function AdminLogin() {
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Your password"
-                  style={styles.input}
+                  placeholder="Password"
+                  style={localInputStyle}
                   className="admin-login-input"
                   required
                 />
@@ -130,11 +133,11 @@ export default function AdminLogin() {
             </label>
 
             <button type="submit" style={styles.submit} className="admin-login-submit" disabled={loading}>
-              {loading ? 'Signing in…' : <><ShieldCheck size={16} /> Sign in</>}
+              {loading ? 'Signing in…' : 'Sign in'}
             </button>
 
             {error && <div className="admin-alert" style={styles.alert}>{error}</div>}
-            <div className="admin-login-info" style={styles.info}>Use your administrator credentials to access the secure dashboard.</div>
+            <div className="admin-login-info" style={styles.info}>Enter your administrator credentials to access the dashboard.</div>
           </form>
         </div>
       </div>

@@ -42,6 +42,31 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Skeleton loader styles */
+.skeleton {
+  background: linear-gradient(90deg, #eef2f7 25%, #e2e8f0 37%, #eef2f7 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.2s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Responsive compact rules for small screens */
+@media (max-width: 600px) {
+  .admin-panel-container { padding: 0 0.5rem; }
+  .admin-login-panel, .admin-dashboard-panel { padding: 0.8rem; border-radius: 12px; }
+  .admin-login-title, .admin-dashboard-title { font-size: 1.1rem; }
+  .admin-card { padding: 0.6rem; min-height: 72px; }
+  .admin-card-value { font-size: 1.1rem; }
+  .admin-card-icon-wrapper { width: 1.8rem; height: 1.8rem; }
+  .admin-login-input { padding-left: 34px; }
+  .admin-table { font-size: 0.88rem; }
+  .admin-table th, .admin-table td { padding: 0.45rem 0.5rem; }
+}
+
 /* Ensure eyebrow and testimonial headings are readable in light mode */
 :root:not([data-theme='dark']) .testimonial-section .eyebrow,
 :root:not([data-theme='dark']) .testimonial-form-shell .eyebrow,
@@ -263,34 +288,134 @@ a { color: inherit; text-decoration: none; }
 .admin-login-page,
 .admin-dashboard-page {
   min-height: 100vh;
-  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 4vw, 2rem);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0;
+  display: grid;
+  place-items: center;
   background: linear-gradient(180deg, rgba(246, 247, 249, 0.95) 0%, rgba(238, 246, 255, 0.95) 45%, rgba(255, 255, 255, 1) 100%);
 }
 
+.admin-login-page .admin-login-panel {
+  padding: 0;
+}
+
 .admin-panel-container {
-  width: min(100%, 1100px);
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
 .admin-login-panel,
 .admin-dashboard-panel {
-  background: var(--card-bg);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 28px;
-  box-shadow: 0 35px 60px rgba(15, 23, 42, 0.09);
-  padding: clamp(2rem, 3vw, 2.5rem);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  padding: 2rem 1.75rem;
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(16px);
 }
 
-.admin-login-header,
-.admin-dashboard-header {
+.admin-login-background {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.16), transparent 18%),
+              radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.14), transparent 14%),
+              linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.admin-login-brand {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 1.4rem;
+  justify-content: center;
+  text-align: center;
+}
+
+.admin-login-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 0.45rem;
+  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.12);
+}
+
+.admin-login-tag {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-login-title {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.05;
+  color: #111827;
+}
+
+.admin-login-form {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.admin-login-label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.admin-login-input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.85rem 1rem 0.85rem 2.8rem;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+  background: #ffffff;
+  color: #111827;
+}
+
+.admin-input-icon {
+  left: 1rem;
+  color: #7c3aed;
+}
+
+.admin-login-submit {
+  min-height: 3.2rem;
+  border-radius: 999px;
+  width: 100%;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 18px 28px rgba(124, 58, 237, 0.24);
+}
+
+.admin-login-submit:hover {
+  filter: brightness(1.04);
+}
+
+.admin-login-info {
+  margin-top: 0.85rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.admin-login-form .admin-alert {
+  margin-top: 0;
+}
+.admin-login-header > div,
+.admin-dashboard-header > div {
+  min-width: 0;
+  flex: 1 1 280px;
 }
 
 .admin-login-title,
@@ -302,15 +427,30 @@ a { color: inherit; text-decoration: none; }
 
 .admin-login-subtitle,
 .admin-dashboard-subtitle {
-  margin: 0.75rem 0 0;
+  margin: 0.45rem 0 0;
   color: var(--text-muted);
   max-width: 42rem;
-  line-height: 1.75;
+  line-height: 1.55;
 }
 
 .admin-login-form {
   display: grid;
-  gap: 1.1rem;
+  gap: 0.85rem;
+}
+
+.admin-login-label {
+  gap: 0.35rem;
+}
+
+.admin-login-input {
+  min-height: 2.8rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 12px;
+}
+
+.admin-login-submit {
+  padding: 0.65rem 0.9rem;
+  min-height: 2.8rem;
 }
 
 .admin-login-label {
@@ -323,7 +463,7 @@ a { color: inherit; text-decoration: none; }
 .admin-login-input {
   width: 100%;
   min-height: 3.2rem;
-  padding: 0.95rem 1rem;
+  padding: 0.95rem 1rem 0.95rem 3.1rem;
   border-radius: 16px;
   border: 1px solid rgba(15, 23, 42, 0.14);
   background: rgba(255, 255, 255, 0.98);
@@ -340,8 +480,37 @@ a { color: inherit; text-decoration: none; }
 .admin-login-hero {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.2rem;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0;
+  width: auto;
+  text-align: center;
+}
+
+.admin-login-hero-icon {
+  padding: 0.25rem;
+  min-width: 1.9rem;
+  min-height: 1.9rem;
+}
+
+.admin-login-hero-card h1,
+.admin-login-hero-card p {
+  margin: 0;
+}
+
+.admin-login-hero-card {
+  align-items: center;
+  line-height: 1.2;
+}
+
+.admin-login-hero-card h1 {
+  font-size: 1.1rem;
+}
+
+.admin-login-hero-card p {
+  font-size: 0.88rem;
+  color: rgba(17, 24, 39, 0.8);
 }
 
 .admin-login-hero-icon {
@@ -359,31 +528,55 @@ a { color: inherit; text-decoration: none; }
 
 .admin-login-illustration {
   position: relative;
-  margin-top: 1rem;
-  padding: 1rem 1.1rem 1.1rem;
+  margin-top: 0;
+  padding: 0.45rem 0.5rem;
   background: rgba(124, 58, 237, 0.07);
-  border-radius: 22px;
+  border-radius: 14px;
   overflow: hidden;
+  max-height: 96px;
+  display: flex;
+  align-items: center;
 }
 
 .admin-illustration-shape {
   position: absolute;
-  right: -24px;
-  top: -18px;
-  width: 130px;
-  height: 130px;
+  right: -18px;
+  top: -8px;
+  width: 100px;
+  height: 100px;
   background: radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.20), transparent 45%);
-  filter: blur(8px);
-  transform: rotate(10deg);
+  filter: blur(6px);
+  transform: rotate(8deg);
 }
 
 .admin-illustration-copy {
   position: relative;
   margin: 0;
   color: #312e81;
-  font-size: 0.98rem;
-  line-height: 1.75;
+  font-size: 0.95rem;
+  line-height: 1.35;
   z-index: 1;
+}
+
+/* Make hero compact and allow form to be visible on most screens */
+.admin-login-hero { margin-bottom: 0; }
+.admin-login-hero-icon { padding: 0.25rem; min-width: 1.9rem; min-height: 1.9rem; margin: 0 auto; }
+
+@media (max-width: 900px) {
+  /* Show a compact illustration on medium screens, but keep it small */
+  .admin-login-illustration { max-height: 80px; padding: 0.3rem 0.45rem; margin: 0.04rem 0 0 0; display: flex; align-items: flex-start; }
+  .admin-illustration-copy { font-size: 0.88rem; line-height: 1.25; }
+
+  /* Constrain container height and allow internal scroll if viewport is short */
+  .admin-panel-container { max-height: calc(100vh - 24px); overflow: auto; }
+  .admin-login-panel { max-height: none; }
+  .admin-login-hero { margin-bottom: 0.08rem; }
+  .admin-login-form { margin-top: 0.06rem; }
+}
+
+@media (max-width: 700px) {
+  .admin-login-illustration { max-height: 110px; padding: 0.55rem; }
+  .admin-illustration-copy { font-size: 0.9rem; }
 }
 
 .admin-input-with-icon {
@@ -396,10 +589,11 @@ a { color: inherit; text-decoration: none; }
   top: 50%;
   transform: translateY(-50%);
   color: rgba(124, 58, 237, 0.7);
+  width: 1rem;
 }
 
 .admin-input-with-icon input {
-  padding-left: 2.6rem;
+  padding-left: 4rem;
 }
 
 .admin-login-submit,
@@ -447,16 +641,16 @@ a { color: inherit; text-decoration: none; }
 
 .admin-dashboard-card-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
 .admin-card {
   background: rgba(124, 58, 237, 0.08);
-  border-radius: 22px;
-  padding: 1.35rem 1.4rem;
-  min-height: 130px;
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+  min-height: 64px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -465,42 +659,42 @@ a { color: inherit; text-decoration: none; }
 .admin-card-heading {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  margin-bottom: 0.75rem;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
 }
 
 .admin-card-icon-wrapper {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 16px;
-  background: rgba(124, 58, 237, 0.2);
+  border-radius: 12px;
+  background: rgba(124, 58, 237, 0.18);
   color: #5b21b6;
 }
 
 .admin-dashboard-controls {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
   align-items: center;
 }
 
 .admin-card-title {
-  margin: 0 0 0.65rem;
-  font-size: 0.95rem;
+  margin: 0 0 0.4rem;
+  font-size: 0.9rem;
   color: #475569;
 }
 
 .admin-card-value {
   margin: 0;
-  font-size: clamp(2rem, 2.5vw, 2.25rem);
+  font-size: 1.6rem;
   color: #111827;
 }
 
 .admin-table-section {
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 .admin-table-section {
@@ -510,12 +704,23 @@ a { color: inherit; text-decoration: none; }
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 680px;
+  min-width: 520px;
 }
 
 .admin-table-head {
   background: rgba(124, 58, 237, 0.08);
 }
+
+/* Compact table cell spacing */
+.admin-table th,
+.admin-table td {
+  padding: 0.6rem 0.75rem;
+}
+
+/* Input with icon */
+.admin-input-with-icon { position: relative; }
+.admin-input-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #6b7280; }
+.admin-login-input { padding-left: 36px; }
 
 .admin-table-header,
 .admin-table-cell {
@@ -529,25 +734,138 @@ a { color: inherit; text-decoration: none; }
   vertical-align: top;
 }
 
+@media (max-width: 1100px) {
+  .admin-panel-container {
+    padding: 0 1rem;
+  }
+}
+
 @media (max-width: 1000px) {
   .admin-dashboard-card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
+@media (max-width: 850px) {
+  .admin-login-header,
+  .admin-dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-login-hero {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+  }
+
+  .admin-login-hero-icon {
+    margin-bottom: 0.3rem;
+  }
+
+  .admin-login-illustration {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .admin-login-form {
+    gap: 1rem;
+  }
+
+  .admin-dashboard-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-dashboard-controls .admin-action-btn {
+    width: 100%;
+  }
+}
+
+/* Strong hero center and compact card override */
+.admin-login-header {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.admin-login-hero-card,
+.admin-login-illustration-card {
+  padding: 0.2rem 0.25rem !important;
+  min-height: auto !important;
+}
+
+.admin-login-hero {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 0.25rem !important;
+  width: auto !important;
+}
+
+.admin-login-hero-icon {
+  padding: 0.25rem !important;
+  min-width: 1.8rem !important;
+  min-height: 1.8rem !important;
+  margin: 0 auto !important;
+}
+
+.admin-login-hero-card h1,
+.admin-login-hero-card p {
+  margin: 0 !important;
+}
+
+.admin-login-hero-card h1 {
+  font-size: 1.05rem !important;
+}
+
+.admin-login-hero-card p {
+  font-size: 0.88rem !important;
+  color: rgba(17, 24, 39, 0.8) !important;
+}
+
+.admin-login-hero-card,
+.admin-login-illustration-card {
+  justify-items: center !important;
+  align-items: center !important;
+}
+
+.admin-login-hero-card {
+  justify-self: center !important;
+  margin-bottom: 0.1rem !important;
+}
+
+.admin-login-illustration-card {
+  margin: 0 !important;
+}
+
+@media (max-width: 900px) {
+  .admin-login-hero {
+    align-items: center !important;
+  }
+}
+
+@media (max-width: 850px) {
+  .admin-login-hero {
+    align-items: center !important;
+  }
+}
+
 @media (max-width: 700px) {
   .admin-login-page,
   .admin-dashboard-page {
-    padding: 1rem;
+    padding: 0.8rem;
+  }
+
+  .admin-login-panel,
+  .admin-dashboard-panel {
+    padding: 1.25rem;
   }
 
   .admin-dashboard-card-grid {
     grid-template-columns: 1fr;
-  }
-
-  .admin-dashboard-panel,
-  .admin-login-panel {
-    padding: 1.5rem;
   }
 
   .admin-table-wrapper {
@@ -563,16 +881,96 @@ a { color: inherit; text-decoration: none; }
     width: 100%;
   }
 
-  .admin-login-header,
-  .admin-dashboard-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .admin-login-title,
   .admin-dashboard-title {
-    font-size: clamp(1.75rem, 4vw, 2.15rem);
+    font-size: clamp(1.65rem, 5vw, 2.1rem);
   }
+
+  .admin-login-hero,
+  .admin-login-illustration {
+    width: 100%;
+  }
+
+  .admin-input-icon {
+    left: 0.95rem;
+  }
+
+  .admin-input-with-icon input {
+    padding-left: 3.4rem;
+  }
+}
+
+/* Strong override: keep the illustration compact and clamp its text to avoid pushing form down */
+.admin-login-illustration {
+  max-height: 96px !important;
+  padding: 0.45rem 0.5rem !important;
+  overflow: hidden !important;
+}
+.admin-illustration-copy {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .admin-login-illustration { max-height: 88px !important; }
+}
+
+@media (max-width: 420px) {
+  .admin-login-illustration { display: none !important; }
+}
+
+/* Further tighten layout for very small screens */
+@media (max-width: 480px) {
+  .admin-login-panel {
+    padding: 0.8rem;
+    border-radius: 10px;
+  }
+
+  .admin-login-illustration { display: none !important; }
+
+  .admin-login-hero { gap: 0.6rem; }
+
+  .admin-login-hero-icon { min-width: 2.4rem; min-height: 2.4rem; padding: 0.6rem; }
+
+  .admin-card { padding: 0.5rem; min-height: 64px; }
+  .admin-card-value { font-size: 1.05rem; }
+
+  .admin-input-icon { left: 0.7rem; }
+  .admin-input-with-icon input, .admin-login-input { padding-left: 40px !important; }
+
+  .admin-login-title { font-size: 1.15rem; }
+  .admin-login-subtitle { font-size: 0.92rem; }
+}
+
+/* Aggressive compact rules for very small phones (<=420px) */
+@media (max-width: 420px) {
+  .admin-panel-container { padding: 0 0.4rem; }
+  .admin-login-panel, .admin-dashboard-panel { padding: 0.6rem; border-radius: 8px; }
+
+  /* Make cards single-column, smaller and denser */
+  .admin-dashboard-card-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+  .admin-card { padding: 0.45rem 0.6rem; min-height: 56px; border-radius: 10px; }
+  .admin-card-title { font-size: 0.82rem; }
+  .admin-card-value { font-size: 1rem; }
+
+  /* Hide decorative illustration to keep form visible */
+  .admin-login-illustration { display: none !important; }
+
+  /* Compact header */
+  .admin-login-hero { gap: 0.5rem; }
+  .admin-login-hero-icon { min-width: 2rem; min-height: 2rem; padding: 0.45rem; }
+
+  /* Ensure icon and placeholder never overlap */
+  .admin-input-icon { left: 0.5rem; }
+  .admin-input-with-icon input, .admin-login-input { padding-left: 44px !important; height: 2.4rem; }
+
+  /* Smaller button */
+  .admin-login-submit, .admin-action-btn { min-height: 2.4rem; padding: 0 0.7rem; font-size: 0.92rem; }
+
+  /* Compact table */
+  .admin-table th, .admin-table td { padding: 0.4rem 0.5rem; font-size: 0.85rem; }
 }
 
 .admin-table-wrapper {
@@ -1593,9 +1991,81 @@ main > .section:first-child {
   color: #9cd3ff;
   margin-bottom: 0.35rem;
 }
-.hero-card h3 {
-  font-size: 1.18rem;
-  margin: 0 0 0.35rem;
+.admin-login-header {
+  margin-bottom: 0.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.admin-login-hero-card,
+.admin-login-illustration-card {
+  background: rgba(255,255,255,0.98);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  padding: 0.2rem 0.3rem;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  width: auto;
+  max-width: 100%;
+}
+
+.admin-login-hero-card {
+  margin-bottom: 0.1rem;
+}
+
+.admin-login-illustration-card {
+  margin: 0;
+  padding: 0.2rem 0.28rem;
+}
+
+/* Position illustration absolutely on wider screens so it doesn't add vertical height */
+@media (min-width: 700px) {
+  .admin-login-header { position: relative; }
+  .admin-login-illustration {
+    position: absolute !important;
+    right: 1rem;
+    top: 0.6rem;
+    width: 220px;
+    max-width: 40%;
+    padding: 0.45rem 0.6rem !important;
+    margin: 0 !important;
+    z-index: 1;
+    box-shadow: none;
+  }
+  .admin-login-hero { margin-right: 240px; }
+}
+
+@media (min-width: 1000px) {
+  .admin-login-illustration { width: 260px; max-width: 36%; right: 1.25rem; }
+  .admin-login-hero { margin-right: 280px; }
+}
+
+  /* Pull the login panel upward: reduce page top padding and clamp container height */
+  .admin-login-page { padding-top: 0.5rem !important; }
+  .admin-panel-container { margin-top: 0 !important; max-height: calc(100vh - 12px); overflow: hidden; }
+  .admin-login-panel { padding-top: 0.85rem !important; padding-bottom: 0.9rem !important; }
+
+  /* Ensure form itself doesn't have large top margin */
+  .admin-login-form { margin-top: 0 !important; }
+
+  /* For very short viewports, allow internal scrolling inside the panel */
+  @media (max-height: 640px) {
+    .admin-panel-container { overflow: auto; }
+  }
+
+/* Force minimal vertical spacing between hero, illustration and form */
+.admin-login-hero { margin-bottom: 0 !important; }
+.admin-login-illustration { margin-top: 0 !important; padding: 0.4rem 0.5rem !important; }
+.admin-login-form { margin-top: 0.08rem !important; }
+.admin-login-panel { gap: 0.15rem !important; }
+
+/* Ensure illustration shows on medium and larger screens */
+@media (min-width: 420px) {
+  .admin-login-illustration { display: flex !important; max-height: 110px !important; }
+}
 }
 .hero-card-subtitle {
   color: #d9e2ff;
@@ -1611,14 +2081,14 @@ main > .section:first-child {
 }
 .hero-age-pill {
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.08);
-  color: #f4f8ff;
-  border-radius: 999px;
-  padding: 0.45rem 0.8rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.admin-login-hero {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+  width: 100%;
+}
 }
 .hero-age-pill.active,
 .hero-age-pill:hover {
@@ -1745,17 +2215,17 @@ main > .section:first-child {
 .hero-post-section .eyebrow {
   color: var(--accent);
 }
-.hero-stats-section h2,
-.hero-post-section h2 {
-  margin-top: 0;
-}
-.hero-stats-section p,
-.hero-post-section p {
-  color: rgba(255, 255, 255, 0.82);
-}
-.hero-admissions-banner {
+.admin-login-illustration {
   position: relative;
-  background: linear-gradient(135deg, #f6fbff 0%, #e8f3fc 100%);
+  margin-top: 0.12rem;
+  padding: 0.45rem 0.5rem;
+  background: rgba(124, 58, 237, 0.06);
+  border-radius: 10px;
+  overflow: hidden;
+  max-height: 110px;
+  display: flex;
+  align-items: flex-start;
+}
   border-radius: 32px;
   padding: 44px 38px;
   margin: 0 0 32px;
@@ -2112,14 +2582,20 @@ main > .section:first-child {
   border-radius: 8px;
   overflow: hidden;
   opacity: 0.45;
-  transition: opacity 220ms ease, transform 220ms ease, box-shadow 220ms ease;
-  display: block;
-  cursor: pointer;
+.admin-illustration-copy {
+  position: relative;
+  margin: 0;
+  color: #312e81;
+  font-size: 0.92rem;
+  line-height: 1.25;
+  z-index: 1;
 }
-.thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+
+/* Tighten spacing between header and form */
+.admin-login-form { margin-top: 0.15rem; }
+
+/* Ensure panel children are compact */
+.admin-login-panel { display: flex; flex-direction: column; gap: 0.25rem; }
   display: block;
   filter: saturate(0.6) contrast(0.9) brightness(0.86);
 }
