@@ -16,6 +16,23 @@ const styles = {
 };
 
 export default function AdminLogin() {
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'light';
+    const stored = window.localStorage.getItem('flurish-theme');
+    if (stored === 'dark' || stored === 'light') return stored;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.style.colorScheme = theme;
+      window.localStorage.setItem('flurish-theme', theme);
+    }
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -139,6 +156,10 @@ export default function AdminLogin() {
             {error && <div className="admin-alert" style={styles.alert}>{error}</div>}
             <div className="admin-login-info" style={styles.info}>Enter your administrator credentials to access the dashboard.</div>
           </form>
+          <div className="admin-floating-theme" aria-hidden>
+            <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>{theme === 'dark' ? 'Dark' : 'Light'}</span>
+            <button type="button" onClick={toggleTheme} aria-label="Toggle theme">{theme === 'dark' ? '☾' : '☀'}</button>
+          </div>
         </div>
       </div>
     </main>
