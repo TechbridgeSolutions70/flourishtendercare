@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import useResponsive from '../hooks/useResponsive';
 import {
   adminSignOut,
   fetchContactMessages,
@@ -13,29 +14,29 @@ import { useToast } from '../components/ToastProvider';
 let hasShownSupabaseWarning = false;
 
 const styles = {
-  page: { minHeight: '100vh', padding: '2rem', background: '#f8fafc', color: '#111827' },
-  container: { maxWidth: '1180px', margin: '0 auto' },
-  header: { marginBottom: '1.5rem' },
-  panel: { background: '#fff', borderRadius: '20px', boxShadow: '0 18px 50px rgba(15, 23, 42, 0.08)', padding: '1.6rem' },
-  sectionHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' },
-  title: { margin: 0, fontSize: 'clamp(1.75rem, 2.8vw, 2.25rem)' },
-  subtitle: { margin: '0.5rem 0 0', color: '#475569' },
-  button: { borderRadius: '999px', border: 'none', padding: '0.9rem 1.45rem', cursor: 'pointer', fontWeight: 700 },
+  page: { minHeight: '100vh', padding: '1.25rem', background: '#f8fafc', color: '#111827' },
+  container: { maxWidth: '1040px', margin: '0 auto' },
+  header: { marginBottom: '1rem' },
+  panel: { background: '#fff', borderRadius: '14px', boxShadow: '0 12px 30px rgba(15, 23, 42, 0.06)', padding: '1.2rem' },
+  sectionHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.6rem' },
+  title: { margin: 0, fontSize: 'clamp(1.25rem, 2.2vw, 1.6rem)' },
+  subtitle: { margin: '0.35rem 0 0', color: '#475569', fontSize: '0.95rem' },
+  button: { borderRadius: '999px', border: 'none', padding: '0.6rem 0.9rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.95rem' },
   primaryButton: { background: '#7c3aed', color: '#fff' },
   secondaryButton: { background: '#f3f4f6', color: '#111827' },
-  cardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginTop: '1.5rem' },
-  card: { background: '#eef2ff', borderRadius: '18px', padding: '1.2rem', minHeight: '130px' },
-  cardTitle: { margin: 0, fontSize: '1rem', color: '#475569', marginBottom: '0.65rem' },
-  cardValue: { fontSize: '2rem', margin: 0, color: '#111827' },
-  tableWrapper: { overflowX: 'auto', marginTop: '1.5rem' },
+  cardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', marginTop: '0.6rem' },
+  card: { background: '#eef2ff', borderRadius: '12px', padding: '0.6rem', minHeight: '64px' },
+  cardTitle: { margin: 0, fontSize: '0.88rem', color: '#475569', marginBottom: '0.35rem' },
+  cardValue: { fontSize: '1.1rem', margin: 0, color: '#111827' },
+  tableWrapper: { overflowX: 'auto', marginTop: '1rem' },
   table: { width: '100%', borderCollapse: 'collapse' },
   tableHead: { background: '#eef2ff' },
-  th: { textAlign: 'left', padding: '0.95rem 1rem', borderBottom: '1px solid #e2e8f0', color: '#475569' },
-  td: { padding: '0.95rem 1rem', borderBottom: '1px solid #e5e7eb', verticalAlign: 'top', color: '#334155' },
-  inputGroup: { display: 'grid', gap: '0.85rem', marginTop: '1rem' },
-  inputLabel: { display: 'block', fontWeight: 700, color: '#111827' },
-  input: { width: '100%', padding: '0.9rem 1rem', borderRadius: '14px', border: '1px solid #cbd5e1', background: '#fff', fontSize: '1rem', color: '#111827' },
-  alert: { marginTop: '1rem', padding: '1rem 1.2rem', background: '#fef3c7', borderRadius: '14px', color: '#92400e' },
+  th: { textAlign: 'left', padding: '0.6rem 0.75rem', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '0.9rem' },
+  td: { padding: '0.6rem 0.75rem', borderBottom: '1px solid #e5e7eb', verticalAlign: 'top', color: '#334155', fontSize: '0.9rem' },
+  inputGroup: { display: 'grid', gap: '0.6rem', marginTop: '0.6rem' },
+  inputLabel: { display: 'block', fontWeight: 700, color: '#111827', fontSize: '0.95rem' },
+  input: { width: '100%', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #e6eef6', background: '#fff', fontSize: '0.95rem', color: '#111827' },
+  alert: { marginTop: '0.6rem', padding: '0.8rem 1rem', background: '#fef3c7', borderRadius: '10px', color: '#92400e' },
 };
 
 function SummaryCard({ title, value, icon: Icon }) {
@@ -102,6 +103,9 @@ function DataTable({ title, items, columns, emptyText }) {
     </div>
   );
 }
+function Skeleton({ style: inlineStyle }) {
+  return <div className="skeleton" style={inlineStyle} />;
+}
 
 export default function AdminDashboard() {
   const [email, setEmail] = useState('');
@@ -112,6 +116,7 @@ export default function AdminDashboard() {
   const [emailBody, setEmailBody] = useState('Here is an important update from the admin dashboard.');
   const [sendingEmail, setSendingEmail] = useState(false);
   const { addToast } = useToast();
+  const { isMobile } = useResponsive();
   const [surveys, setSurveys] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
@@ -251,7 +256,26 @@ export default function AdminDashboard() {
       <main style={styles.page}>
         <div style={styles.container}>
           <div style={styles.panel}>
-            <h1 style={styles.title}>Admin dashboard</h1>
+            <div style={styles.sectionHeader}>
+              <div style={{ flex: 1 }}>
+                <Skeleton style={{ width: '40%', height: '2.2rem', borderRadius: 8, marginBottom: '0.6rem' }} />
+                <Skeleton style={{ width: '60%', height: '1rem', borderRadius: 6 }} />
+              </div>
+              <div style={{ display: 'flex', gap: '0.6rem' }}>
+                <Skeleton style={{ width: '4.6rem', height: '2.2rem', borderRadius: 999 }} />
+                <Skeleton style={{ width: '4.6rem', height: '2.2rem', borderRadius: 999 }} />
+              </div>
+            </div>
+
+            <div style={styles.cardGrid}>
+              <Skeleton style={{ height: 120, borderRadius: 18 }} />
+              <Skeleton style={{ height: 120, borderRadius: 18 }} />
+              <Skeleton style={{ height: 120, borderRadius: 18 }} />
+            </div>
+
+            <div style={{ marginTop: '1.25rem' }}>
+              <Skeleton style={{ height: 220, borderRadius: 14 }} />
+            </div>
           </div>
         </div>
       </main>
@@ -275,14 +299,24 @@ export default function AdminDashboard() {
     );
   }
 
+  // adjust a few styles for small screens
+  const localStyles = {
+    ...styles,
+    container: { ...styles.container, maxWidth: isMobile ? '94%' : styles.container.maxWidth },
+    card: { ...styles.card, padding: isMobile ? '0.65rem' : styles.card.padding, minHeight: isMobile ? '76px' : styles.card.minHeight },
+    cardTitle: { ...styles.cardTitle, fontSize: isMobile ? '0.85rem' : styles.cardTitle.fontSize },
+    cardValue: { ...styles.cardValue, fontSize: isMobile ? '1.25rem' : styles.cardValue.fontSize },
+    sectionHeader: { ...styles.sectionHeader, gap: isMobile ? '0.5rem' : styles.sectionHeader.gap },
+  };
+
   return (
     <main className="admin-dashboard-page" style={styles.page}>
       <div className="admin-panel-container" style={styles.container}>
         <div className="admin-dashboard-panel" style={styles.panel}>
           <div className="admin-dashboard-header" style={styles.sectionHeader}>
             <div>
-              <h1 className="admin-dashboard-title" style={styles.title}>Admin dashboard</h1>
-              <p className="admin-dashboard-subtitle" style={styles.subtitle}>Overview of survey responses, contact submissions, and parent testimonials.</p>
+              <h1 className="admin-dashboard-title" style={localStyles.title}>Admin dashboard</h1>
+              <p className="admin-dashboard-subtitle" style={localStyles.subtitle}>Overview of survey responses, contact submissions, and parent testimonials.</p>
             </div>
             <div className="admin-dashboard-controls" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               <button className="admin-action-btn admin-action-secondary" style={{ ...styles.button, ...styles.secondaryButton }} type="button" onClick={refreshData} disabled={loading}>
@@ -294,7 +328,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="admin-dashboard-card-grid" style={styles.cardGrid}>
+          <div className="admin-dashboard-card-grid" style={localStyles.cardGrid}>
             <SummaryCard title="Survey responses" value={surveys.length} icon={FileText} />
             <SummaryCard title="Contact messages" value={contacts.length} icon={Mail} />
             <SummaryCard title="Testimonials" value={testimonials.length} icon={MessageCircle} />
