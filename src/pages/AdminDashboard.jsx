@@ -20,23 +20,23 @@ const styles = {
   panel: { background: 'var(--bg-surface)', borderRadius: '14px', boxShadow: '0 12px 30px rgba(15, 23, 42, 0.06)', padding: '1.2rem', border: '1px solid var(--modal-border)' },
   sectionHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.6rem' },
   title: { margin: 0, fontSize: 'clamp(1.25rem, 2.2vw, 1.6rem)' },
-  subtitle: { margin: '0.35rem 0 0', color: '#475569', fontSize: '0.95rem' },
+  subtitle: { margin: '0.35rem 0 0', color: 'var(--text-muted)', fontSize: '0.95rem' },
   button: { borderRadius: '999px', border: 'none', padding: '0.6rem 0.9rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.95rem' },
   primaryButton: { background: '#7c3aed', color: '#fff' },
-  secondaryButton: { background: '#f3f4f6', color: '#111827' },
+  secondaryButton: { background: 'var(--bg-surface-alt)', color: 'var(--text-main)' },
   cardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', marginTop: '0.6rem' },
   card: { background: 'var(--card-bg)', borderRadius: '12px', padding: '0.6rem', minHeight: '64px' },
-  cardTitle: { margin: 0, fontSize: '0.88rem', color: '#475569', marginBottom: '0.35rem' },
-  cardValue: { fontSize: '1.1rem', margin: 0, color: '#111827' },
+  cardTitle: { margin: 0, fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '0.35rem' },
+  cardValue: { fontSize: '1.1rem', margin: 0, color: 'var(--text-main)' },
   tableWrapper: { overflowX: 'auto', marginTop: '1rem' },
   table: { width: '100%', borderCollapse: 'collapse' },
-  tableHead: { background: '#eef2ff' },
-  th: { textAlign: 'left', padding: '0.6rem 0.75rem', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '0.9rem' },
-  td: { padding: '0.6rem 0.75rem', borderBottom: '1px solid #e5e7eb', verticalAlign: 'top', color: '#334155', fontSize: '0.9rem' },
+  tableHead: { background: 'var(--bg-surface-alt)' },
+  th: { textAlign: 'left', padding: '0.6rem 0.75rem', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.9rem' },
+  td: { padding: '0.6rem 0.75rem', borderBottom: '1px solid var(--border-color)', verticalAlign: 'top', color: 'var(--text-main)', fontSize: '0.9rem' },
   inputGroup: { display: 'grid', gap: '0.6rem', marginTop: '0.6rem' },
-  inputLabel: { display: 'block', fontWeight: 700, color: '#111827', fontSize: '0.95rem' },
-  input: { width: '100%', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #e6eef6', background: '#fff', fontSize: '0.95rem', color: '#111827' },
-  alert: { marginTop: '0.6rem', padding: '0.8rem 1rem', background: '#fef3c7', borderRadius: '10px', color: '#92400e' },
+  inputLabel: { display: 'block', fontWeight: 700, color: 'var(--text-main)', fontSize: '0.95rem' },
+  input: { width: '100%', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--card-bg)', fontSize: '0.95rem', color: 'var(--text-main)' },
+  alert: { marginTop: '0.6rem', padding: '0.8rem 1rem', background: 'var(--accent-soft)', borderRadius: '10px', color: 'var(--accent-strong)' },
 };
 
 function SummaryCard({ title, value, icon: Icon }) {
@@ -68,7 +68,7 @@ function DataTable({ title, items, columns, emptyText }) {
   return (
     <div className="admin-table-section" style={{ marginTop: '1.75rem' }}>
       <div className="admin-table-headline" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-        <h2 className="admin-table-title" style={{ margin: 0, fontSize: '1.15rem', color: '#111827' }}>{title}</h2>
+      <h2 className="admin-table-title" style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text-main)' }}>{title}</h2>
         {items.length > 0 && (
           <div className="admin-scroll-controls">
             <button type="button" className="admin-scroll-btn" onClick={scrollLeft} aria-label="Scroll table left">←</button>
@@ -354,16 +354,16 @@ export default function AdminDashboard() {
           <section className="admin-email-notification" style={{ marginTop: '1.75rem', borderRadius: '20px', padding: '1.35rem', background: 'rgba(239, 246, 255, 0.9)', border: '1px solid rgba(124, 58, 237, 0.18)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: '1.1rem', color: '#111827' }}>Send notification email</h2>
-                <p style={{ margin: '0.6rem 0 0', color: '#475569', lineHeight: 1.6 }}>Configure the subject and body, then send a message through the mail API.</p>
+                <h2 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-main)' }}>Send notification email</h2>
+                <p style={{ margin: '0.6rem 0 0', color: 'var(--text-muted)', lineHeight: 1.6 }}>Configure the subject and body, then send a message through the mail API.</p>
               </div>
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <span style={{ padding: '0.5rem 0.9rem', borderRadius: '999px', background: '#eef2ff', color: '#4338ca' }}>Email service: SendGrid</span>
+                <span style={{ padding: '0.5rem 0.9rem', borderRadius: '999px', background: 'var(--accent-soft)', color: 'var(--accent-strong)' }}>Email service: SendGrid</span>
               </div>
             </div>
 
             <form onSubmit={sendEmailNotification} style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
-              <label style={{ display: 'grid', gap: '0.5rem', color: '#111827', fontWeight: 700 }}>
+              <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
                 Subject
                 <input
                   type="text"
@@ -373,7 +373,7 @@ export default function AdminDashboard() {
                 />
               </label>
 
-              <label style={{ display: 'grid', gap: '0.5rem', color: '#111827', fontWeight: 700 }}>
+              <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
                 Body
                 <textarea
                   value={emailBody}
