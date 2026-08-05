@@ -3,6 +3,8 @@ import Hero from './components/Hero';
 import NavBar from './components/NavBar';
 import HeroPostSection from './components/HeroPostSection';
 import SurveyPage from './pages/SurveyPage';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
 import HeroStatsSection from './components/HeroStatsSection';
 import AboutSection from './components/AboutSection';
 import ProgramsSection from './components/ProgramsSection';
@@ -13,7 +15,6 @@ import ContactSection from './components/ContactSection';
 import AdmissionsSection from './components/AdmissionsSection';
 import Footer from './components/Footer';
 import NewsModal from './components/NewsModal';
-
 function App() {
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') return 'light';
@@ -43,8 +44,20 @@ function App() {
     const path = window.location.pathname.replace(/\/+$/, '');
     return path === '/testimonial' || path === '/testimonials';
   };
+  const isAdminLoginRoute = () => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname.replace(/\/+$/, '');
+    return path === '/login' || path === '/admins' || path === '/admins/login';
+  };
+  const isAdminRoute = () => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname.replace(/\/+$/, '');
+    return path === '/dashboard' || path === '/admins/dashboard';
+  };
   const [surveyPageActive, setSurveyPageActive] = useState(() => isSurveyRoute());
   const [testimonialPageActive, setTestimonialPageActive] = useState(() => isTestimonialRoute());
+  const [adminPageActive, setAdminPageActive] = useState(() => isAdminRoute());
+  const [adminLoginPageActive, setAdminLoginPageActive] = useState(() => isAdminLoginRoute());
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -144,6 +157,8 @@ function App() {
     const syncRoute = () => {
       setSurveyPageActive(isSurveyRoute());
       setTestimonialPageActive(isTestimonialRoute());
+      setAdminPageActive(isAdminRoute());
+      setAdminLoginPageActive(isAdminLoginRoute());
     };
 
     syncRoute();
@@ -181,6 +196,14 @@ function App() {
 
   if (surveyPageActive) {
     return <SurveyPage />;
+  }
+
+  if (adminLoginPageActive) {
+    return <AdminLogin />;
+  }
+
+  if (adminPageActive) {
+    return <AdminDashboard />;
   }
 
   if (!pageReady) {

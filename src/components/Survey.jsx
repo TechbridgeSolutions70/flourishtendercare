@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { saveSurveyResponse } from '../lib/supabaseClient';
+import { useToast } from './ToastProvider';
 
 const styles = {
   section: {
@@ -408,6 +410,9 @@ export default function Survey() {
     ...(persistedSurvey?.formData || {})
   }));
   const [submitted, setSubmitted] = useState(() => Boolean(persistedSurvey?.submitted));
+  const [submitStatus, setSubmitStatus] = useState('idle');
+  const [submitError, setSubmitError] = useState('');
+  const { addToast } = useToast();
   const [activeSection, setActiveSection] = useState(() => {
     const savedSection = Number(persistedSurvey?.activeSection);
     return Number.isInteger(savedSection) && savedSection >= 0 && savedSection < sectionMeta.length
@@ -473,10 +478,23 @@ export default function Survey() {
     setFormData(prev => ({ ...prev, teacherMatrix: { ...prev.teacherMatrix, [area]: rating } }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Survey submitted:', formData);
+    setSubmitStatus('sending');
+    setSubmitError('');
+
+    const { error } = await saveSurveyResponse(formData);
+    if (error) {
+      console.error('Survey save error', error);
+      setSubmitStatus('error');
+      setSubmitError('Unable to save your response. Please try again.');
+      addToast('Unable to save your response. Please try again.', { type: 'error', duration: 5000 });
+      return;
+    }
+
     setSubmitted(true);
+    addToast('Survey submitted successfully. Thank you for your feedback.', { type: 'success', duration: 5000 });
+    setSubmitStatus('success');
   };
 
   const handleSuccessClose = () => {
@@ -663,6 +681,10 @@ export default function Survey() {
               <button type="submit" style={{ ...styles.navButton, ...styles.navButtonPrimary }}>{submitted ? 'Submitted' : 'Submit Survey'}</button>
             )}
           </div>
+
+          {submitError && !submitted && (
+            <div style={{ marginTop: '1rem', color: '#b91c1c' }}>{submitError}</div>
+          )}
 
           <div style={styles.submitContainer} className="survey-submitContainer">
             {!submitted && (

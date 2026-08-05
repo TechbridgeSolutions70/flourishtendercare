@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { saveTestimonial } from '../lib/supabaseClient';
+import { useToast } from './ToastProvider';
 
 const testimonials = [
   {
@@ -37,6 +39,7 @@ function TestimonialSection({ modalMode = false, onClose }) {
   const [testimonialName, setTestimonialName] = useState('');
   const [testimonialText, setTestimonialText] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -112,14 +115,27 @@ function TestimonialSection({ modalMode = false, onClose }) {
               ) : (
                 <form
                   className="testimonial-form"
-                  onSubmit={(event) => {
+                  onSubmit={async (event) => {
                     event.preventDefault();
+                    setSubmitError('');
+
+                    const { error } = await saveTestimonial({ name: testimonialName, text: testimonialText });
+                    if (error) {
+                      setSubmitError('Unable to send testimonial. Please try again.');
+                      addToast('Unable to send testimonial. Please try again.', { type: 'error', duration: 5000 });
+                      console.error('Testimonial save error', error);
+                      return;
+                    }
+
                     setSubmitted(true);
+                    setTestimonialName('');
+                    setTestimonialText('');
+                    addToast('Testimonial sent successfully. Thank you!', { type: 'success', duration: 5000 });
                   }}
                 >
                   <div className="testimonial-input-row">
                     <label>
-                      Full name
+                      Full Name
                       <input
                         type="text"
                         value={testimonialName}
@@ -143,13 +159,15 @@ function TestimonialSection({ modalMode = false, onClose }) {
                     <button className="btn btn-secondary" type="button" onClick={() => {
                       setTestimonialName('');
                       setTestimonialText('');
+                      setSubmitError('');
                     }}>
                       Reset
                     </button>
                     <button className="btn btn-primary" type="submit">
-                      Send testimonial
+                      Send Testimonial
                     </button>
                   </div>
+                  {submitError && <p className="form-error">{submitError}</p>}
                 </form>
               )}
             </div>
