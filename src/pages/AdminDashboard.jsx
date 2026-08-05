@@ -9,8 +9,9 @@ import {
   getCurrentSession,
   supabase,
 } from '../lib/supabaseClient';
-import { Mail, FileText, MessageCircle, RefreshCw, LogOut, ShieldCheck } from 'lucide-react';
+import { Mail, FileText, MessageCircle, RefreshCw, LogOut, ShieldCheck, Menu } from 'lucide-react';
 import { useToast } from '../components/ToastProvider';
+import logoUrl from '../Public/logo/logo1.jpeg';
 
 let hasShownSupabaseWarning = false;
 
@@ -140,6 +141,7 @@ export default function AdminDashboard() {
   const [testimonials, setTestimonials] = useState([]);
   const [supabaseReady, setSupabaseReady] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const refreshData = async () => {
     setLoading(true);
@@ -215,6 +217,8 @@ export default function AdminDashboard() {
 
     return () => listener?.subscription?.unsubscribe?.();
   }, []);
+
+  const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
 
   useEffect(() => {
     if (initialized && !session) {
@@ -331,19 +335,55 @@ export default function AdminDashboard() {
     <main className="admin-dashboard-page" style={styles.page}>
       <div className="admin-panel-container" style={styles.container}>
         <div className="admin-dashboard-panel" style={styles.panel}>
+          {isMobile && (
+            <div className="admin-dashboard-mobile-navbar">
+              <div className="mobile-nav-left">
+                <img src={logoUrl} alt="School logo" className="mobile-nav-logo" />
+                <p className="mobile-nav-title">Flourish Tender Care</p>
+              </div>
+              <div className="mobile-nav-right">
+                <button
+                  type="button"
+                  className="mobile-nav-icon-button"
+                  onClick={refreshData}
+                  disabled={loading}
+                  aria-label="Refresh data"
+                >
+                  <RefreshCw size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="mobile-nav-icon-button"
+                  onClick={toggleMobileMenu}
+                  aria-label="Open menu"
+                >
+                  <Menu size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+          {isMobile && mobileMenuOpen && (
+            <div className="admin-mobile-menu-panel">
+              <button className="admin-mobile-menu-item" type="button" onClick={handleSignOut} disabled={loading}>
+                <LogOut size={16} />
+                <span>Sign out</span>
+              </button>
+            </div>
+          )}
           <div className="admin-dashboard-header" style={{
             ...styles.sectionHeader,
-            flexDirection: isMobile ? 'column' : 'row',
-            justifyContent: isMobile ? 'flex-start' : 'space-between',
-            alignItems: isMobile ? 'flex-start' : 'center',
-            gap: isMobile ? '0.35rem' : '0.75rem',
+            display: isMobile ? 'none' : 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: styles.sectionHeader.gap,
             width: '100%',
           }}>
-            <div style={{ width: isMobile ? '100%' : 'auto' }}>
+            <div>
               <h1 className="admin-dashboard-title" style={localStyles.title}>Admin dashboard</h1>
               <p className="admin-dashboard-subtitle" style={localStyles.subtitle}>Overview of survey responses, contact submissions, and parent testimonials.</p>
             </div>
-            <div className="admin-dashboard-controls" style={{ display: 'flex', gap: '0.55rem', flexWrap: 'wrap', alignItems: 'center', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'flex-start' : 'flex-end' }}>
+            <div className="admin-dashboard-controls" style={{ display: 'flex', gap: '0.55rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
               <button className="admin-action-btn admin-action-secondary" style={{ ...styles.button, ...styles.secondaryButton, display: 'inline-flex', alignItems: 'center' }} type="button" onClick={refreshData} disabled={loading}>
                 {loading ? <span className="btn-spinner" aria-hidden /> : <RefreshCw size={16} />}
                 <span>{loading ? 'Processing' : 'Refresh'}</span>
