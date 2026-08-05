@@ -436,6 +436,11 @@ export default function Survey() {
       if (!sectionContentRef.current) return;
       const top = sectionContentRef.current.getBoundingClientRect().top + window.scrollY - 28;
       window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+
+      const firstField = sectionContentRef.current.querySelector('input, textarea, button, select, [tabindex]:not([tabindex="-1"])');
+      if (firstField && typeof firstField.focus === 'function') {
+        firstField.focus({ preventScroll: true });
+      }
     };
 
     const timer = window.setTimeout(scrollToSectionTop, 60);
