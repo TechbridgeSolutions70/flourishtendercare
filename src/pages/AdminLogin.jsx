@@ -73,16 +73,16 @@ export default function AdminLogin() {
     setLoading(true);
     setError('');
 
-    const { error: signInError } = await adminSignIn(email, password);
-    if (signInError) {
-      const message = signInError.message || 'Unable to sign in.';
+    const { data, error: signInError } = await adminSignIn(email, password);
+    if (signInError || !data?.session) {
+      const message = signInError?.message || 'Unable to sign in. Please verify your credentials and try again.';
       setError(message);
       addToast(message, { type: 'error', duration: 5000 });
       setLoading(false);
       return;
     }
 
-    window.location.href = '/dashboard';
+    window.location.replace('/dashboard');
   };
 
   useEffect(() => {

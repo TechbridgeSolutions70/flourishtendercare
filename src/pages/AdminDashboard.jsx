@@ -3,6 +3,12 @@ import { createPortal } from 'react-dom';
 import useResponsive from '../hooks/useResponsive';
 import {
   adminSignOut,
+  deleteSurveyResponse,
+  deleteSurveyResponses,
+  deleteContactMessage,
+  deleteContactMessages,
+  deleteTestimonial,
+  deleteTestimonials,
   fetchContactMessages,
   fetchSurveyResponses,
   fetchTestimonials,
@@ -11,6 +17,7 @@ import {
 } from '../lib/supabaseClient';
 import { Mail, FileText, MessageCircle, RefreshCw, LogOut, ShieldCheck, Menu } from 'lucide-react';
 import { useToast } from '../components/ToastProvider';
+import PrintHandler from '../components/PrintHandler';
 import logoUrl from '../Public/logo/logo1.jpeg';
 
 let hasShownSupabaseWarning = false;
@@ -55,7 +62,7 @@ function SummaryCard({ title, value, icon: Icon }) {
   );
 }
 
-function DataTable({ title, items, columns, emptyText }) {
+function DataTable({ title, items, columns, emptyText, rowSelection, rowActions, printScope }) {
   const tableRef = useRef(null);
   const scrollStep = 320;
 
@@ -67,10 +74,21 @@ function DataTable({ title, items, columns, emptyText }) {
     tableRef.current?.scrollBy({ left: scrollStep, behavior: 'smooth' });
   };
 
+  const allSelected = rowSelection?.selectedIds && items.length > 0 && items.every((item) => rowSelection.selectedIds.has(item.id));
+
+  const toggleAll = () => {
+    if (!rowSelection || !rowSelection.onToggle) return;
+    if (allSelected) {
+      items.forEach((item) => rowSelection.onToggle(item.id, false));
+    } else {
+      items.forEach((item) => rowSelection.onToggle(item.id, true));
+    }
+  };
+
   return (
     <div className="admin-table-section" style={{ marginTop: '1.75rem' }}>
       <div className="admin-table-headline" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-      <h2 className="admin-table-title" style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text-main)' }}>{title}</h2>
+        <h2 className="admin-table-title" style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text-main)' }}>{title}</h2>
         {items.length > 0 && (
           <div className="admin-scroll-controls">
             <button type="button" className="admin-scroll-btn" onClick={scrollLeft} aria-label="Scroll table left">←</button>
@@ -85,19 +103,64 @@ function DataTable({ title, items, columns, emptyText }) {
           <table className="admin-table" style={styles.table}>
             <thead className="admin-table-head" style={styles.tableHead}>
               <tr>
+                {rowSelection && (
+                  <th className="admin-table-header" style={styles.th}>
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={toggleAll}
+                      aria-label="Select all rows"
+                    />
+                  </th>
+                )}
                 {columns.map((column) => (
                   <th key={column.key} className="admin-table-header" style={styles.th}>{column.label}</th>
                 ))}
+                {rowActions && <th className="admin-table-header" style={styles.th}>{rowActions.header || 'Actions'}</th>}
               </tr>
             </thead>
             <tbody>
-              {items.map((item, index) => (
-                <tr key={item.id ?? index}>
-                  {columns.map((column) => (
-                    <td key={column.key} className="admin-table-cell" style={styles.td}>{column.render ? column.render(item) : item[column.key] ?? '—'}</td>
-                  ))}
-                </tr>
-              ))}
+              {items.map((item, index) => {
+                const id = item.id ?? index;
+                const isHiddenInPrint = printScope === 'selected' && rowSelection?.selectedIds && !rowSelection.selectedIds.has(id);
+                return (
+                  <tr key={id} className={isHiddenInPrint ? 'print-hidden' : undefined}>
+                    {rowSelection && (
+                      <td className="admin-table-cell" style={styles.td}>
+                        <input
+                          type="checkbox"
+                          checked={rowSelection.selectedIds?.has(id) || false}
+                          onChange={() => rowSelection.onToggle(id)}
+                          aria-label={`Select row ${id}`}
+                        />
+                      </td>
+                    )}
+                    {columns.map((column) => {
+                      const rawKey = column.key;
+                      const snakeKey = rawKey.replace(/[A-Z]/g, (match) => `_${match.toLowerCase()}`);
+                      const value = column.render ? column.render(item) : (item[rawKey] ?? item[snakeKey] ?? '—');
+                      return (
+                        <td key={column.key} className="admin-table-cell" style={styles.td}>{value}</td>
+                      );
+                    })}
+                    {rowActions && (
+                      <td className="admin-table-cell" style={styles.td}>
+                        {rowActions.buttons?.map((button) => (
+                          <button
+                            type="button"
+                            key={button.key}
+                            className="admin-action-btn admin-action-secondary"
+                            onClick={() => button.onClick(item)}
+                            disabled={button.disabled}
+                          >
+                            {button.label}
+                          </button>
+                        ))}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
@@ -139,6 +202,15 @@ export default function AdminDashboard() {
   const [surveys, setSurveys] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
+  const [selectedSurveyIds, setSelectedSurveyIds] = useState(new Set());
+  const [selectedContactIds, setSelectedContactIds] = useState(new Set());
+  const [selectedTestimonialIds, setSelectedTestimonialIds] = useState(new Set());
+  const [classFilter, setClassFilter] = useState('All');
+  const [printScope, setPrintScope] = useState('all');
+  const [printTimestamp, setPrintTimestamp] = useState('');
+  const [showPrintPreview, setShowPrintPreview] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const printUrl = typeof window !== 'undefined' ? window.location.origin : 'https://flourishtendercare.com.ng';
   const [supabaseReady, setSupabaseReady] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -222,7 +294,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (initialized && !session) {
-      window.location.href = '/login';
+      window.location.replace('/login');
     }
   }, [initialized, session]);
 
@@ -243,13 +315,213 @@ export default function AdminDashboard() {
     setLoading(false);
   };
 
+  const toggleSelection = (id, selected, setter) => {
+    setter((prev) => {
+      const next = new Set(prev);
+      if (typeof selected === 'boolean') {
+        if (selected) next.add(id);
+        else next.delete(id);
+      } else {
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectSurvey = (id, selected) => toggleSelection(id, selected, setSelectedSurveyIds);
+  const toggleSelectContact = (id, selected) => toggleSelection(id, selected, setSelectedContactIds);
+  const toggleSelectTestimonial = (id, selected) => toggleSelection(id, selected, setSelectedTestimonialIds);
+
+  const handleDeleteSurvey = async (id) => {
+    if (!window.confirm('Delete this survey response?')) return;
+    setLoading(true);
+    const { error } = await deleteSurveyResponse(id);
+    if (error) {
+      const message = error.message || 'Unable to delete survey response.';
+      addToast(message, { type: 'error', duration: 5000 });
+    } else {
+      addToast('Survey response deleted.', { type: 'success', duration: 4000 });
+      refreshData();
+      setSelectedSurveyIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+    setLoading(false);
+  };
+
+  const handleDeleteContact = async (id) => {
+    if (!window.confirm('Delete this visitor record?')) return;
+    setLoading(true);
+    const { error } = await deleteContactMessage(id);
+    if (error) {
+      const message = error.message || 'Unable to delete visitor record.';
+      addToast(message, { type: 'error', duration: 5000 });
+    } else {
+      addToast('Visitor record deleted.', { type: 'success', duration: 4000 });
+      refreshData();
+      setSelectedContactIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+    setLoading(false);
+  };
+
+  const handleDeleteTestimonial = async (id) => {
+    if (!window.confirm('Delete this testimonial?')) return;
+    setLoading(true);
+    const { error } = await deleteTestimonial(id);
+    if (error) {
+      const message = error.message || 'Unable to delete testimonial.';
+      addToast(message, { type: 'error', duration: 5000 });
+    } else {
+      addToast('Testimonial deleted.', { type: 'success', duration: 4000 });
+      refreshData();
+      setSelectedTestimonialIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+    setLoading(false);
+  };
+
+  const handleDeleteSelected = async () => {
+    let ids = [];
+    let deleteFn = null;
+    let messageLabel = '';
+    let successLabel = '';
+
+    if (activeTab === 'survey') {
+      ids = Array.from(selectedSurveyIds);
+      deleteFn = deleteSurveyResponses;
+      messageLabel = 'survey responses';
+      successLabel = 'Selected survey responses have been deleted.';
+    } else if (activeTab === 'visitors') {
+      ids = Array.from(selectedContactIds);
+      deleteFn = deleteContactMessages;
+      messageLabel = 'visitor records';
+      successLabel = 'Selected visitor records have been deleted.';
+    } else {
+      ids = Array.from(selectedTestimonialIds);
+      deleteFn = deleteTestimonials;
+      messageLabel = 'testimonials';
+      successLabel = 'Selected testimonials have been deleted.';
+    }
+
+    if (!ids.length) return;
+    if (!window.confirm(`Delete selected ${messageLabel}?`)) return;
+
+    setLoading(true);
+    const { error } = await deleteFn(ids);
+    if (error) {
+      const message = error.message || `Unable to delete selected ${messageLabel}.`;
+      addToast(message, { type: 'error', duration: 5000 });
+    } else {
+      addToast(successLabel, { type: 'success', duration: 4000 });
+      refreshData();
+      if (activeTab === 'survey') setSelectedSurveyIds(new Set());
+      else if (activeTab === 'visitors') setSelectedContactIds(new Set());
+      else setSelectedTestimonialIds(new Set());
+    }
+    setLoading(false);
+  };
+
+  const handlePreview = () => {
+    const timestamp = new Date().toLocaleString();
+    setPrintTimestamp(timestamp);
+    setShowPrintPreview(true);
+  };
+
+  const handlePrintFromPreview = () => {
+    setShowPrintPreview(false);
+    window.setTimeout(() => {
+      handlePrint();
+    }, 150);
+  };
+
+  const handlePrint = () => {
+    const timestamp = new Date().toLocaleString();
+    setPrintTimestamp(timestamp);
+    setIsPrinting(true);
+
+    if (typeof document !== 'undefined') {
+      document.body.classList.add('admin-printing');
+
+      const sheetId = 'survey-print-page-style';
+      let styleEl = document.getElementById(sheetId);
+      if (styleEl) {
+        styleEl.remove();
+      }
+
+      styleEl = document.createElement('style');
+      styleEl.id = sheetId;
+      styleEl.textContent = activeTab === 'survey'
+        ? '@page { size: landscape; margin: 0.75in; }'
+        : '@page { size: portrait; margin: 0.75in; }';
+      document.head.appendChild(styleEl);
+
+      const cleanup = () => {
+        document.body.classList.remove('admin-printing');
+        setIsPrinting(false);
+        const existing = document.getElementById(sheetId);
+        if (existing) existing.remove();
+        window.removeEventListener('afterprint', cleanup);
+      };
+      window.addEventListener('afterprint', cleanup);
+    }
+
+    window.setTimeout(() => {
+      window.print();
+    }, 300);
+  };
+
   const surveyColumns = useMemo(
     () => [
       { key: 'parentName', label: 'Parent name' },
       { key: 'childrenNames', label: 'Child(ren)' },
-      { key: 'class', label: 'Class/Grade' },
-      { key: 'overallSatisfaction', label: 'Overall' },
-      { key: 'created_at', label: 'Received', render: (item) => new Date(item.created_at).toLocaleString() },
+      { key: 'class', label: 'Class / Grade' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Phone' },
+      { key: 'parentType', label: 'Parent type' },
+      { key: 'overallSatisfaction', label: 'Overall satisfaction' },
+      { key: 'schoolEnvironment', label: 'School environment' },
+      { key: 'communicationSchool', label: 'Communication with school' },
+      { key: 'couldRecommend', label: 'Would recommend?' },
+      { key: 'schoolFacilities', label: 'Facilities' },
+      { key: 'schoolValues', label: 'School values' },
+      { key: 'teacherSatisfaction', label: 'Teacher quality' },
+      { key: 'teacherCommunication', label: 'Teacher communication' },
+      { key: 'childTreatedWithLove', label: 'Treated with love' },
+      { key: 'teacherApproachability', label: 'Teacher approachability' },
+      { key: 'teacherMotivation', label: 'Teacher motivation' },
+      { key: 'hadTeacherConcern', label: 'Teacher concern?' },
+      { key: 'concernResolution', label: 'Concern resolution' },
+      { key: 'appreciateTeacher', label: 'Appreciation notes' },
+      { key: 'improvementSuggestions', label: 'Improvement suggestions' },
+      { key: 'portalUsage', label: 'Portal usage' },
+      { key: 'portalFunctionality', label: 'Portal functionality' },
+      { key: 'portalFeatures', label: 'Portal features' },
+      { key: 'improvementPriority', label: 'Improvement priority' },
+      { key: 'improvementComments', label: 'Improvement comments' },
+      { key: 'generalComments', label: 'General comments' },
+      {
+        key: 'teacherMatrix',
+        label: 'Teacher ratings',
+        render: (item) => {
+          if (!item.teacherMatrix && !item.teacher_matrix) return '—';
+          const matrix = item.teacherMatrix || item.teacher_matrix;
+          if (typeof matrix !== 'object' || matrix === null) return String(matrix || '—');
+          return Object.entries(matrix)
+            .map(([field, value]) => `${field.replace(/([A-Z])/g, ' $1').trim()}: ${value}`)
+            .join(' • ');
+        },
+      },
+      { key: 'created_at', label: 'Submitted', render: (item) => new Date(item.created_at).toLocaleString() },
     ],
     []
   );
@@ -275,6 +547,30 @@ export default function AdminDashboard() {
 
   const [activeTab, setActiveTab] = useState('visitors');
 
+  const filteredSurveys = useMemo(() => {
+    if (classFilter === 'All') return surveys;
+    return surveys.filter((survey) => {
+      const surveyClass = survey.class ?? survey['class'] ?? '';
+      return String(surveyClass).toLowerCase() === String(classFilter).toLowerCase();
+    });
+  }, [surveys, classFilter]);
+
+  const availableClasses = useMemo(() => {
+    const classes = new Set(['All']);
+    surveys.forEach((survey) => {
+      const surveyClass = survey.class ?? survey['class'] ?? '';
+      if (surveyClass) classes.add(surveyClass);
+    });
+    return Array.from(classes).sort((a, b) => (a === 'All' ? -1 : String(a).localeCompare(String(b))));
+  }, [surveys]);
+
+  const activeSurveyCount = filteredSurveys.length;
+  const selectedCount = activeTab === 'survey'
+    ? selectedSurveyIds.size
+    : activeTab === 'visitors'
+      ? selectedContactIds.size
+      : selectedTestimonialIds.size;
+
   const tabDefinitions = useMemo(
     () => [
       { key: 'visitors', label: 'Visitors', count: contacts.length, subtitle: 'Visitors on the main site' },
@@ -290,11 +586,77 @@ export default function AdminDashboard() {
         <section className="admin-dashboard-tab-panel">
           <h3>Survey Submitted</h3>
           <p className="admin-dashboard-tab-description">Survey submissions received from families.</p>
+
+          <div className="survey-controls-row">
+            <div className="survey-filter-group">
+              <label className="survey-filter-label">Filter by class/grade</label>
+              <select
+                className="survey-filter-select"
+                value={classFilter}
+                onChange={(event) => setClassFilter(event.target.value)}
+              >
+                {availableClasses.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="survey-print-actions">
+              <div className="survey-print-scope">
+                <label>
+                  <input
+                    type="radio"
+                    name="print-scope"
+                    value="all"
+                    checked={printScope === 'all'}
+                    onChange={() => setPrintScope('all')}
+                  />
+                  All rows
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="print-scope"
+                    value="selected"
+                    checked={printScope === 'selected'}
+                    onChange={() => setPrintScope('selected')}
+                    disabled={selectedCount === 0}
+                  />
+                  Selected rows ({selectedCount})
+                </label>
+              </div>
+
+              <div className="survey-action-buttons">
+                <button type="button" className="admin-action-btn admin-action-secondary" onClick={handleDeleteSelected} disabled={selectedCount === 0 || loading}>
+                  Delete selected
+                </button>
+                <button type="button" className="admin-action-btn admin-action-secondary" onClick={handlePreview} disabled={activeSurveyCount === 0}>
+                  Preview PDF
+                </button>
+                <button type="button" className="admin-action-btn" onClick={handlePrint} disabled={activeSurveyCount === 0}>
+                  Print responses
+                </button>
+              </div>
+            </div>
+          </div>
+
           <DataTable
-            title="Survey responses"
-            items={surveys}
+            title={`Survey responses (${filteredSurveys.length})`}
+            items={filteredSurveys}
             columns={surveyColumns}
             emptyText="No survey submissions yet."
+            rowSelection={{ selectedIds: selectedSurveyIds, onToggle: toggleSelectSurvey }}
+            rowActions={{
+              header: 'Actions',
+              buttons: [
+                {
+                  key: 'delete',
+                  label: 'Delete',
+                  onClick: (item) => handleDeleteSurvey(item.id),
+                },
+              ],
+            }}
+            printScope={printScope}
           />
         </section>
       );
@@ -305,11 +667,64 @@ export default function AdminDashboard() {
         <section className="admin-dashboard-tab-panel">
           <h3>Messages Sent</h3>
           <p className="admin-dashboard-tab-description">Messages submitted through the site.</p>
+
+          <div className="survey-controls-row">
+            <div className="survey-print-actions">
+              <div className="survey-print-scope">
+                <label>
+                  <input
+                    type="radio"
+                    name="print-scope"
+                    value="all"
+                    checked={printScope === 'all'}
+                    onChange={() => setPrintScope('all')}
+                  />
+                  All rows
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="print-scope"
+                    value="selected"
+                    checked={printScope === 'selected'}
+                    onChange={() => setPrintScope('selected')}
+                    disabled={selectedCount === 0}
+                  />
+                  Selected rows ({selectedCount})
+                </label>
+              </div>
+
+              <div className="survey-action-buttons">
+                <button type="button" className="admin-action-btn admin-action-secondary" onClick={handleDeleteSelected} disabled={selectedCount === 0 || loading}>
+                  Delete selected
+                </button>
+                <button type="button" className="admin-action-btn admin-action-secondary" onClick={handlePreview} disabled={testimonials.length === 0}>
+                  Preview PDF
+                </button>
+                <button type="button" className="admin-action-btn" onClick={handlePrint} disabled={testimonials.length === 0}>
+                  Print responses
+                </button>
+              </div>
+            </div>
+          </div>
+
           <DataTable
-            title="Messages"
+            title={`Testimonials (${testimonials.length})`}
             items={testimonials}
             columns={testimonialColumns}
             emptyText="No messages sent yet."
+            rowSelection={{ selectedIds: selectedTestimonialIds, onToggle: toggleSelectTestimonial }}
+            rowActions={{
+              header: 'Actions',
+              buttons: [
+                {
+                  key: 'delete',
+                  label: 'Delete',
+                  onClick: (item) => handleDeleteTestimonial(item.id),
+                },
+              ],
+            }}
+            printScope={printScope}
           />
         </section>
       );
@@ -319,11 +734,64 @@ export default function AdminDashboard() {
       <section className="admin-dashboard-tab-panel">
         <h3>Visitors</h3>
         <p className="admin-dashboard-tab-description">Visitors logged from the main site.</p>
+
+        <div className="survey-controls-row">
+          <div className="survey-print-actions">
+            <div className="survey-print-scope">
+              <label>
+                <input
+                  type="radio"
+                  name="print-scope"
+                  value="all"
+                  checked={printScope === 'all'}
+                  onChange={() => setPrintScope('all')}
+                />
+                All rows
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="print-scope"
+                  value="selected"
+                  checked={printScope === 'selected'}
+                  onChange={() => setPrintScope('selected')}
+                  disabled={selectedCount === 0}
+                />
+                Selected rows ({selectedCount})
+              </label>
+            </div>
+
+            <div className="survey-action-buttons">
+              <button type="button" className="admin-action-btn admin-action-secondary" onClick={handleDeleteSelected} disabled={selectedCount === 0 || loading}>
+                Delete selected
+              </button>
+              <button type="button" className="admin-action-btn admin-action-secondary" onClick={handlePreview} disabled={contacts.length === 0}>
+                Preview PDF
+              </button>
+              <button type="button" className="admin-action-btn" onClick={handlePrint} disabled={contacts.length === 0}>
+                Print responses
+              </button>
+            </div>
+          </div>
+        </div>
+
         <DataTable
-          title="Visitor records"
+          title={`Visitor records (${contacts.length})`}
           items={contacts}
           columns={contactColumns}
           emptyText="No visitor records yet."
+          rowSelection={{ selectedIds: selectedContactIds, onToggle: toggleSelectContact }}
+          rowActions={{
+            header: 'Actions',
+            buttons: [
+              {
+                key: 'delete',
+                label: 'Delete',
+                onClick: (item) => handleDeleteContact(item.id),
+              },
+            ],
+          }}
+          printScope={printScope}
         />
         <div className="admin-email-notification" style={{ marginTop: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
@@ -424,6 +892,30 @@ export default function AdminDashboard() {
     sectionHeader: { ...styles.sectionHeader, gap: isMobile ? '0.5rem' : styles.sectionHeader.gap },
   };
 
+  const printHeading = activeTab === 'survey'
+    ? 'Survey Responses Report'
+    : activeTab === 'visitors'
+      ? 'Visitor Records Report'
+      : 'Testimonial Messages Report';
+
+  const printItems = activeTab === 'survey'
+    ? filteredSurveys
+    : activeTab === 'visitors'
+      ? contacts
+      : testimonials;
+
+  const printColumns = activeTab === 'survey'
+    ? surveyColumns
+    : activeTab === 'visitors'
+      ? contactColumns
+      : testimonialColumns;
+
+  const printSelectedIds = activeTab === 'survey'
+    ? selectedSurveyIds
+    : activeTab === 'visitors'
+      ? selectedContactIds
+      : selectedTestimonialIds;
+
   return (
     <main className="admin-dashboard-page" style={styles.page}>
       <div className="admin-panel-container" style={styles.container}>
@@ -518,6 +1010,33 @@ export default function AdminDashboard() {
           {/* floating theme toggle rendered into document.body via portal below */}
         </div>
       </div>
+      {showPrintPreview && (
+        <div className="print-preview-modal visible" role="dialog" aria-modal="true">
+          <div className="print-preview-backdrop" onClick={() => setShowPrintPreview(false)} />
+          <div className="print-preview-content">
+            <div className="print-preview-toolbar">
+              <button type="button" className="admin-action-btn admin-action-secondary" onClick={() => setShowPrintPreview(false)}>
+                Close Preview
+              </button>
+              <button type="button" className="admin-action-btn" onClick={handlePrintFromPreview}>
+                Save to PDF
+              </button>
+            </div>
+            <PrintHandler
+              logoUrl={logoUrl}
+              heading={printHeading}
+              printUrl={printUrl}
+              printTimestamp={printTimestamp}
+              items={printItems}
+              columns={printColumns}
+              printScope={printScope}
+              selectedIds={printSelectedIds}
+              preview
+            />
+          </div>
+        </div>
+      )}
+
       {typeof document !== 'undefined' && createPortal(
         <div className="admin-floating-theme" aria-hidden>
           <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>{theme === 'dark' ? 'Dark' : 'Light'}</span>
