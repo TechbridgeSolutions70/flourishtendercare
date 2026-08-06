@@ -9,9 +9,9 @@ import './styles.css';
 function Root() {
   useEffect(() => {
     AOS.init({
-      duration: 700,
+      duration: 300,
       once: false,
-      offset: 40,
+      offset: 0,
       easing: 'ease-out-cubic',
     });
   }, []);
