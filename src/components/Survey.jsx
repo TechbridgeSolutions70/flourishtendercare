@@ -448,6 +448,8 @@ export default function Survey() {
           const currentScroll = pageShell ? pageShell.scrollTop : window.scrollY;
           targetTop = currentScroll + titleRect.top - topbarSpace - 16;
         }
+      } else if (lastNavigation === 'initial' && activeSection === 0) {
+        targetTop = 0;
       } else {
         const headerRect = surveyHeader.getBoundingClientRect();
         const currentScroll = pageShell ? pageShell.scrollTop : window.scrollY;
