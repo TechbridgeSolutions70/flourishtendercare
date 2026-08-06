@@ -427,6 +427,39 @@ a { color: inherit; text-decoration: none; }
   .admin-dashboard-header { gap: 0.5rem; align-items: flex-start; }
   .admin-dashboard-title { font-size: 1.1rem; }
   .admin-dashboard-subtitle { font-size: 0.92rem; }
+
+  .survey-print-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .survey-print-scope {
+    flex: 1 1 240px;
+    min-width: 0;
+  }
+
+  .survey-print-scope label {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .survey-action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    flex: 1 1 320px;
+    min-width: 0;
+  }
+
+  .survey-action-buttons .admin-action-btn {
+    min-width: 0;
+  }
 }
 
 @media (max-width: 768px) {
@@ -827,20 +860,16 @@ a { color: inherit; text-decoration: none; }
   font-weight: 700;
   border: none;
   transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
-  padding: 0 1.4rem;
-  gap: 0.6rem;
-}
+    padding: 0 1.2rem;
+    gap: 0.45rem;
+    white-space: nowrap;
+  }
 
-.admin-action-secondary {
-  background: #f3f4f6;
-  color: #111827;
-}
-
-.admin-login-submit:hover,
-.admin-action-btn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.03);
-  box-shadow: 0 18px 45px rgba(124, 58, 237, 0.15);
+  .admin-action-btn span {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 /* Small inline spinner for buttons */
@@ -1142,8 +1171,9 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 900px) {
   .admin-table {
-    min-width: max-content;
-    width: auto;
+    min-width: 100%;
+    width: 100%;
+    table-layout: fixed;
   }
 
   .admin-table th,
@@ -1151,50 +1181,47 @@ a { color: inherit; text-decoration: none; }
   .admin-table-header,
   .admin-table-cell {
     padding: 0.35rem 0.5rem;
-  }
-
-  .admin-table th,
-  .admin-table td {
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-word;
   }
 
   .admin-table-cell-content {
     max-height: 5rem;
-    white-space: nowrap;
+    white-space: normal;
   }
 
   .admin-table-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    max-width: 100vw;
   }
 }
 
 @media (max-width: 640px) {
   .admin-table {
-    min-width: max-content;
-    width: auto;
+    min-width: 100%;
+    width: 100%;
+    table-layout: fixed;
   }
 
   .admin-table th,
   .admin-table td,
   .admin-table-header,
   .admin-table-cell {
-    padding: 0.3125rem 0.3125rem; /* 5px */
-  }
-
-  .admin-table th,
-  .admin-table td {
-    white-space: nowrap;
+    padding: 0.3125rem 0.3125rem;
+    white-space: normal;
+    word-break: break-word;
   }
 
   .admin-table-cell-content {
     max-height: 5rem;
-    white-space: nowrap;
+    white-space: normal;
   }
 
   .admin-table-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    max-width: 100vw;
   }
 }
 
@@ -1366,6 +1393,17 @@ a { color: inherit; text-decoration: none; }
 
   .admin-table {
     min-width: 100%;
+    table-layout: fixed;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .admin-table-cell-content {
+    white-space: normal;
   }
 
   .admin-scroll-controls {
@@ -1391,10 +1429,71 @@ a { color: inherit; text-decoration: none; }
     padding-left: 3.4rem;
   }
 
-  .admin-dashboard-panel,
   .admin-dashboard-page,
+  .admin-dashboard-panel,
   .admin-panel-container {
-    overflow-x: visible;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .survey-controls-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .survey-filter-group {
+    width: 100%;
+  }
+
+  .survey-print-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .survey-print-scope {
+    width: 100%;
+  }
+
+  .survey-action-buttons {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .survey-action-buttons .admin-action-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard-page,
+  .admin-panel-container,
+  .admin-dashboard-panel,
+  .admin-dashboard-tabs,
+  .survey-controls-row,
+  .survey-print-actions,
+  .survey-action-buttons,
+  .survey-filter-group,
+  .admin-table-wrapper,
+  .admin-table,
+  .admin-dashboard-mobile-navbar,
+  .admin-mobile-menu-panel,
+  .admin-dashboard-tab,
+  .admin-dashboard-tab-label,
+  .admin-table-cell,
+  .admin-table-cell-content {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .admin-dashboard-page,
+  .admin-panel-container,
+  .admin-dashboard-panel {
+    overflow-x: hidden;
+  }
+
+  .admin-dashboard-tabs {
+    overflow-x: auto;
   }
 }
 
@@ -1607,11 +1706,15 @@ a { color: inherit; text-decoration: none; }
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
-}
+    min-width: 0;
+  }
 
-.survey-print-scope {
-  display: flex;
-  gap: 1rem;
+  .survey-filter-group,
+  .survey-print-actions,
+  .survey-action-buttons,
+  .survey-print-scope,
+  .survey-print-scope label {
+    min-width: 0;
   align-items: center;
   color: #334155;
   font-size: 0.92rem;
@@ -2028,6 +2131,16 @@ a { color: inherit; text-decoration: none; }
     .survey-print-actions {
       display: grid;
       gap: 0.8rem;
+      grid-template-columns: 1fr;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .survey-print-actions .admin-action-btn {
+      width: 100%;
+      min-width: 0;
+      padding: 0.85rem 1rem;
+      font-size: 0.92rem;
     }
 
     .survey-action-buttons {
