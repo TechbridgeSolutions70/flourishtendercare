@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { saveSurveyResponse } from '../lib/supabaseClient';
 import { useToast } from './ToastProvider';
 
@@ -420,8 +420,6 @@ export default function Survey() {
       : 0;
   });
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 820);
-  const [lastNavigation, setLastNavigation] = useState('initial');
-  const surveyHeaderRef = useRef(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -429,48 +427,6 @@ export default function Survey() {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const scrollToSectionTop = () => {
-      const surveyHeader = surveyHeaderRef.current;
-      if (!surveyHeader) return;
-
-      const pageShell = document.querySelector('.page-shell');
-      const topbarSpace = Number(getComputedStyle(document.documentElement).getPropertyValue('--topbar-space').replace('px', '')) || 56;
-      let targetTop = 0;
-
-      if (lastNavigation === 'next' && activeSection > 0) {
-        const sectionTitle = document.querySelector('.survey-section-title');
-        if (sectionTitle) {
-          const titleRect = sectionTitle.getBoundingClientRect();
-          const currentScroll = pageShell ? pageShell.scrollTop : window.scrollY;
-          targetTop = currentScroll + titleRect.top - topbarSpace - 16;
-        }
-      } else if (lastNavigation === 'initial' && activeSection === 0) {
-        targetTop = 0;
-      } else {
-        const headerRect = surveyHeader.getBoundingClientRect();
-        const currentScroll = pageShell ? pageShell.scrollTop : window.scrollY;
-        targetTop = currentScroll + headerRect.top - topbarSpace - 16;
-      }
-
-      if (pageShell) {
-        pageShell.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
-      } else {
-        window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
-      }
-
-      const firstField = surveyHeader.nextElementSibling?.querySelector('input, textarea, button, select, [tabindex]:not([tabindex="-1"])');
-      if (firstField && typeof firstField.focus === 'function') {
-        firstField.focus({ preventScroll: true });
-      }
-    };
-
-    const timer = window.setTimeout(scrollToSectionTop, 60);
-    return () => window.clearTimeout(timer);
-  }, [activeSection]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -492,14 +448,35 @@ export default function Survey() {
   }, [activeSection, formData, submitted]);
 
   const goNext = () => {
-    setLastNavigation('next');
     setActiveSection((prev) => (prev < sectionMeta.length - 1 ? prev + 1 : prev));
   };
 
   const goPrev = () => {
-    setLastNavigation('tab');
     setActiveSection((prev) => (prev > 0 ? prev - 1 : prev));
   };
+
+  const scrollToActiveTab = () => {
+    if (typeof window === 'undefined') return;
+    const tabRow = document.querySelector('.survey-tabs');
+    if (!tabRow) return;
+
+    const pageShell = document.querySelector('.page-shell');
+    const tabRect = tabRow.getBoundingClientRect();
+    const offset = 16;
+
+    if (pageShell) {
+      const pageTop = pageShell.getBoundingClientRect().top;
+      const scrollTop = pageShell.scrollTop + tabRect.top - pageTop - offset;
+      pageShell.scrollTo({ top: scrollTop, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: window.pageYOffset + tabRect.top - offset, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    const timeout = window.setTimeout(scrollToActiveTab, 100);
+    return () => window.clearTimeout(timeout);
+  }, [activeSection]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -554,8 +531,7 @@ export default function Survey() {
     <section style={styles.section} className="survey-section">
       <div style={styles.container} className="survey-container">
         <div
-          ref={surveyHeaderRef}
-          style={{ ...styles.header, scrollMarginTop: 'calc(var(--topbar-space, 56px) + 16px)' }}
+          style={styles.header}
           data-aos="fade-up"
           data-aos-delay="60"
           className="survey-header"
@@ -571,7 +547,7 @@ export default function Survey() {
               <div style={{ ...styles.progressFill, width: `${((activeSection + 1) / sectionMeta.length) * 100}%` }} />
             </div>
             <div style={styles.sectionIndicator}>Step {activeSection + 1} of {sectionMeta.length} • {sectionMeta[activeSection].title}</div>
-            <div style={isMobile ? styles.tabRowMobile : styles.tabRow}>
+            <div style={isMobile ? styles.tabRowMobile : styles.tabRow} className="survey-tabs">
               {visibleTabs.map((section, idx) => {
                 const originalIndex = visibleStart + idx;
                 const isActive = activeSection === originalIndex;
@@ -583,7 +559,7 @@ export default function Survey() {
                     key={section.id}
                     type="button"
                     style={{ ...base, ...mobileExtra, ...(isActive ? styles.tabButtonActive : {}), ...(isComplete && !isActive ? styles.tabButtonComplete : {}) }}
-                    onClick={() => { setLastNavigation('tab'); setActiveSection(originalIndex); }}
+                    onClick={() => setActiveSection(originalIndex)}
                   >
                     <span style={styles.tabNumber}>{isComplete ? '✓' : section.number}</span>
                     <span style={styles.tabTitle}>{section.title}</span>
@@ -593,7 +569,7 @@ export default function Survey() {
             </div>
           </div>
 
-          <div style={{ scrollMarginTop: '100px' }}>
+          <div>
             {activeSection === 0 && (
               <>
                 <SectionTitle number="A" title="Parent Information" />
