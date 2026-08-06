@@ -62,6 +62,90 @@ function SummaryCard({ title, value, icon: Icon }) {
   );
 }
 
+function formatFieldValue(item, column) {
+  if (column.render) {
+    return column.render(item);
+  }
+
+  const rawKey = column.key;
+  const snakeKey = rawKey.replace(/[A-Z]/g, (match) => `_${match.toLowerCase()}`);
+  const value = item[rawKey] ?? item[snakeKey];
+
+  if (value === undefined || value === null || value === '') {
+    return '—';
+  }
+
+  if (typeof value === 'object') {
+    return JSON.stringify(value, null, 0);
+  }
+
+  return String(value);
+}
+
+function DetailRecordModal({ logoUrl, heading, item, columns, onClose, onPrint }) {
+  const [showAllFields, setShowAllFields] = useState(false);
+  const visibleColumns = showAllFields ? columns : columns.slice(0, 8);
+  const hiddenCount = Math.max(0, columns.length - 8);
+
+  return (
+    <div className="detail-record-modal" role="dialog" aria-modal="true" aria-label="Record details">
+      <div className="detail-record-backdrop" onClick={onClose} />
+      <div className="detail-record-card">
+        <div className="detail-record-letterhead">
+          <div className="detail-record-letterhead-branding">
+            <img src={logoUrl} alt="Flourish Tender Care" className="detail-record-letterhead-logo" />
+            <div>
+              <p className="detail-record-letterhead-eyebrow">Flourish Tender Care</p>
+              <h2 className="detail-record-letterhead-title">Comprehensive Summary Details</h2>
+              <p className="detail-record-letterhead-copy">Below is a summary of the selected record.</p>
+            </div>
+          </div>
+          <div className="detail-record-letterhead-meta">
+            <span>Printed view</span>
+            <span>{new Date().toLocaleDateString()}</span>
+          </div>
+        </div>
+
+        <div className="detail-record-toolbar">
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-main)' }}>{heading}</h3>
+            <p style={{ margin: '0.35rem 0 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Important fields are shown on cards below.</p>
+          </div>
+          <div className="detail-record-actions">
+            <button type="button" className="admin-action-btn admin-action-secondary" onClick={onClose}>
+              Close
+            </button>
+            <button type="button" className="admin-action-btn" onClick={onPrint}>
+              Print record
+            </button>
+          </div>
+        </div>
+
+        <div className="detail-record-body">
+          <div className="detail-record-card-grid">
+            {visibleColumns.map((column) => (
+              <article key={column.key} className="detail-record-card-item">
+                <dt>{column.label}</dt>
+                <dd>{formatFieldValue(item, column)}</dd>
+              </article>
+            ))}
+          </div>
+          {hiddenCount > 0 && (
+            <button
+              type="button"
+              className="detail-record-toggle"
+              onClick={() => setShowAllFields((current) => !current)}
+              aria-expanded={showAllFields}
+            >
+              {showAllFields ? 'Show fewer fields' : `Show ${hiddenCount} more field${hiddenCount > 1 ? 's' : ''}`}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DataTable({ title, items, columns, emptyText, rowSelection, rowActions, printScope }) {
   const tableRef = useRef(null);
   const scrollStep = 320;
@@ -140,7 +224,9 @@ function DataTable({ title, items, columns, emptyText, rowSelection, rowActions,
                       const snakeKey = rawKey.replace(/[A-Z]/g, (match) => `_${match.toLowerCase()}`);
                       const value = column.render ? column.render(item) : (item[rawKey] ?? item[snakeKey] ?? '—');
                       return (
-                        <td key={column.key} className="admin-table-cell" style={styles.td}>{value}</td>
+                        <td key={column.key} className="admin-table-cell" style={styles.td}>
+                          <div className="admin-table-cell-content">{value}</div>
+                        </td>
                       );
                     })}
                     {rowActions && (
@@ -149,7 +235,7 @@ function DataTable({ title, items, columns, emptyText, rowSelection, rowActions,
                           <button
                             type="button"
                             key={button.key}
-                            className="admin-action-btn admin-action-secondary"
+                            className={button.variant === 'primary' ? 'admin-action-btn' : 'admin-action-btn admin-action-secondary'}
                             onClick={() => button.onClick(item)}
                             disabled={button.disabled}
                           >
@@ -210,8 +296,12 @@ export default function AdminDashboard() {
   const [printTimestamp, setPrintTimestamp] = useState('');
   const [showPrintPreview, setShowPrintPreview] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [detailRecord, setDetailRecord] = useState(null);
+  const [detailRecordHeading, setDetailRecordHeading] = useState('');
+  const [detailRecordColumns, setDetailRecordColumns] = useState([]);
+  const [isDetailPrinting, setIsDetailPrinting] = useState(false);
   const printUrl = typeof window !== 'undefined' ? window.location.origin : 'https://flourishtendercare.com.ng';
-  const [supabaseReady, setSupabaseReady] = useState(false);
+  const [supabaseReady, setSupabaseReady] = useState(null);
   const [initialized, setInitialized] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -233,6 +323,52 @@ export default function AdminDashboard() {
     setContacts(contactResult.data || []);
     setTestimonials(testimonialResult.data || []);
     setLoading(false);
+  };
+
+  const openDetailRecord = (item, heading, columns) => {
+    setDetailRecord(item);
+    setDetailRecordHeading(heading);
+    setDetailRecordColumns(columns);
+  };
+
+  const closeDetailRecord = () => {
+    setDetailRecord(null);
+    setDetailRecordHeading('');
+    setDetailRecordColumns([]);
+  };
+
+  const printDetailRecord = () => {
+    if (!detailRecord) return;
+    const timestamp = new Date().toLocaleString();
+    setPrintTimestamp(timestamp);
+    setIsPrinting(true);
+
+    if (typeof document !== 'undefined') {
+      document.body.classList.add('admin-printing');
+      const sheetId = 'detail-record-print-style';
+      let styleEl = document.getElementById(sheetId);
+      if (styleEl) {
+        styleEl.remove();
+      }
+
+      styleEl = document.createElement('style');
+      styleEl.id = sheetId;
+      styleEl.textContent = '@page { size: portrait; margin: 0.75in; }';
+      document.head.appendChild(styleEl);
+
+      const cleanup = () => {
+        document.body.classList.remove('admin-printing');
+        setIsPrinting(false);
+        const existing = document.getElementById(sheetId);
+        if (existing) existing.remove();
+        window.removeEventListener('afterprint', cleanup);
+      };
+      window.addEventListener('afterprint', cleanup);
+    }
+
+    window.setTimeout(() => {
+      window.print();
+    }, 250);
   };
 
   const sendEmailNotification = async (event) => {
@@ -299,11 +435,11 @@ export default function AdminDashboard() {
   }, [initialized, session]);
 
   useEffect(() => {
-    if (!supabaseReady && !hasShownSupabaseWarning) {
+    if (supabaseReady === false && initialized && !hasShownSupabaseWarning) {
       addToast('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.', { type: 'error', duration: 8000 });
       hasShownSupabaseWarning = true;
     }
-  }, [supabaseReady, addToast]);
+  }, [supabaseReady, initialized, addToast]);
 
   const handleSignOut = async () => {
     setLoading(true);
@@ -650,6 +786,12 @@ export default function AdminDashboard() {
               header: 'Actions',
               buttons: [
                 {
+                  key: 'view',
+                  label: 'View',
+                  variant: 'primary',
+                  onClick: (item) => openDetailRecord(item, 'Survey submission details', surveyColumns),
+                },
+                {
                   key: 'delete',
                   label: 'Delete',
                   onClick: (item) => handleDeleteSurvey(item.id),
@@ -718,6 +860,12 @@ export default function AdminDashboard() {
               header: 'Actions',
               buttons: [
                 {
+                  key: 'view',
+                  label: 'View',
+                  variant: 'primary',
+                  onClick: (item) => openDetailRecord(item, 'Testimonial details', testimonialColumns),
+                },
+                {
                   key: 'delete',
                   label: 'Delete',
                   onClick: (item) => handleDeleteTestimonial(item.id),
@@ -785,6 +933,12 @@ export default function AdminDashboard() {
             header: 'Actions',
             buttons: [
               {
+                key: 'view',
+                label: 'View',
+                variant: 'primary',
+                onClick: (item) => openDetailRecord(item, 'Visitor record details', contactColumns),
+              },
+              {
                 key: 'delete',
                 label: 'Delete',
                 onClick: (item) => handleDeleteContact(item.id),
@@ -834,7 +988,7 @@ export default function AdminDashboard() {
     );
   };
 
-  if (!supabaseReady) {
+  if (supabaseReady === null) {
     return (
       <main style={styles.page}>
         <div style={styles.container}>
@@ -858,6 +1012,23 @@ export default function AdminDashboard() {
 
             <div style={{ marginTop: '1.25rem' }}>
               <Skeleton style={{ height: 220, borderRadius: 14 }} />
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (supabaseReady === false) {
+    return (
+      <main className="admin-dashboard-page" style={styles.page}>
+        <div className="admin-panel-container" style={styles.container}>
+          <div className="admin-dashboard-panel" style={styles.panel}>
+            <div style={{ marginBottom: '1rem' }}>
+              <h1 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-main)' }}>Supabase configuration unavailable</h1>
+              <p style={{ margin: '0.75rem 0 0', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                Supabase could not initialize. Confirm the project has <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> set.
+              </p>
             </div>
           </div>
         </div>
@@ -1035,6 +1206,18 @@ export default function AdminDashboard() {
             />
           </div>
         </div>
+      )}
+
+      {detailRecord && typeof document !== 'undefined' && createPortal(
+        <DetailRecordModal
+          logoUrl={logoUrl}
+          heading={detailRecordHeading}
+          item={detailRecord}
+          columns={detailRecordColumns}
+          onClose={closeDetailRecord}
+          onPrint={printDetailRecord}
+        />,
+        document.body
       )}
 
       {typeof document !== 'undefined' && createPortal(
