@@ -1,4 +1,4 @@
-import directorPhoto from '../Public/peopel/schmummy1.jpeg';
+import directorPhoto from '../Public/peopel/pic23.jpg';
 
 export default function HeroStatsSection() {
   return (
