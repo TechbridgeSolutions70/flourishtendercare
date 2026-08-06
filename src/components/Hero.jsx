@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Sparkles } from 'lucide-react';
-import AOS from 'aos';
 
 const heroImageFiles = import.meta.glob('../Public/hero/*.{jpg,jpeg,png,webp}', {
   eager: true,
@@ -85,17 +84,23 @@ const heroSlides = heroImageUrls.length
 
 function Hero() {
   const [current, setCurrent] = useState(0);
-  const [zoomDirection, setZoomDirection] = useState('in');
+  const [previous, setPrevious] = useState(null);
   const progressRef = useRef(null);
   const intervalMs = 6500;
 
   useEffect(() => {
-    const tick = () => setCurrent((value) => (value + 1) % heroSlides.length);
+    const tick = () => {
+      setCurrent((value) => {
+        setPrevious(value);
+        return (value + 1) % heroSlides.length;
+      });
+    };
     const interval = setInterval(tick, intervalMs);
     return () => clearInterval(interval);
   }, []);
 
   const slide = heroSlides[current];
+  const prevSlide = previous !== null ? heroSlides[previous] : null;
 
   useEffect(() => {
     const el = progressRef.current;
@@ -107,22 +112,32 @@ function Hero() {
   }, [current]);
 
   useEffect(() => {
-    AOS.refresh();
-    setZoomDirection(Math.random() > 0.5 ? 'in' : 'out');
-  }, [current, slide]);
+    if (previous === null) return undefined;
+    const timeoutId = window.setTimeout(() => setPrevious(null), 900);
+    return () => window.clearTimeout(timeoutId);
+  }, [previous]);
 
-  const handlePrev = () => setCurrent((value) => (value - 1 + heroSlides.length) % heroSlides.length);
-  const handleNext = () => setCurrent((value) => (value + 1) % heroSlides.length);
-  const goTo = (index) => setCurrent(index);
+  const goTo = (index) => {
+    if (index === current) return;
+    setPrevious(current);
+    setCurrent(index);
+  };
 
  
 
   return (
-    <header className="hero hero-slider" data-aos="fade">
+    <header className="hero hero-slider">
       <div className="hero-background-layer">
+        {prevSlide && (
+          <div
+            key={prevSlide.backgroundImage}
+            className="hero-background hero-background-prev"
+            style={{ backgroundImage: `url(${prevSlide.backgroundImage})`, backgroundPosition: prevSlide.backgroundPosition }}
+          />
+        )}
         <div
           key={slide.backgroundImage}
-          className={`hero-background hero-background-current hero-background-zoom-${zoomDirection}`}
+          className="hero-background hero-background-current"
           style={{ backgroundImage: `url(${slide.backgroundImage})`, backgroundPosition: slide.backgroundPosition }}
         />
       </div>
@@ -136,7 +151,7 @@ function Hero() {
 
       <div className="hero-content">
         <div className="hero-slide">
-          <div className="hero-copy-panel" key={slide.caption} data-aos="fade-up" data-aos-delay="120">
+          <div className="hero-copy-panel">
             <div className="hero-copy-inner">
               <div className="hero-copy-animated">
                 <p className="hero-badge">Where Every Child Discovers Their Potential</p>
@@ -173,7 +188,7 @@ function Hero() {
               onClick={() => goTo(index)}
               aria-label={`Go to slide ${index + 1}`}
             >
-              <img src={slideItem.backgroundImage} alt="" />
+              <img src={slideItem.backgroundImage} alt="" loading="lazy" />
             </button>
           ))}
         </div>

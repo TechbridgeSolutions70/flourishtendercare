@@ -63,13 +63,13 @@ function NewsSection() {
   const goToNext = () => setActiveIndex((value) => (value + 1) % galleryItems.length);
 
   return (
-    <section id="news" className="section gallery-section" data-aos="fade-up">
-      <div className="section-heading" data-aos="fade-up" data-aos-delay="80">
+    <section id="news" className="section gallery-section">
+      <div className="section-heading">
         <p className="eyebrow">News and events</p>
         <h2>Moments that capture our school spirit</h2>
       </div>
 
-      <div className="gallery-shell" data-aos="fade-up" data-aos-delay="120">
+      <div className="gallery-shell">
         <div className="gallery-frame">
           <div className="gallery-track" style={{ transform: `translateX(-${activeIndex * 100}%)` }}>
             {galleryItems.map((item) => (

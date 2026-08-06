@@ -69,6 +69,7 @@ function App() {
     window.localStorage.setItem('flurish-theme', theme);
   }, [theme]);
 
+
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return undefined;
 
@@ -305,7 +306,7 @@ function App() {
           <p className="panel-copy">Tap WhatsApp to chat directly, or switch the theme instantly.</p>
           <a
             className="btn btn-secondary"
-            href="https://api.whatsapp.com/send?phone=2348037383820&text=Hello%20Flourish%20Tender%20Care%2C%20I%20need%20help%20with%20admissions%20and%20school%20information."
+            href="https://api.whatsapp.com/send?phone=2348094834708&text=Hello%20Flourish%20Tender%20Care%2C%20I%20need%20help%20with%20admissions%20and%20school%20information."
             target="_blank"
             rel="noreferrer"
             onClick={() => setPanelOpen(false)}

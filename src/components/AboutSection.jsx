@@ -22,8 +22,8 @@ function AboutSection() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <section id="about" className="section about-section" data-aos="fade-up">
-      <div className="about-intro" data-aos="fade-up" data-aos-delay="80">
+    <section id="about" className="section about-section">
+      <div className="about-intro">
         <p className="eyebrow">About Us</p>
         <h2>Flourish Tender Care passionately nurtures children in Lagos, Nigeria.</h2>
         <p>
@@ -34,7 +34,7 @@ function AboutSection() {
         </p>
       </div>
 
-      <div className="about-slider-shell" data-aos="fade-up" data-aos-delay="140">
+      <div className="about-slider-shell">
         <div className="about-tab-row" role="tablist" aria-label="About school sections">
           {aboutSlides.map((item, index) => (
             <button

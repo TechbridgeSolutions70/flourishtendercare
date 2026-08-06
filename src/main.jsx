@@ -1,21 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
 import App from './App';
 import { ToastProvider } from './components/ToastProvider';
 import './styles.css';
 
 function Root() {
-  useEffect(() => {
-    AOS.init({
-      duration: 300,
-      once: false,
-      offset: 0,
-      easing: 'ease-out-cubic',
-    });
-  }, []);
-
   return <App />;
 }
 

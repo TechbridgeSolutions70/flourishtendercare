@@ -3029,19 +3029,15 @@ a { color: inherit; text-decoration: none; }
   filter: brightness(0.65) saturate(1.08);
   transform: scale(1.03);
   opacity: 0;
-  will-change: opacity, transform;
+  transition: opacity 0.85s ease, transform 0.85s ease, filter 0.85s ease;
 }
 .hero-background.hero-background-prev {
   opacity: 1;
+  animation: fadeOutBg 0.85s ease both;
 }
 .hero-background-current {
   opacity: 1;
-}
-.hero-background-zoom-in {
-  animation: heroZoomIn 12s ease-in-out infinite 1s;
-}
-.hero-background-zoom-out {
-  animation: heroZoomOut 12s ease-in-out infinite 1s;
+  animation: bgEnter 0.85s ease both, heroZoom 20s ease-in-out infinite alternate;
 }
 
 @keyframes bgEnter {
@@ -3049,29 +3045,19 @@ a { color: inherit; text-decoration: none; }
   to { opacity: 1; }
 }
 
+@keyframes heroZoom {
+  from { transform: scale(1.05); }
+  to { transform: scale(1.18); }
+}
+
 @keyframes fadeOutBg {
   from { opacity: 1; }
   to { opacity: 0; }
 }
 
-@keyframes heroZoomIn {
-  0%, 100% { transform: scale(1.03); }
-  50% { transform: scale(1.14); }
-}
-
-@keyframes heroZoomOut {
-  0%, 100% { transform: scale(1.14); }
-  50% { transform: scale(1.02); }
-}
-
-@keyframes heroZoomIn {
-  0%, 100% { transform: scale(1.03); }
-  50% { transform: scale(1.14); }
-}
-
-@keyframes heroZoomOut {
-  0%, 100% { transform: scale(1.14); }
-  50% { transform: scale(1.02); }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 main {
@@ -3105,6 +3091,17 @@ main > .section:first-child {
   position: relative;
   z-index: 0;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(18px);
+  animation: fadeInUp 0.55s ease-out forwards;
+  animation-delay: 0.06s;
+}
+
+.section-heading {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: fadeInUp 0.55s ease-out forwards;
+  animation-delay: 0.08s;
 }
 
 .hero-glow {
@@ -3194,8 +3191,8 @@ main > .section:first-child {
 .marquee-inner { display: inline-block; white-space: nowrap; padding: 10px 0; animation: marquee 18s linear infinite; background: rgba(6, 13, 33, 0.86); color: #fff; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
 @keyframes marquee { from { transform: translateX(100%);} to { transform: translateX(-100%);} }
 
-.hero-title { font-size: clamp(2.2rem, 4.2vw, 3.6rem); line-height: 1.02; margin: 0.25rem 0 0.8rem; }
-.hero-badge { font-weight:700; color: var(--accent); }
+.hero-title { font-size: clamp(2.2rem, 4.2vw, 3.6rem); line-height: 1.02; margin: 0.25rem 0 0.8rem; opacity: 0; transform: translateY(10px); animation: fadeInUp 0.7s ease-out forwards; animation-delay: 0.24s; }
+.hero-badge { font-weight:700; color: #ffffff; opacity: 0; transform: translateY(10px); animation: fadeInUp 0.7s ease-out forwards; animation-delay: 0.16s; }
 .btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,0.12); color: #fff; }
 :root[data-theme='light'] .btn-ghost { border-color: rgba(11, 91, 135, 0.28); color: var(--text-main); background: rgba(11, 91, 135, 0.1); }
 :root[data-theme='light'] .btn-ghost:hover { background: rgba(11, 91, 135, 0.16); }
@@ -3347,18 +3344,23 @@ main > .section:first-child {
   box-shadow: none;
 }
 .hero-copy-panel {
-  animation: heroPanelIn 0.55s ease both;
   display: flex;
   flex-direction: column;
   justify-content: center;
   position: relative;
   text-align: left;
   align-items: flex-start;
-  color: var(--hero-copy-text);
+  color: #ffffff;
+  background: transparent;
+  border: none;
+  box-shadow: none;
   width: min(100%, 720px);
   max-width: 100%;
-  padding-left: clamp(24px, 4.2vw, 48px);
-  padding-right: 8px;
+  padding: 28px clamp(24px, 4.2vw, 48px) 32px;
+  border-radius: 0;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeInUp 0.65s ease-out forwards;
 }
 .hero-copy-panel::after {
   display: none;
@@ -3418,15 +3420,19 @@ main > .section:first-child {
 }
 
 /* Marquee entrance (fade down) */
-.hero-marquee { opacity: 0; animation: fadeDown 0.6s ease 0.08s both; }
-@keyframes fadeDown { from { opacity: 0; transform: translateY(-8px);} to { opacity: 1; transform: translateY(0);} }
+.hero-marquee {
+  opacity: 0;
+  transform: translateY(-8px);
+  animation: fadeInUp 0.55s ease-out forwards;
+  animation-delay: 0.08s;
+}
 .hero-badge {
   display: inline-flex;
   width: fit-content;
   padding: 0.42rem 0.72rem;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.24);
-  color: var(--hero-copy-text);
+  color: #ffffff;
   font-size: clamp(0.68rem, 0.9vw, 0.82rem);
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -3437,7 +3443,7 @@ main > .section:first-child {
   text-transform: uppercase;
   letter-spacing: 0.35em;
   font-size: 0.8rem;
-  color: var(--text-main);
+  color: #ffffff;
   margin-bottom: 0.9rem;
 }
 
@@ -3445,7 +3451,7 @@ main > .section:first-child {
 .hero-copy-animated > .eyebrow,
 .hero-admissions-copy .eyebrow,
 .hero-post-section .eyebrow {
-  color: var(--hero-copy-text);
+  color: #ffffff;
 }
 .hero-copy-panel h2 {
   font-size: clamp(2rem, 2.8vw, 2.9rem);
@@ -3456,15 +3462,15 @@ main > .section:first-child {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
-  color: var(--hero-copy-text);
+  color: inherit;
 }
 .hero-copy-text {
-  font-size: clamp(0.95rem, 1.2vw, 1.12rem);
-  line-height: 1.65;
+  font-size: clamp(0.98rem, 1.1vw, 1.16rem);
+  line-height: 1.75;
   max-width: clamp(320px, 52vw, 900px);
   margin: 0;
-  color: var(--hero-copy-text);
-  text-shadow: 0 1px 12px rgba(0,0,0,0.22);
+  color: inherit;
+  text-shadow: 0 1px 16px rgba(0,0,0,0.26);
   word-wrap: break-word;
 }
 .hero-actions {

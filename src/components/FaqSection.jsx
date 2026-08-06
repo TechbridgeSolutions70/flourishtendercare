@@ -23,8 +23,8 @@ function FaqSection() {
   const [openIndex, setOpenIndex] = useState(null);
 
   return (
-    <section id="faq" className="section faq-section" data-aos="fade-up">
-      <div className="section-heading" data-aos="fade-up" data-aos-delay="80">
+    <section id="faq" className="section faq-section">
+      <div className="section-heading">
         <p className="eyebrow">Frequently asked questions</p>
         <h2>Everything you need to know</h2>
       </div>
