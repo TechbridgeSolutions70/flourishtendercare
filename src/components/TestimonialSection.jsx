@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useToast } from './ToastProvider';
+import { saveTestimonial } from '../lib/supabaseClient';
 
 const testimonials = [
   {
@@ -120,7 +121,6 @@ function TestimonialSection({ modalMode = false, onClose }) {
                     setSubmitError('');
 
                     try {
-                      const { saveTestimonial } = await import('../lib/supabaseClient');
                       const { error } = await saveTestimonial({ name: testimonialName, text: testimonialText });
                       if (error) {
                         setSubmitError('Unable to send testimonial. Please try again.');

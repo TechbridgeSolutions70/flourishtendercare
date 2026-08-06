@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useToast } from './ToastProvider';
+import { saveContactMessage } from '../lib/supabaseClient';
 
 function ContactSection() {
   const { addToast } = useToast();
@@ -16,7 +17,6 @@ function ContactSection() {
     setStatus('sending');
 
     try {
-      const { saveContactMessage } = await import('../lib/supabaseClient');
       const { error } = await saveContactMessage(formData);
 
       if (error) {
