@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { saveContactMessage } from '../lib/supabaseClient';
 import { useToast } from './ToastProvider';
 
 function ContactSection() {
@@ -17,10 +16,10 @@ function ContactSection() {
     setStatus('sending');
 
     try {
+      const { saveContactMessage } = await import('../lib/supabaseClient');
       const { error } = await saveContactMessage(formData);
 
       if (error) {
-        console.error('Contact save error', error);
         setStatus('error');
         addToast('Unable to send your message. Please try again.', { type: 'error', duration: 5000 });
         return;
@@ -29,22 +28,21 @@ function ContactSection() {
       setStatus('sent');
       addToast('Message sent successfully. We will get back to you soon.', { type: 'success', duration: 5000 });
       setFormData({ name: '', email: '', message: '' });
-    } catch (unexpectedError) {
-      console.error('Contact save unexpected error', unexpectedError);
+    } catch (_unexpectedError) {
       setStatus('error');
       addToast('Unable to send your message. Please try again.', { type: 'error', duration: 5000 });
     }
   };
 
   return (
-    <section id="contact" className="section section-alt contact-section" data-aos="fade-up">
-      <div className="section-heading" data-aos="fade-up" data-aos-delay="80">
+    <section id="contact" className="section section-alt contact-section">
+      <div className="section-heading">
         <p className="eyebrow">Talk with us</p>
         <h2>Ready to connect? We’re here to help.</h2>
       </div>
 
       <div className="contact-grid">
-        <div className="contact-copy card" data-aos="fade-right" data-aos-delay="120">
+        <div className="contact-copy card">
           <h3>Visit or message us</h3>
           <p>We welcome questions from parents and caregivers. Reach out to schedule a tour, learn about admissions, or hear more about our programs.</p>
           <p>
@@ -61,7 +59,7 @@ function ContactSection() {
           </p>
         </div>
 
-        <form className="contact-form card" onSubmit={handleSubmit} data-aos="fade-left" data-aos-delay="160">
+        <form className="contact-form card" onSubmit={handleSubmit}>
           <label className="form-field">
             <span>Name</span>
             <input

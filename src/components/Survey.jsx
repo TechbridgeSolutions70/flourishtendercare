@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
-import { saveSurveyResponse } from '../lib/supabaseClient';
 import { useToast } from './ToastProvider';
 
 const styles = {
@@ -494,9 +493,9 @@ export default function Survey() {
     setSubmitError('');
 
     try {
+      const { saveSurveyResponse } = await import('../lib/supabaseClient');
       const { error } = await saveSurveyResponse(formData);
       if (error) {
-        console.error('Survey save error', error);
         setSubmitStatus('error');
         setSubmitError('Unable to save your response. Please try again.');
         addToast('Unable to save your response. Please try again.', { type: 'error', duration: 5000 });
@@ -512,8 +511,7 @@ export default function Survey() {
         origin: { y: 0.5 },
         colors: ['#7c3aed', '#22c55e', '#38bdf8', '#f59e0b', '#ef4444'],
       });
-    } catch (unexpectedError) {
-      console.error('Survey save unexpected error', unexpectedError);
+    } catch (_unexpectedError) {
       setSubmitStatus('error');
       setSubmitError('Unable to save your response. Please try again.');
       addToast('Unable to save your response. Please try again.', { type: 'error', duration: 5000 });
@@ -539,8 +537,6 @@ export default function Survey() {
       <div style={styles.container} className="survey-container">
         <div
           style={styles.header}
-          data-aos="fade-up"
-          data-aos-delay="60"
           className="survey-header"
         >
           <p style={styles.eyebrow}>Parent Feedback Survey</p>

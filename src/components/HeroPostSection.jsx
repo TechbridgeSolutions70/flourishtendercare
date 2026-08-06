@@ -40,13 +40,13 @@ export default function HeroPostSection() {
 
   return (
     <div>
-      <section className="section hero-admissions-banner" data-aos="fade-up">
+      <section className="section hero-admissions-banner">
         <div className="hero-admissions-shell">
           <div className="hero-admissions-copy">
             <p className="eyebrow">Admissions in progress — 2026/2027</p>
             <h2>Apply for the 2026/2027 Academic Session</h2>
             <p>
-              Admission into Flourish Tender Care is now open. Entrance examinations are scheduled for 15th, 20th and 27th March 2025.
+              Admission into Flourish Tender Care is now open. Entrance examinations date will be communicated soon. Stay tuned to all our communications channels for updates and ensure your child secures a place in our nurturing learning environment.
             </p>
             <div className="hero-admissions-actions">
               <button type="button" className="btn btn-secondary" onClick={openDownloads}>

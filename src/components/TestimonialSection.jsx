@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { saveTestimonial } from '../lib/supabaseClient';
 import { useToast } from './ToastProvider';
 
 const testimonials = [
@@ -40,6 +39,7 @@ function TestimonialSection({ modalMode = false, onClose }) {
   const [testimonialText, setTestimonialText] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const { addToast } = useToast();
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -55,13 +55,13 @@ function TestimonialSection({ modalMode = false, onClose }) {
   const content = (
     <div className={modalMode ? 'testimonial-modal-content' : 'testimonial-section-content'}>
       {!modalMode && (
-        <div className="section-heading" data-aos="fade-up" data-aos-delay="80">
+        <div className="section-heading">
           <p className="eyebrow">Testimonials</p>
           <h2>Parents share what it’s like to learn here</h2>
         </div>
       )}
 
-      <div className="testimonial-shell" data-aos="fade-up" data-aos-delay="120">
+      <div className="testimonial-shell">
         <div className="testimonial-card">
           <div className="testimonial-card-grid">
             <div className="testimonial-slider-panel">
@@ -120,11 +120,11 @@ function TestimonialSection({ modalMode = false, onClose }) {
                     setSubmitError('');
 
                     try {
+                      const { saveTestimonial } = await import('../lib/supabaseClient');
                       const { error } = await saveTestimonial({ name: testimonialName, text: testimonialText });
                       if (error) {
                         setSubmitError('Unable to send testimonial. Please try again.');
                         addToast('Unable to send testimonial. Please try again.', { type: 'error', duration: 5000 });
-                        console.error('Testimonial save error', error);
                         return;
                       }
 
@@ -132,10 +132,9 @@ function TestimonialSection({ modalMode = false, onClose }) {
                       setTestimonialName('');
                       setTestimonialText('');
                       addToast('Testimonial sent successfully. Thank you!', { type: 'success', duration: 5000 });
-                    } catch (unexpectedError) {
+                    } catch (_unexpectedError) {
                       setSubmitError('Unable to send testimonial. Please try again.');
                       addToast('Unable to send testimonial. Please try again.', { type: 'error', duration: 5000 });
-                      console.error('Testimonial save unexpected error', unexpectedError);
                     }
                   }}
                 >

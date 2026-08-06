@@ -2,9 +2,9 @@ import directorPhoto from '../Public/peopel/pic23.jpg';
 
 export default function HeroStatsSection() {
   return (
-    <section className="section welcome-address-section" data-aos="fade-up">
+    <section className="section welcome-address-section">
       <div className="welcome-address-shell">
-        <div className="welcome-copy" data-aos="fade-up" data-aos-delay="80">
+        <div className="welcome-copy">
           <p className="eyebrow">Welcome Address</p>
           <h2>
             Flourish Tender Care was founded to provide a total-child education that is warm, secure, and future-ready.
@@ -27,7 +27,7 @@ export default function HeroStatsSection() {
           </div>
         </div>
 
-        <div className="welcome-video" data-aos="fade-up" data-aos-delay="120">
+        <div className="welcome-video">
           <div className="video-frame">
             <div className="video-badge">WELCOME ADDRESS</div>
             <iframe
