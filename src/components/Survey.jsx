@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import confetti from 'canvas-confetti';
 import { saveSurveyResponse } from '../lib/supabaseClient';
 import { useToast } from './ToastProvider';
 
@@ -505,6 +506,12 @@ export default function Survey() {
       setSubmitted(true);
       addToast('Survey submitted successfully. Thank you for your feedback.', { type: 'success', duration: 5000 });
       setSubmitStatus('success');
+      confetti({
+        particleCount: 120,
+        spread: 70,
+        origin: { y: 0.5 },
+        colors: ['#7c3aed', '#22c55e', '#38bdf8', '#f59e0b', '#ef4444'],
+      });
     } catch (unexpectedError) {
       console.error('Survey save unexpected error', unexpectedError);
       setSubmitStatus('error');
@@ -716,6 +723,11 @@ export default function Survey() {
 
         {submitted && (
           <div style={styles.successOverlay} role="dialog" aria-modal="true" aria-label="Survey submitted successfully" className="survey-successOverlay">
+            <div className="fireworks-overlay" aria-hidden="true">
+              {Array.from({ length: 10 }).map((_, idx) => (
+                <span key={idx} className={`firework firework-${idx + 1}`} />
+              ))}
+            </div>
             <div style={styles.successCard} className="survey-successCard">
               <button type="button" style={styles.successCloseButton} onClick={handleSuccessClose} aria-label="Close success dialog">×</button>
               <div style={styles.successIcon}>✓</div>
