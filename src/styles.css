@@ -5902,6 +5902,43 @@ main > .section:first-child {
   border-color: var(--modal-border);
 }
 
+.fireworks-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 9998;
+}
+
+.firework {
+  position: absolute;
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.05) 60%);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 213, 0, 0.6), 0 0 70px rgba(255, 85, 0, 0.45);
+  animation: firework 1.4s ease-out forwards;
+}
+
+@keyframes firework {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) scale(0.9); }
+  80% { opacity: 1; transform: translate3d(var(--x), var(--y), 0) scale(1.15); }
+  100% { opacity: 0; transform: translate3d(var(--x), var(--y), 0) scale(0.1); }
+}
+
+.firework-1 { --x: -160px; --y: -220px; top: 50%; left: 50%; animation-delay: 0s; }
+.firework-2 { --x: 160px; --y: -200px; top: 50%; left: 50%; animation-delay: 0.1s; }
+.firework-3 { --x: -180px; --y: 160px; top: 50%; left: 50%; animation-delay: 0.2s; }
+.firework-4 { --x: 160px; --y: 180px; top: 50%; left: 50%; animation-delay: 0.3s; }
+.firework-5 { --x: 0px; --y: -240px; top: 50%; left: 50%; animation-delay: 0.4s; }
+.firework-6 { --x: -120px; --y: 220px; top: 50%; left: 50%; animation-delay: 0.5s; }
+.firework-7 { --x: 120px; --y: 220px; top: 50%; left: 50%; animation-delay: 0.6s; }
+.firework-8 { --x: -220px; --y: 0px; top: 50%; left: 50%; animation-delay: 0.7s; }
+.firework-9 { --x: 220px; --y: 0px; top: 50%; left: 50%; animation-delay: 0.8s; }
+.firework-10 { --x: 0px; --y: 260px; top: 50%; left: 50%; animation-delay: 0.9s; }
+
 .page-shell.survey-page-shell,
 .survey-page-shell {
   justify-content: flex-start !important;
