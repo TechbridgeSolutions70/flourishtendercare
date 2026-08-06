@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { useToast } from './ToastProvider';
+import { saveSurveyResponse } from '../lib/supabaseClient';
 
 const styles = {
   section: {
@@ -493,7 +494,6 @@ export default function Survey() {
     setSubmitError('');
 
     try {
-      const { saveSurveyResponse } = await import('../lib/supabaseClient');
       const { error } = await saveSurveyResponse(formData);
       if (error) {
         setSubmitStatus('error');
