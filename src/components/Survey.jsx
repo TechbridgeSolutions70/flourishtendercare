@@ -420,7 +420,8 @@ export default function Survey() {
       : 0;
   });
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 820);
-  const sectionContentRef = useRef(null);
+  const [lastNavigation, setLastNavigation] = useState('initial');
+  const surveyHeaderRef = useRef(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -433,23 +434,33 @@ export default function Survey() {
     if (typeof window === 'undefined') return;
 
     const scrollToSectionTop = () => {
-      if (!sectionContentRef.current) return;
-      
-      // Find the section title within the current section content
-      const sectionTitle = sectionContentRef.current.querySelector('.survey-section-title');
-      if (!sectionTitle) return;
-      
-      const pageShell = document.querySelector('.page-shell');
-      const scrollableElement = pageShell || window;
-      
-      // Get the scroll position offset from the section title
-      const offset = pageShell 
-        ? sectionTitle.offsetTop - 28
-        : sectionTitle.getBoundingClientRect().top + window.scrollY - 28;
-      
-      scrollableElement.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+      const surveyHeader = surveyHeaderRef.current;
+      if (!surveyHeader) return;
 
-      const firstField = sectionContentRef.current.querySelector('input, textarea, button, select, [tabindex]:not([tabindex="-1"])');
+      const pageShell = document.querySelector('.page-shell');
+      const topbarSpace = Number(getComputedStyle(document.documentElement).getPropertyValue('--topbar-space').replace('px', '')) || 56;
+      let targetTop = 0;
+
+      if (lastNavigation === 'next' && activeSection > 0) {
+        const sectionTitle = document.querySelector('.survey-section-title');
+        if (sectionTitle) {
+          const titleRect = sectionTitle.getBoundingClientRect();
+          const currentScroll = pageShell ? pageShell.scrollTop : window.scrollY;
+          targetTop = currentScroll + titleRect.top - topbarSpace - 16;
+        }
+      } else {
+        const headerRect = surveyHeader.getBoundingClientRect();
+        const currentScroll = pageShell ? pageShell.scrollTop : window.scrollY;
+        targetTop = currentScroll + headerRect.top - topbarSpace - 16;
+      }
+
+      if (pageShell) {
+        pageShell.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+      }
+
+      const firstField = surveyHeader.nextElementSibling?.querySelector('input, textarea, button, select, [tabindex]:not([tabindex="-1"])');
       if (firstField && typeof firstField.focus === 'function') {
         firstField.focus({ preventScroll: true });
       }
@@ -479,10 +490,12 @@ export default function Survey() {
   }, [activeSection, formData, submitted]);
 
   const goNext = () => {
+    setLastNavigation('next');
     setActiveSection((prev) => (prev < sectionMeta.length - 1 ? prev + 1 : prev));
   };
 
   const goPrev = () => {
+    setLastNavigation('tab');
     setActiveSection((prev) => (prev > 0 ? prev - 1 : prev));
   };
 
@@ -538,7 +551,13 @@ export default function Survey() {
   return (
     <section style={styles.section} className="survey-section">
       <div style={styles.container} className="survey-container">
-        <div style={styles.header} data-aos="fade-up" data-aos-delay="60" className="survey-header">
+        <div
+          ref={surveyHeaderRef}
+          style={{ ...styles.header, scrollMarginTop: 'calc(var(--topbar-space, 56px) + 16px)' }}
+          data-aos="fade-up"
+          data-aos-delay="60"
+          className="survey-header"
+        >
           <p style={styles.eyebrow}>Parent Feedback Survey</p>
           <h1 style={styles.title}>Flourish Tender Care</h1>
           <p style={styles.subtitle}>We value your feedback! This survey helps us understand your experience and continuously improve our services. Your honest opinions matter.</p>
@@ -562,7 +581,7 @@ export default function Survey() {
                     key={section.id}
                     type="button"
                     style={{ ...base, ...mobileExtra, ...(isActive ? styles.tabButtonActive : {}), ...(isComplete && !isActive ? styles.tabButtonComplete : {}) }}
-                    onClick={() => setActiveSection(originalIndex)}
+                    onClick={() => { setLastNavigation('tab'); setActiveSection(originalIndex); }}
                   >
                     <span style={styles.tabNumber}>{isComplete ? '✓' : section.number}</span>
                     <span style={styles.tabTitle}>{section.title}</span>
@@ -572,7 +591,7 @@ export default function Survey() {
             </div>
           </div>
 
-          <div ref={sectionContentRef} style={{ scrollMarginTop: '100px' }}>
+          <div style={{ scrollMarginTop: '100px' }}>
             {activeSection === 0 && (
               <>
                 <SectionTitle number="A" title="Parent Information" />
