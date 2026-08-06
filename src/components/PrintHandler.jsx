@@ -94,14 +94,16 @@ export default function PrintHandler({
                 <span>Record {index + 1}</span>
                 {item.created_at && <span>{formatDate(item.created_at)}</span>}
               </div>
-              <dl className="admin-print-record-grid">
-                {columns.map((column) => (
-                  <div className="admin-print-record-row" key={column.key}>
-                    <dt>{column.label}</dt>
-                    <dd>{formatFieldValue(item, column)}</dd>
-                  </div>
-                ))}
-              </dl>
+              <div className="admin-print-record-grid-wrapper">
+                <dl className="admin-print-record-grid">
+                  {columns.map((column) => (
+                    <div className="admin-print-record-row" key={column.key}>
+                      <dt>{column.label}</dt>
+                      <dd>{formatFieldValue(item, column)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
             </article>
           ))
         )}
