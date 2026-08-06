@@ -434,8 +434,20 @@ export default function Survey() {
 
     const scrollToSectionTop = () => {
       if (!sectionContentRef.current) return;
-      const top = sectionContentRef.current.getBoundingClientRect().top + window.scrollY - 28;
-      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      
+      // Find the section title within the current section content
+      const sectionTitle = sectionContentRef.current.querySelector('.survey-section-title');
+      if (!sectionTitle) return;
+      
+      const pageShell = document.querySelector('.page-shell');
+      const scrollableElement = pageShell || window;
+      
+      // Get the scroll position offset from the section title
+      const offset = pageShell 
+        ? sectionTitle.offsetTop - 28
+        : sectionTitle.getBoundingClientRect().top + window.scrollY - 28;
+      
+      scrollableElement.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
 
       const firstField = sectionContentRef.current.querySelector('input, textarea, button, select, [tabindex]:not([tabindex="-1"])');
       if (firstField && typeof firstField.focus === 'function') {

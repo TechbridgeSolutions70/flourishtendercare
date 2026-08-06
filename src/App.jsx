@@ -151,12 +151,23 @@ function App() {
   }, [pageReady]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 220);
+    const handleScroll = (e) => {
+      const scrollableElement = e.target || window;
+      const scrollTop = scrollableElement.scrollY !== undefined ? scrollableElement.scrollY : scrollableElement.scrollTop;
+      setShowScrollTop(scrollTop > 220);
     };
 
+    // Listen on the scrollable container (page-shell or window)
+    const pageShell = document.querySelector('.page-shell');
+    if (pageShell) {
+      pageShell.addEventListener('scroll', handleScroll, { passive: true });
+      handleScroll({ target: pageShell });
+      return () => pageShell.removeEventListener('scroll', handleScroll);
+    }
+
+    // Fallback to window scroll
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
+    handleScroll({ target: window });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -318,7 +329,14 @@ function App() {
         <button
           className="scroll-top-button"
           type="button"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={() => {
+            const pageShell = document.querySelector('.page-shell');
+            if (pageShell) {
+              pageShell.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}
           aria-label="Scroll back to top"
         >
           ↑
