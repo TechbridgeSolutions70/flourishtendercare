@@ -16,6 +16,7 @@ import AdmissionsSection from './components/AdmissionsSection';
 import Footer from './components/Footer';
 import NewsModal from './components/NewsModal';
 import { useToast } from './components/ToastProvider';
+import usePullToRefresh from './hooks/usePullToRefresh';
 function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [pageReady, setPageReady] = useState(false);
@@ -244,6 +245,8 @@ function App() {
     const openModal = window.setTimeout(() => setShowNewsModal(true), 1200);
     return () => window.clearTimeout(openModal);
   }, [surveyPageActive, testimonialPageActive]);
+
+  usePullToRefresh();
 
   if (testimonialPageActive) {
     return (
