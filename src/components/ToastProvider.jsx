@@ -14,9 +14,9 @@ export function useToast() {
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback((message, { type = 'info', duration = 5000 } = {}) => {
+  const addToast = useCallback((message, { type = 'info', duration = 5000, action } = {}) => {
     const id = ++nextToastId;
-    setToasts((current) => [...current, { id, message, type }]);
+    setToasts((current) => [...current, { id, message, type, action }]);
 
     window.setTimeout(() => {
       setToasts((current) => current.filter((toast) => toast.id !== id));
@@ -52,7 +52,19 @@ export function ToastProvider({ children }) {
       <div className="toast-viewport" aria-live="polite" aria-atomic="true">
         {toasts.map((toast) => (
           <div key={toast.id} className={`toast toast-${toast.type}`} role="status">
-            <span>{toast.message}</span>
+            <div className="toast-content">
+              <span>{toast.message}</span>
+              {toast.action && (
+                <div className="toast-consent-action">
+                  <button type="button" onClick={() => {
+                    toast.action.onClick();
+                    removeToast(toast.id);
+                  }}>
+                    {toast.action.label}
+                  </button>
+                </div>
+              )}
+            </div>
             <button type="button" className="toast-close" onClick={() => removeToast(toast.id)} aria-label="Dismiss notification">
               ×
             </button>

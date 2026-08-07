@@ -15,12 +15,14 @@ import ContactSection from './components/ContactSection';
 import AdmissionsSection from './components/AdmissionsSection';
 import Footer from './components/Footer';
 import NewsModal from './components/NewsModal';
+import { useToast } from './components/ToastProvider';
 function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [showNewsModal, setShowNewsModal] = useState(false);
   const [showWhatsAppTip, setShowWhatsAppTip] = useState(false);
   const [whatsAppTipIndex, setWhatsAppTipIndex] = useState(0);
+  const { addToast } = useToast();
   const whatsappTips = [
     'Chat with us now',
     'Need admissions help?',
@@ -200,6 +202,33 @@ function App() {
     const timer = window.setTimeout(() => setPageReady(true), 900);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+
+    const consentKey = 'flourish-privacy-consent';
+    const hasConsented = window.localStorage.getItem(consentKey);
+
+    if (!hasConsented) {
+      const timer = window.setTimeout(() => {
+        addToast('We use cookies and browser storage to remember your privacy choice and improve your visit. Tap Agree to continue.', {
+          type: 'info',
+          duration: 10000,
+          action: {
+            label: 'Agree',
+            onClick: () => {
+              window.localStorage.setItem(consentKey, 'accepted');
+              addToast('Thanks for helping us keep your privacy choice on this device.', { type: 'success', duration: 4000 });
+            },
+          },
+        });
+      }, 1400);
+
+      return () => window.clearTimeout(timer);
+    }
+
+    return undefined;
+  }, [addToast]);
 
   useEffect(() => {
     if (surveyPageActive || testimonialPageActive) return undefined;
