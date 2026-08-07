@@ -6184,8 +6184,18 @@ main > .section:first-child {
   }
 
   .footer-socials .social-link {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .footer-socials {
+    flex-wrap: nowrap;
+    gap: 0.45rem;
+    justify-content: center;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
   }
   .top-strip { display: none; }
   .topbar {
