@@ -6299,6 +6299,31 @@ main > .section:first-child {
     border-radius: 18px;
   }
 
+@media (max-width: 540px) {
+  /* Tighter, more compact buttons on small phones */
+  .btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.82rem;
+    border-radius: 12px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.82rem;
+  }
+
+  .footer-actions .btn {
+    max-width: 280px;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .topbar-actions .btn {
+    padding: 6px 10px;
+    font-size: 0.82rem;
+  }
+}
+
   .survey-form {
     padding: 0.9rem;
     border-radius: 18px;
