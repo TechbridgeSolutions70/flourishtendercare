@@ -5916,7 +5916,7 @@ main > .section:first-child {
   margin: 0;
   padding: 22px 20px 16px;
   border-radius: 0;
-  background: linear-gradient(135deg, var(--footer-bg), #1f5b91);
+  background: linear-gradient(180deg, #0e3556 0%, #113a61 40%, #0e3152 100%);
   color: white;
   display: flex;
   flex-direction: column;
@@ -5925,6 +5925,7 @@ main > .section:first-child {
   text-align: left;
   box-sizing: border-box;
   border-top: 1px solid rgba(255,255,255,0.03);
+  box-shadow: inset 0 6px 40px rgba(0,0,0,0.12);
 }
 
 .footer-content {
@@ -5958,6 +5959,8 @@ main > .section:first-child {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.6rem;
+  border-left: 1px solid rgba(255,255,255,0.04);
+  padding-left: 14px;
 }
 
 .footer > a.btn {
@@ -6237,6 +6240,25 @@ main > .section:first-child {
   .footer-year {
     align-self: flex-start;
     text-align: left;
+  }
+
+  /* mobile separators and CTA sizing */
+  .footer-sep {
+    height: 1px;
+    background: rgba(255,255,255,0.04);
+    width: 100%;
+    margin: 6px 0;
+  }
+
+  .footer-actions .btn {
+    width: 100%;
+    max-width: 320px;
+    align-self: center;
+  }
+
+  .footer-socials .social-link {
+    width: 44px;
+    height: 44px;
   }
 
   .survey-page-shell .topbar {
