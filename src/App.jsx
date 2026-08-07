@@ -204,7 +204,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
+    if (typeof window === 'undefined' || !pageReady) return undefined;
 
     const consentKey = 'flourish-privacy-consent';
     const hasConsented = window.localStorage.getItem(consentKey);
@@ -230,13 +230,13 @@ function App() {
             },
           ],
         });
-      }, 1400);
+      }, 900);
 
       return () => window.clearTimeout(timer);
     }
 
     return undefined;
-  }, [addToast]);
+  }, [addToast, pageReady]);
 
   useEffect(() => {
     if (surveyPageActive || testimonialPageActive) return undefined;
