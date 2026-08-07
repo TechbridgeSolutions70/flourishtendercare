@@ -6527,7 +6527,6 @@ main > .section:first-child {
 
 @media (max-width: 780px) {
   .floating-cta {
-    position: absolute;
     right: 14px;
     bottom: 14px;
   }
