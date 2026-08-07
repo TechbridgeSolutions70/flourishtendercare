@@ -16,23 +16,16 @@ import AdmissionsSection from './components/AdmissionsSection';
 import Footer from './components/Footer';
 import NewsModal from './components/NewsModal';
 function App() {
-  const [theme, setTheme] = useState(() => {
-    if (typeof window === 'undefined') return 'light';
-    const storedTheme = window.localStorage.getItem('flurish-theme');
-    if (storedTheme === 'light' || storedTheme === 'dark') {
-      return storedTheme;
-    }
-
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
-  const [showThemePrompt, setShowThemePrompt] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return !window.localStorage.getItem('flurish-theme');
-  });
-  const [panelOpen, setPanelOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [showNewsModal, setShowNewsModal] = useState(false);
+  const [showWhatsAppTip, setShowWhatsAppTip] = useState(false);
+  const [whatsAppTipIndex, setWhatsAppTipIndex] = useState(0);
+  const whatsappTips = [
+    'Chat with us now',
+    'Need admissions help?',
+    'Questions? We reply',
+  ];
   const normalizePath = () => {
     if (typeof window === 'undefined') return '';
     return window.location.pathname.replace(/\/+$/, '').toLowerCase();
@@ -63,11 +56,6 @@ function App() {
   const [adminPageActive, setAdminPageActive] = useState(() => isAdminRoute());
   const [adminLoginPageActive, setAdminLoginPageActive] = useState(() => isAdminLoginRoute());
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.style.colorScheme = theme;
-    window.localStorage.setItem('flurish-theme', theme);
-  }, [theme]);
 
 
   useLayoutEffect(() => {
@@ -100,6 +88,24 @@ function App() {
       ro.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    let tipTimeoutId;
+    const showNextTip = () => {
+      setWhatsAppTipIndex((current) => (current + 1) % whatsappTips.length);
+      setShowWhatsAppTip(true);
+      clearTimeout(tipTimeoutId);
+      tipTimeoutId = window.setTimeout(() => setShowWhatsAppTip(false), 7000);
+    };
+
+    showNextTip();
+    const tipIntervalId = window.setInterval(showNextTip, 12000);
+
+    return () => {
+      clearInterval(tipIntervalId);
+      clearTimeout(tipTimeoutId);
+    };
+  }, [whatsappTips.length]);
 
   useEffect(() => {
     // Active nav link highlighting + smooth scroll behavior
@@ -186,6 +192,11 @@ function App() {
   }, []);
 
   useEffect(() => {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.style.colorScheme = 'light';
+  }, []);
+
+  useEffect(() => {
     const timer = window.setTimeout(() => setPageReady(true), 900);
     return () => window.clearTimeout(timer);
   }, []);
@@ -196,11 +207,6 @@ function App() {
     const openModal = window.setTimeout(() => setShowNewsModal(true), 1200);
     return () => window.clearTimeout(openModal);
   }, [surveyPageActive, testimonialPageActive]);
-
-  const chooseTheme = (nextTheme) => {
-    setTheme(nextTheme);
-    setShowThemePrompt(false);
-  }; 
 
   if (testimonialPageActive) {
     return (
@@ -260,70 +266,22 @@ function App() {
   }
 
   return (
-    <div className="page-shell" onClick={() => setPanelOpen(false)}>
-      {showThemePrompt && (
-        <div className="theme-choice-overlay" role="dialog" aria-modal="true">
-          <div className="theme-choice-card">
-            <p className="eyebrow">Personalize the experience</p>
-            <h2>Choose a viewing mode for your school website</h2>
-            <p>Select the look that feels most comfortable for you. You can change it anytime from the floating settings button.</p>
-            <div className="theme-choice-actions">
-              <button className="btn btn-primary" onClick={() => chooseTheme('light')}>
-                Bright light mode
-              </button>
-              <button className="btn btn-secondary" onClick={() => chooseTheme('dark')}>
-                Calm dark mode
-              </button>
-            </div>
-          </div>
+    <div className="page-shell">
+      <div className="floating-cta">
+        <div className={`whatsapp-tip ${showWhatsAppTip ? 'show' : ''}`} role="status" aria-live="polite">
+          {whatsappTips[whatsAppTipIndex]}
         </div>
-      )}
-
-      <button
-        className={`floating-launcher ${panelOpen ? 'active' : ''}`}
-        type="button"
-        onClick={(event) => {
-          event.stopPropagation();
-          setPanelOpen((prev) => !prev);
-        }}
-        aria-label="Open WhatsApp and theme settings"
-      >
-        <span>☁</span>
-      </button>
-
-      <div className={`floating-panel ${panelOpen ? 'open' : ''}`} onClick={(event) => event.stopPropagation()}>
-        <div className="floating-panel-header">
-          <div>
-            <p className="panel-label">Quick access</p>
-            <h3>WhatsApp & Theme</h3>
-          </div>
-          <button className="panel-close" type="button" onClick={() => setPanelOpen(false)}>
-            ×
-          </button>
-        </div>
-
-        <div className="panel-block">
-          <p className="panel-copy">Tap WhatsApp to chat directly, or switch the theme instantly.</p>
-          <a
-            className="btn btn-secondary"
-            href="https://api.whatsapp.com/send?phone=2348094834708&text=Hello%20Flourish%20Tender%20Care%2C%20I%20need%20help%20with%20admissions%20and%20school%20information."
-            target="_blank"
-            rel="noreferrer"
-            onClick={() => setPanelOpen(false)}
-          >
-            Chat on WhatsApp
-          </a>
-          <button
-            className="theme-toggle"
-            type="button"
-            onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
-          >
-            <span>{theme === 'dark' ? 'Dark mode' : 'Light mode'}</span>
-            <span className="switch-track">
-              <span className="switch-thumb" />
-            </span>
-          </button>
-        </div>
+        <button
+          className="floating-launcher"
+          type="button"
+          onClick={() => window.open('https://api.whatsapp.com/send?phone=2348094834708&text=Hello%20Flourish%20Tender%20Care%2C%20I%20need%20help%20with%20admissions%20and%20school%20information.', '_blank', 'noopener,noreferrer')}
+          aria-label="Open WhatsApp chat"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.148-.672.149-.198.297-.767.967-.94 1.164-.173.198-.347.223-.644.075-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.447-.52.148-.173.198-.297.298-.495.099-.198.05-.372-.025-.52-.075-.149-.672-1.611-.92-2.204-.242-.58-.487-.5-.672-.51l-.572-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.693.626.712.227 1.36.195 1.872.118.571-.085 1.758-.72 2.006-1.415.248-.695.248-1.29.173-1.415-.074-.124-.272-.198-.57-.347z" fill="white" />
+            <path d="M12.005 2a9.98 9.98 0 0 0-8.517 14.814L2 22l4.436-1.163A9.98 9.98 0 1 0 12.005 2zm0 18.3a8.124 8.124 0 0 1-4.264-1.139l-.305-.18-2.63.69.701-2.564-.198-.324A8.092 8.092 0 1 1 20.1 12.005 8.064 8.064 0 0 1 12.005 20.3z" fill="white" opacity="0.35" />
+          </svg>
+        </button>
       </div>
 
       {showScrollTop && (

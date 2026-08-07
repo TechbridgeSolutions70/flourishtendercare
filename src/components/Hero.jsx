@@ -13,28 +13,46 @@ const heroImageUrls = Object.entries(heroImageFiles)
 
 const heroSlides = heroImageUrls.length
   ? heroImageUrls.map((imageUrl, index) => {
-      const captions = [
-        'School compound & campus life',
-        'Curiosity in every corner',
-        'Ready for the next step',
-      ];
-      const titles = [
-        'Welcome to our campus — where learning begins with a safe, inspiring environment.',
-        'Playful discovery that builds confidence in Nursery.',
-        'Primary-ready learners with character and purpose.',
-      ];
-      const descriptions = [
-        'Tour our gardens, classrooms and activity spaces, designed to support every child’s growth in a caring, confident way.',
-        'Stories, movement, and hands-on activities turn learning into something exciting and memorable.',
-        'We blend academic strength with values, independence, and joyful challenge for lasting growth.',
+      const slideContent = [
+        {
+          caption: 'A welcoming campus for every child',
+          title: 'A safe and inspiring place for children to learn and grow.',
+          description: 'Bright classrooms, open play spaces and caring teachers come together to create a calm setting for discovery, growth and joyful learning.',
+        },
+        {
+          caption: 'Gentle care in our Creche',
+          title: 'Warm, attentive care for little ones in our Creche.',
+          description: 'With nurturing teachers and a soothing environment, babies and toddlers are encouraged to bond, grow and discover the world around them with comfort.',
+        },
+        {
+          caption: 'Curiosity in Nursery',
+          title: 'Playful learning that builds curiosity and confidence in Nursery.',
+          description: 'Play-based activities spark imagination, strengthen language and support each child’s social and emotional growth in a joyful way.',
+        },
+        {
+          caption: 'Ready for Primary',
+          title: 'Strong academics and values for confident Primary learners.',
+          description: 'Our lessons encourage inquiry, discipline and leadership so children are prepared for the next stage with confidence and clarity.',
+        },
+        {
+          caption: 'A well-rounded school experience',
+          title: 'Every child is encouraged to shine through learning and creativity.',
+          description: 'Through engaging classroom experiences and expressive activities, we nurture communication, imagination and self-belief in every child.',
+        },
+        {
+          caption: 'A school that grows with families',
+          title: 'A caring school community where families and children grow together.',
+          description: 'At Flourish Tender Care, every milestone is celebrated and every family feels welcomed into the journey of learning and growth.',
+        },
       ];
 
+      const selected = slideContent[index % slideContent.length];
+      const lowerImageName = imageUrl.toLowerCase();
+
       return {
-        caption: captions[index % captions.length],
-        title: titles[index % titles.length],
-        description: descriptions[index % descriptions.length],
+        ...selected,
         backgroundImage: imageUrl,
-        backgroundPosition: imageUrl.toLowerCase().endsWith('heropic1.jpeg') ? 'center 10%' : 'center 35%',
+        backgroundPosition: lowerImageName.includes('heropic1') || lowerImageName.includes('hero pic4') ? 'center 10%' : lowerImageName.includes('creche') ? 'center 30%' : 'center 35%',
         ctaPrimary: 'Apply Now',
         ctaPrimaryHref: 'https://portal.flourishtendercare.com.ng/apply',
         ctaSecondary: 'Read More',
@@ -158,19 +176,8 @@ function Hero() {
                 <p className="eyebrow">{slide.caption}</p>
                 <h2 className="hero-title">{slide.title}</h2>
                 <p className="hero-copy-text">{slide.description}</p>
-                {slide.highlights && (
-                  <div className="hero-highlights">
-                    {slide.highlights.map((item) => (
-                      <div key={item} className="hero-highlight-item">
-                        <Sparkles size={16} />
-                        <span>{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
                 <div className="hero-actions">
                   <a className="btn btn-primary" href={slide.ctaPrimaryHref}>{slide.ctaPrimary}</a>
-                  <a className="btn btn-secondary" href={slide.ctaSecondaryHref}>{slide.ctaSecondary}</a>
                 </div>
               </div>
             </div>
