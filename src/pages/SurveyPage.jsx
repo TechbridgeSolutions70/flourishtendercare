@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import Survey from '../components/Survey';
+import usePullToRefresh from '../hooks/usePullToRefresh';
 
 export default function SurveyPage() {
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  usePullToRefresh();
 
   useEffect(() => {
     const pageShell = document.querySelector('.page-shell');
