@@ -710,8 +710,8 @@ export default function AdminDashboard() {
   const tabDefinitions = useMemo(
     () => [
       { key: 'visitors', label: 'Visitors', count: contacts.length, subtitle: 'Visitors on the main site' },
-      { key: 'survey', label: 'Survey Submitted', count: surveys.length, subtitle: 'Survey responses received' },
-      { key: 'messages', label: 'Messages Sent', count: testimonials.length, subtitle: 'Testimonials and messages' },
+      { key: 'survey', label: 'Survey', count: surveys.length, subtitle: 'Survey responses received' },
+      { key: 'messages', label: 'Messages', count: testimonials.length, subtitle: 'Testimonials and messages' },
     ],
     [contacts.length, surveys.length, testimonials.length]
   );
@@ -1178,7 +1178,6 @@ export default function AdminDashboard() {
           </div>
 
           {renderTabContent()}
-          {/* floating theme toggle rendered into document.body via portal below */}
         </div>
       </div>
       {showPrintPreview && (
@@ -1220,13 +1219,6 @@ export default function AdminDashboard() {
         document.body
       )}
 
-      {typeof document !== 'undefined' && createPortal(
-        <div className="admin-floating-theme" aria-hidden>
-          <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>{theme === 'dark' ? 'Dark' : 'Light'}</span>
-          <button type="button" onClick={toggleTheme} aria-label="Toggle theme">{theme === 'dark' ? '☾' : '☀'}</button>
-        </div>,
-        document.body
-      )}
     </main>
   );
 }

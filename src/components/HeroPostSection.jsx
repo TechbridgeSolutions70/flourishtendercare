@@ -4,6 +4,7 @@ const availableFiles = import.meta.glob('../Public/downloaded files/**/*.*', {
   import: 'default',
 });
 import { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import TestimonialSection from './TestimonialSection';
 
 export default function HeroPostSection() {
@@ -77,7 +78,7 @@ export default function HeroPostSection() {
         <TestimonialSection modalMode onClose={() => setTestimonialModalOpen(false)} />
       )}
 
-      {downloadModalOpen && (
+      {downloadModalOpen && createPortal(
         <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={() => setDownloadModalOpen(false)}>
           <div className="modal-card modal-full" onClick={(event) => event.stopPropagation()}>
             <div className="modal-body">
@@ -158,7 +159,8 @@ export default function HeroPostSection() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
