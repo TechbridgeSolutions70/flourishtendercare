@@ -3607,11 +3607,6 @@ main > .section:first-child {
   display: none !important;
 }
 
-/* Ensure scroll-top-button shows on survey page */
-.page-shell.survey-page-shell .scroll-top-button {
-  display: block !important;
-}
-
 /* Show page-mode actions: remove cancel, keep submit aligned left */
 .page-shell.survey-page-shell .survey-actions { justify-content: flex-start; }
 .page-shell.survey-page-shell .survey-actions .btn-secondary { display: none; }
@@ -3627,6 +3622,27 @@ main > .section:first-child {
   .survey-page-body { padding: 18px; }
 }
 
+.scroll-top-button {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 999999;
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+  color: white;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.18);
+  opacity: 0.96;
+  display: grid;
+  place-items: center;
+}
+.scroll-top-button:hover {
+  transform: translateY(-2px);
+}
 
 :root[data-theme='light'] .btn-secondary,
 :root[data-theme='dark'] .btn-secondary {
@@ -6365,26 +6381,6 @@ main > .section:first-child {
   }
 }
 
-.scroll-top-button {
-  position: fixed;
-  left: 20px;
-  bottom: 20px;
-  z-index: 35;
-  width: 50px;
-  height: 50px;
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--accent-strong), var(--accent));
-  color: white;
-  font-size: 1.25rem;
-  cursor: pointer;
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.18);
-  opacity: 0.86;
-}
-.scroll-top-button:hover {
-  transform: translateY(-2px);
-}
-
 /* Consolidated modal & floating-button overrides
    These rules normalize modal/backdrop/card/body/close and floating launcher/panel
    to prevent scattered, conflicting definitions elsewhere in the file. */
@@ -6453,12 +6449,68 @@ main > .section:first-child {
   outline: 3px solid rgba(77,208,200,0.18);
 }
 
-/* Floating launcher/panel */
-.floating-cta {
+/* Floating panel */
+.floating-panel {
   position: fixed;
   right: 20px;
-  bottom: 20px;
-  z-index: 1300;
+  bottom: 88px;
+  z-index: 1299;
+  width: min(92vw, 320px);
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  box-shadow: 0 14px 36px rgba(8,20,40,0.12);
+  border: 1px solid var(--border-color);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.floating-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+.fireworks-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 9998;
+}
+
+.firework {
+  position: absolute;
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.05) 60%);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 213, 0, 0.6), 0 0 70px rgba(255, 85, 0, 0.45);
+  animation: firework 1.4s ease-out forwards;
+}
+
+@keyframes firework {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) scale(0.9); }
+  80% { opacity: 1; transform: translate3d(var(--x), var(--y), 0) scale(1.15); }
+  100% { opacity: 0; transform: translate3d(var(--x), var(--y), 0) scale(0.1); }
+}
+
+.firework-1 { --x: -160px; --y: -220px; top: 50%; left: 50%; animation-delay: 0s; }
+.firework-2 { --x: 160px; --y: -200px; top: 50%; left: 50%; animation-delay: 0.1s; }
+.firework-3 { --x: -180px; --y: 160px; top: 50%; left: 50%; animation-delay: 0.2s; }
+.firework-4 { --x: 160px; --y: 180px; top: 50%; left: 50%; animation-delay: 0.3s; }
+.firework-5 { --x: 0px; --y: -240px; top: 50%; left: 50%; animation-delay: 0.4s; }
+.firework-6 { --x: -120px; --y: 220px; top: 50%; left: 50%; animation-delay: 0.5s; }
+.firework-7 { --x: 120px; --y: 220px; top: 50%; left: 50%; animation-delay: 0.6s; }
+.firework-8 { --x: -220px; --y: 0px; top: 50%; left: 50%; animation-delay: 0.7s; }
+.firework-9 { --x: 220px; --y: 0px; top: 50%; left: 50%; animation-delay: 0.8s; }
+
+/* Floating launcher/panel */
+.floating-cta {
+  position: fixed !important;
+  right: 20px !important;
+  bottom: 20px !important;
+  z-index: 999999 !important;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -6506,72 +6558,13 @@ main > .section:first-child {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-6px) scale(1.03); }
 }
-.floating-panel {
-  position: fixed;
-  right: 20px;
-  bottom: 88px;
-  z-index: 1299;
-  width: min(92vw, 320px);
-  padding: 16px;
-  border-radius: 16px;
-  background: var(--card-bg);
-  color: var(--text-main);
-  box-shadow: 0 14px 36px rgba(8,20,40,0.12);
-  border: 1px solid var(--border-color);
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(8px);
-  transition: opacity 160ms ease, transform 160ms ease;
-}
-.floating-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
 @media (max-width: 780px) {
   .floating-cta {
-    right: 14px;
-    bottom: 14px;
-  }
-  .whatsapp-tip {
-    max-width: min(220px, calc(100vw - 24px));
-    font-size: 0.82rem;
-    padding: 9px 11px;
+    right: 14px !important;
+    bottom: 14px !important;
   }
 }
-
-.fireworks-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 9998;
-}
-
-.firework {
-  position: absolute;
-  display: block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  opacity: 0;
-  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.05) 60%);
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 213, 0, 0.6), 0 0 70px rgba(255, 85, 0, 0.45);
-  animation: firework 1.4s ease-out forwards;
-}
-
-@keyframes firework {
-  0% { opacity: 1; transform: translate3d(0, 0, 0) scale(0.9); }
-  80% { opacity: 1; transform: translate3d(var(--x), var(--y), 0) scale(1.15); }
-  100% { opacity: 0; transform: translate3d(var(--x), var(--y), 0) scale(0.1); }
-}
-
-.firework-1 { --x: -160px; --y: -220px; top: 50%; left: 50%; animation-delay: 0s; }
-.firework-2 { --x: 160px; --y: -200px; top: 50%; left: 50%; animation-delay: 0.1s; }
-.firework-3 { --x: -180px; --y: 160px; top: 50%; left: 50%; animation-delay: 0.2s; }
-.firework-4 { --x: 160px; --y: 180px; top: 50%; left: 50%; animation-delay: 0.3s; }
-.firework-5 { --x: 0px; --y: -240px; top: 50%; left: 50%; animation-delay: 0.4s; }
-.firework-6 { --x: -120px; --y: 220px; top: 50%; left: 50%; animation-delay: 0.5s; }
-.firework-7 { --x: 120px; --y: 220px; top: 50%; left: 50%; animation-delay: 0.6s; }
-.firework-8 { --x: -220px; --y: 0px; top: 50%; left: 50%; animation-delay: 0.7s; }
-.firework-9 { --x: 220px; --y: 0px; top: 50%; left: 50%; animation-delay: 0.8s; }
 .firework-10 { --x: 0px; --y: 260px; top: 50%; left: 50%; animation-delay: 0.9s; }
 
 .page-shell.survey-page-shell,

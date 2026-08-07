@@ -18,11 +18,11 @@ import NewsModal from './components/NewsModal';
 import { useToast } from './components/ToastProvider';
 import usePullToRefresh from './hooks/usePullToRefresh';
 function App() {
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [showNewsModal, setShowNewsModal] = useState(false);
   const [showWhatsAppTip, setShowWhatsAppTip] = useState(false);
   const [whatsAppTipIndex, setWhatsAppTipIndex] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const { addToast } = useToast();
   const whatsappTips = [
     'Chat with us now',
@@ -58,8 +58,6 @@ function App() {
   const [testimonialPageActive, setTestimonialPageActive] = useState(() => isTestimonialRoute());
   const [adminPageActive, setAdminPageActive] = useState(() => isAdminRoute());
   const [adminLoginPageActive, setAdminLoginPageActive] = useState(() => isAdminLoginRoute());
-
-
 
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -105,8 +103,8 @@ function App() {
     const tipIntervalId = window.setInterval(showNextTip, 12000);
 
     return () => {
-      clearInterval(tipIntervalId);
-      clearTimeout(tipTimeoutId);
+      window.clearInterval(tipIntervalId);
+      window.clearTimeout(tipTimeoutId);
     };
   }, [whatsappTips.length]);
 
@@ -159,27 +157,6 @@ function App() {
       observer.disconnect();
     };
   }, [pageReady]);
-
-  useEffect(() => {
-    const handleScroll = (e) => {
-      const scrollableElement = e.target || window;
-      const scrollTop = scrollableElement.scrollY !== undefined ? scrollableElement.scrollY : scrollableElement.scrollTop;
-      setShowScrollTop(scrollTop > 220);
-    };
-
-    // Listen on the scrollable container (page-shell or window)
-    const pageShell = document.querySelector('.page-shell');
-    if (pageShell) {
-      pageShell.addEventListener('scroll', handleScroll, { passive: true });
-      handleScroll({ target: pageShell });
-      return () => pageShell.removeEventListener('scroll', handleScroll);
-    }
-
-    // Fallback to window scroll
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll({ target: window });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     const syncRoute = () => {
@@ -246,6 +223,25 @@ function App() {
     return () => window.clearTimeout(openModal);
   }, [surveyPageActive, testimonialPageActive]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !pageReady) return undefined;
+
+    const pageShell = document.querySelector('.page-shell');
+    const scrollTarget = pageShell || window;
+
+    const handleScroll = () => {
+      const currentScroll = pageShell ? pageShell.scrollTop : window.scrollY;
+      setShowScrollTop(currentScroll > 320);
+    };
+
+    handleScroll();
+    scrollTarget.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      scrollTarget.removeEventListener('scroll', handleScroll);
+    };
+  }, [pageReady]);
+
   usePullToRefresh();
 
   if (testimonialPageActive) {
@@ -305,59 +301,65 @@ function App() {
     );
   }
 
-  return (
-    <div className="page-shell">
-      <div className="floating-cta">
-        <div className={`whatsapp-tip ${showWhatsAppTip ? 'show' : ''}`} role="status" aria-live="polite">
-          {whatsappTips[whatsAppTipIndex]}
-        </div>
-        <button
-          className="floating-launcher"
-          type="button"
-          onClick={() => window.open('https://api.whatsapp.com/send?phone=2348094834708&text=Hello%20Flourish%20Tender%20Care%2C%20I%20need%20help%20with%20admissions%20and%20school%20information.', '_blank', 'noopener,noreferrer')}
-          aria-label="Open WhatsApp chat"
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.148-.672.149-.198.297-.767.967-.94 1.164-.173.198-.347.223-.644.075-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.447-.52.148-.173.198-.297.298-.495.099-.198.05-.372-.025-.52-.075-.149-.672-1.611-.92-2.204-.242-.58-.487-.5-.672-.51l-.572-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.693.626.712.227 1.36.195 1.872.118.571-.085 1.758-.72 2.006-1.415.248-.695.248-1.29.173-1.415-.074-.124-.272-.198-.57-.347z" fill="white" />
-            <path d="M12.005 2a9.98 9.98 0 0 0-8.517 14.814L2 22l4.436-1.163A9.98 9.98 0 1 0 12.005 2zm0 18.3a8.124 8.124 0 0 1-4.264-1.139l-.305-.18-2.63.69.701-2.564-.198-.324A8.092 8.092 0 1 1 20.1 12.005 8.064 8.064 0 0 1 12.005 20.3z" fill="white" opacity="0.35" />
-          </svg>
-        </button>
+  const whatsappLauncher = (
+    <div className="floating-cta">
+      <div className={`whatsapp-tip ${showWhatsAppTip ? 'show' : ''}`} role="status" aria-live="polite">
+        {whatsappTips[whatsAppTipIndex]}
       </div>
-
-      {showScrollTop && (
-        <button
-          className="scroll-top-button"
-          type="button"
-          onClick={() => {
-            const pageShell = document.querySelector('.page-shell');
-            if (pageShell) {
-              pageShell.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-          }}
-          aria-label="Scroll back to top"
-        >
-          ↑
-        </button>
-      )}
-
-      <NavBar />
-      <Hero />
-      <main>
-        <HeroPostSection />
-        <HeroStatsSection />
-        <AboutSection />
-        <ProgramsSection />
-        <NewsSection />
-        <TestimonialSection />
-        <FaqSection />
-        <AdmissionsSection />
-        <ContactSection />
-      </main>
-      <Footer />
-      <NewsModal visible={showNewsModal} onClose={() => setShowNewsModal(false)} />
+      <button
+        className="floating-launcher"
+        type="button"
+        onClick={() => window.open('https://api.whatsapp.com/send?phone=2348094834708&text=Hello%20Flourish%20Tender%20Care%2C%20I%20need%20help%20with%20admissions%20and%20school%20information.', '_blank', 'noopener,noreferrer')}
+        aria-label="Open WhatsApp chat"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.148-.672.149-.198.297-.767.967-.94 1.164-.173.198-.347.223-.644.075-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.447-.52.148-.173.198-.297.298-.495.099-.198.05-.372-.025-.52-.075-.149-.672-1.611-.92-2.204-.242-.58-.487-.5-.672-.51l-.572-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.693.626.712.227 1.36.195 1.872.118.571-.085 1.758-.72 2.006-1.415.248-.695.248-1.29.173-1.415-.074-.124-.272-.198-.57-.347z" fill="white" />
+          <path d="M12.005 2a9.98 9.98 0 0 0-8.517 14.814L2 22l4.436-1.163A9.98 9.98 0 1 0 12.005 2zm0 18.3a8.124 8.124 0 0 1-4.264-1.139l-.305-.18-2.63.69.701-2.564-.198-.324A8.092 8.092 0 1 1 20.1 12.005 8.064 8.064 0 0 1 12.005 20.3z" fill="white" opacity="0.35" />
+        </svg>
+      </button>
     </div>
+  );
+
+  const scrollTopButton = showScrollTop ? (
+    <button
+      className="scroll-top-button"
+      type="button"
+      onClick={() => {
+        const pageShell = document.querySelector('.page-shell');
+        if (pageShell) {
+          pageShell.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }}
+      aria-label="Scroll back to top"
+    >
+      ↑
+    </button>
+  ) : null;
+
+  return (
+    <>
+      {whatsappLauncher}
+      {scrollTopButton}
+      <div className="page-shell">
+        <NavBar />
+        <Hero />
+        <main>
+          <HeroPostSection />
+          <HeroStatsSection />
+          <AboutSection />
+          <ProgramsSection />
+          <NewsSection />
+          <TestimonialSection />
+          <FaqSection />
+          <AdmissionsSection />
+          <ContactSection />
+        </main>
+        <Footer />
+        <NewsModal visible={showNewsModal} onClose={() => setShowNewsModal(false)} />
+      </div>
+    </>
   );
 }
 
