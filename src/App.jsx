@@ -211,16 +211,24 @@ function App() {
 
     if (!hasConsented) {
       const timer = window.setTimeout(() => {
-        addToast('We use cookies and browser storage to remember your privacy choice and improve your visit. Tap Agree to continue.', {
+        addToast('We use cookies and browser storage to remember your privacy choice and improve your visit. Please choose below.', {
           type: 'info',
-          duration: 10000,
-          action: {
-            label: 'Agree',
-            onClick: () => {
-              window.localStorage.setItem(consentKey, 'accepted');
-              addToast('Thanks for helping us keep your privacy choice on this device.', { type: 'success', duration: 4000 });
+          autoDismiss: false,
+          actions: [
+            {
+              label: 'Agree',
+              onClick: () => {
+                window.localStorage.setItem(consentKey, 'accepted');
+                addToast('Thanks for helping us keep your privacy choice on this device.', { type: 'success', duration: 4000 });
+              },
             },
-          },
+            {
+              label: 'Cancel',
+              onClick: () => {
+                window.localStorage.setItem(consentKey, 'dismissed');
+              },
+            },
+          ],
         });
       }, 1400);
 
