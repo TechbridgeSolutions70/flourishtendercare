@@ -5914,47 +5914,62 @@ main > .section:first-child {
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding: 24px 20px 18px !important;
+  padding: 22px 20px 16px;
   border-radius: 0;
   background: linear-gradient(135deg, var(--footer-bg), #1f5b91);
   color: white;
-  display: flex !important;
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
   text-align: left;
   box-sizing: border-box;
+  border-top: 1px solid rgba(255,255,255,0.03);
 }
 
 .footer-content {
   width: 100%;
-  display: grid !important;
-  grid-template-columns: 1.2fr 0.8fr !important;
-  gap: 0.7rem !important;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 0.9rem;
   align-items: start;
 }
 
 .footer-info {
-  display: grid !important;
-  gap: 0.2rem !important;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.footer-info h3 {
+  margin: 0 0 6px 0;
+  font-size: 1.05rem;
+  color: #f6fbff;
+}
+
+.footer-info p {
+  margin: 0;
+  color: rgba(255,255,255,0.92);
+  font-size: 0.95rem;
+  line-height: 1.45;
 }
 
 .footer-actions {
-  display: flex !important;
+  display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 0.6rem;
 }
 
 .footer > a.btn {
   margin-top: 4px;
-  width: fit-content;
+  width: auto;
 }
 
 .footer-year {
-  margin-top: 0.1rem !important;
-  align-self: flex-start !important;
-  text-align: left !important;
+  margin-top: 6px;
+  font-size: 0.92rem;
+  color: rgba(255,255,255,0.85);
+  align-self: flex-start;
 }
 
 .contact-section { padding-top: 32px; }
@@ -5992,32 +6007,34 @@ main > .section:first-child {
   border-color: var(--accent);
   box-shadow: 0 0 0 4px rgba(60, 142, 219, 0.12);
 }
-.form-success {
-  margin-top: 12px;
-  color: #007a3d;
-  font-weight: 600;
+.footer-socials {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
 }
-
-.floating-launcher {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 1300;
-  width: 56px;
-  height: 56px;
-  border: none;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #25d366, #128c7e);
-  color: white;
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.22);
-  cursor: pointer;
-  display: grid;
-  place-items: center;
+.footer-socials .social-link {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.08);
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
 }
-.floating-launcher:hover {
-  transform: translateY(-1px);
+.footer-socials .social-link:hover {
+  background: rgba(255,255,255,0.12);
+  transform: translateY(-3px);
 }
-
 .modal-backdrop,
 .app-modal-backdrop,
 .print-preview-modal.visible,
@@ -6117,8 +6134,8 @@ main > .section:first-child {
   }
 
   .footer {
-    padding: 24px 16px;
-    align-items: flex-start;
+    padding: 20px 14px;
+    align-items: center;
   }
 
   .footer > div {
@@ -6131,30 +6148,42 @@ main > .section:first-child {
     justify-content: space-between;
     flex-wrap: nowrap;
   }
-  .footer {
-    flex-direction: column;
-    align-items: flex-start;
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
   }
 
-  .hero-copy-panel {
+  .footer-info {
     align-items: center;
     text-align: center;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
   }
 
-  .hero-actions,
-  .hero-post-actions,
-  .gallery-controls,
-  .form-actions {
+  .footer-actions {
+    align-items: center;
+    width: 100%;
+  }
+
+  .footer-socials,
+  .footer-links {
     justify-content: center;
   }
 
-  .nav-links { display: none; }
-  .mobile-toggle { display: inline-flex; }
-}
+  .footer-year {
+    align-self: center;
+    text-align: center;
+  }
 
-@media (max-width: 780px) {
+  /* Make CTA full-width and visually prominent on mobile */
+  .footer-actions .btn {
+    width: 100%;
+    max-width: 320px;
+    align-self: center;
+  }
+
+  .footer-socials .social-link {
+    width: 44px;
+    height: 44px;
+  }
   .top-strip { display: none; }
   .topbar {
     top: 0;
