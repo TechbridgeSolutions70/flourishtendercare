@@ -34,8 +34,8 @@ function NavBar() {
         <div className="brand">
           <img src={logo} alt="Flourish Tender Care logo" className="brand-logo" />
           <div>
-            <h1>Flourish Tender Care</h1>
-            <p>Nurturing minds, shaping futures</p>
+            <h1>Flourish Tendercare</h1>
+            <p>Nurturing for Greatness</p>
           </div>
         </div>
         <div className="nav-links">
