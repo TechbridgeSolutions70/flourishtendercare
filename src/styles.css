@@ -4106,6 +4106,21 @@ main > .section:first-child {
   object-fit: cover;
   background: #000;
 }
+
+/* Next button styling */
+.video-next-button {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  background: rgba(255,255,255,0.9);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+.video-next-button:hover { transform: translateY(-1px); }
 .video-placeholder {
   position: absolute;
   inset: 0;
