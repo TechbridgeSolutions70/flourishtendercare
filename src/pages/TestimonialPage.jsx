@@ -1,5 +1,6 @@
 import NavBar from '../components/NavBar';
 import TestimonialSection from '../components/TestimonialSection';
+import Footer from '../components/Footer';
 
 export default function TestimonialPage() {
   return (
@@ -16,25 +17,7 @@ export default function TestimonialPage() {
         <TestimonialSection />
       </main>
 
-      <section className="testimonial-cta-section">
-        <div className="testimonial-cta-shell">
-          <div className="testimonial-cta-copy">
-            <p className="eyebrow">Join the conversation</p>
-            <h2>Have a story to share? We’d love to hear from you.</h2>
-            <p>
-              Submit a testimonial to help other families discover the Flourish Tender Care difference, or contact our admissions team to learn how to get started.
-            </p>
-          </div>
-          <div className="testimonial-cta-actions">
-            <a className="btn btn-primary" href="#testimonial-form">
-              Share your story
-            </a>
-            <a className="btn btn-secondary" href="/#contact">
-              Contact admissions
-            </a>
-          </div>
-        </div>
-      </section>
+      <Footer />
     </div>
   );
 }
