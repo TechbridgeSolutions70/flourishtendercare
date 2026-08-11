@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   color-scheme: light;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.5;
@@ -3607,6 +3607,11 @@ main > .section:first-child {
   display: none !important;
 }
 
+/* Ensure scroll-top-button shows on survey page */
+.page-shell.survey-page-shell .scroll-top-button {
+  display: block !important;
+}
+
 /* Show page-mode actions: remove cancel, keep submit aligned left */
 .page-shell.survey-page-shell .survey-actions { justify-content: flex-start; }
 .page-shell.survey-page-shell .survey-actions .btn-secondary { display: none; }
@@ -3622,27 +3627,6 @@ main > .section:first-child {
   .survey-page-body { padding: 18px; }
 }
 
-.scroll-top-button {
-  position: fixed;
-  left: 20px;
-  bottom: 20px;
-  z-index: 999999;
-  width: 50px;
-  height: 50px;
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--accent-strong), var(--accent));
-  color: white;
-  font-size: 1.25rem;
-  cursor: pointer;
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.18);
-  opacity: 0.96;
-  display: grid;
-  place-items: center;
-}
-.scroll-top-button:hover {
-  transform: translateY(-2px);
-}
 
 :root[data-theme='light'] .btn-secondary,
 :root[data-theme='dark'] .btn-secondary {
@@ -3802,7 +3786,7 @@ main > .section:first-child {
   line-height: 1.7;
 }
 .hero-post-list li::before {
-  content: '•';
+  content: 'ΓÇó';
   position: absolute;
   left: -1.25rem;
   color: var(--accent);
@@ -4098,14 +4082,6 @@ main > .section:first-child {
   border: 0;
   display: block;
 }
-/* Internal HTML5 video player styling */
-.video-frame .internal-welcome-video {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  background: #000;
-}
 .video-placeholder {
   position: absolute;
   inset: 0;
@@ -4116,7 +4092,7 @@ main > .section:first-child {
   text-shadow: 0 4px 18px rgba(0, 0, 0, 0.32);
 }
 .video-placeholder::before {
-  content: '▶';
+  content: 'Γû╢';
 }
 @media (max-width: 980px) {
   .welcome-address-section {
@@ -4785,114 +4761,6 @@ main > .section:first-child {
   max-width: 100vw;
   margin: 0;
   flex: 1 1 auto;
-}
-
-.testimonial-page-hero {
-  padding: 70px 16px 42px;
-  background: linear-gradient(180deg, rgba(12, 66, 119, 0.08) 0%, rgba(233, 247, 255, 0.95) 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.testimonial-page-hero-inner {
-  width: min(1120px, 100%);
-  max-width: 960px;
-  text-align: center;
-}
-
-.testimonial-page-hero .eyebrow {
-  margin: 0 auto 16px;
-  color: var(--accent-strong);
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-}
-
-.testimonial-page-hero h1 {
-  margin: 0;
-  font-size: clamp(2.8rem, 4vw, 4.4rem);
-  line-height: 1.02;
-  color: var(--text-main);
-}
-
-.testimonial-page-hero p {
-  margin: 24px auto 0;
-  max-width: 700px;
-  color: var(--text-secondary);
-  font-size: 1.05rem;
-  line-height: 1.9;
-}
-
-@media (max-width: 780px) {
-  .testimonial-page-hero {
-    padding: 54px 16px 28px;
-  }
-
-  .testimonial-page-hero h1 {
-    font-size: clamp(2rem, 8vw, 2.8rem);
-  }
-}
-
-.testimonial-cta-section {
-  padding: 46px 16px 80px;
-  background: linear-gradient(180deg, rgba(12, 66, 119, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%);
-}
-
-.testimonial-cta-shell {
-  display: grid;
-  gap: 24px;
-  max-width: 1160px;
-  margin: 0 auto;
-  padding: 32px 24px;
-  border-radius: 32px;
-  background: rgba(255, 255, 255, 0.98);
-  border: 1px solid rgba(11, 134, 166, 0.14);
-  box-shadow: 0 24px 60px rgba(11, 69, 112, 0.08);
-}
-
-.testimonial-cta-copy {
-  max-width: 760px;
-}
-
-.testimonial-cta-copy h2 {
-  margin: 0;
-  font-size: clamp(2rem, 3vw, 2.75rem);
-  line-height: 1.08;
-  color: var(--text-main);
-}
-
-.testimonial-cta-copy p {
-  margin: 18px 0 0;
-  color: var(--text-secondary);
-  font-size: 1rem;
-  line-height: 1.9;
-}
-
-.testimonial-cta-actions {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.testimonial-cta-actions .btn {
-  min-width: 180px;
-}
-
-@media (max-width: 780px) {
-  .testimonial-cta-section {
-    padding: 32px 16px 48px;
-  }
-
-  .testimonial-cta-shell {
-    padding: 28px 20px;
-  }
-
-  .testimonial-cta-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
 }
 
 .testimonial-section {
@@ -6497,6 +6365,26 @@ main > .section:first-child {
   }
 }
 
+.scroll-top-button {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 35;
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+  color: white;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.18);
+  opacity: 0.86;
+}
+.scroll-top-button:hover {
+  transform: translateY(-2px);
+}
+
 /* Consolidated modal & floating-button overrides
    These rules normalize modal/backdrop/card/body/close and floating launcher/panel
    to prevent scattered, conflicting definitions elsewhere in the file. */
@@ -6565,68 +6453,12 @@ main > .section:first-child {
   outline: 3px solid rgba(77,208,200,0.18);
 }
 
-/* Floating panel */
-.floating-panel {
-  position: fixed;
-  right: 20px;
-  bottom: 88px;
-  z-index: 1299;
-  width: min(92vw, 320px);
-  padding: 16px;
-  border-radius: 16px;
-  background: var(--card-bg);
-  color: var(--text-main);
-  box-shadow: 0 14px 36px rgba(8,20,40,0.12);
-  border: 1px solid var(--border-color);
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(8px);
-  transition: opacity 160ms ease, transform 160ms ease;
-}
-.floating-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
-
-.fireworks-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 9998;
-}
-
-.firework {
-  position: absolute;
-  display: block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  opacity: 0;
-  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.05) 60%);
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 213, 0, 0.6), 0 0 70px rgba(255, 85, 0, 0.45);
-  animation: firework 1.4s ease-out forwards;
-}
-
-@keyframes firework {
-  0% { opacity: 1; transform: translate3d(0, 0, 0) scale(0.9); }
-  80% { opacity: 1; transform: translate3d(var(--x), var(--y), 0) scale(1.15); }
-  100% { opacity: 0; transform: translate3d(var(--x), var(--y), 0) scale(0.1); }
-}
-
-.firework-1 { --x: -160px; --y: -220px; top: 50%; left: 50%; animation-delay: 0s; }
-.firework-2 { --x: 160px; --y: -200px; top: 50%; left: 50%; animation-delay: 0.1s; }
-.firework-3 { --x: -180px; --y: 160px; top: 50%; left: 50%; animation-delay: 0.2s; }
-.firework-4 { --x: 160px; --y: 180px; top: 50%; left: 50%; animation-delay: 0.3s; }
-.firework-5 { --x: 0px; --y: -240px; top: 50%; left: 50%; animation-delay: 0.4s; }
-.firework-6 { --x: -120px; --y: 220px; top: 50%; left: 50%; animation-delay: 0.5s; }
-.firework-7 { --x: 120px; --y: 220px; top: 50%; left: 50%; animation-delay: 0.6s; }
-.firework-8 { --x: -220px; --y: 0px; top: 50%; left: 50%; animation-delay: 0.7s; }
-.firework-9 { --x: 220px; --y: 0px; top: 50%; left: 50%; animation-delay: 0.8s; }
-
 /* Floating launcher/panel */
 .floating-cta {
-  position: fixed !important;
-  right: 20px !important;
-  bottom: 20px !important;
-  z-index: 999999 !important;
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1300;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -6674,13 +6506,73 @@ main > .section:first-child {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-6px) scale(1.03); }
 }
+.floating-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 88px;
+  z-index: 1299;
+  width: min(92vw, 320px);
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  box-shadow: 0 14px 36px rgba(8,20,40,0.12);
+  border: 1px solid var(--border-color);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.floating-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
 @media (max-width: 780px) {
   .floating-cta {
-    right: 14px !important;
-    bottom: 14px !important;
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+  }
+  .whatsapp-tip {
+    max-width: min(220px, calc(100vw - 24px));
+    font-size: 0.82rem;
+    padding: 9px 11px;
   }
 }
+
+.fireworks-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 9998;
+}
+
+.firework {
+  position: absolute;
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.05) 60%);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 213, 0, 0.6), 0 0 70px rgba(255, 85, 0, 0.45);
+  animation: firework 1.4s ease-out forwards;
+}
+
+@keyframes firework {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) scale(0.9); }
+  80% { opacity: 1; transform: translate3d(var(--x), var(--y), 0) scale(1.15); }
+  100% { opacity: 0; transform: translate3d(var(--x), var(--y), 0) scale(0.1); }
+}
+
+.firework-1 { --x: -160px; --y: -220px; top: 50%; left: 50%; animation-delay: 0s; }
+.firework-2 { --x: 160px; --y: -200px; top: 50%; left: 50%; animation-delay: 0.1s; }
+.firework-3 { --x: -180px; --y: 160px; top: 50%; left: 50%; animation-delay: 0.2s; }
+.firework-4 { --x: 160px; --y: 180px; top: 50%; left: 50%; animation-delay: 0.3s; }
+.firework-5 { --x: 0px; --y: -240px; top: 50%; left: 50%; animation-delay: 0.4s; }
+.firework-6 { --x: -120px; --y: 220px; top: 50%; left: 50%; animation-delay: 0.5s; }
+.firework-7 { --x: 120px; --y: 220px; top: 50%; left: 50%; animation-delay: 0.6s; }
+.firework-8 { --x: -220px; --y: 0px; top: 50%; left: 50%; animation-delay: 0.7s; }
+.firework-9 { --x: 220px; --y: 0px; top: 50%; left: 50%; animation-delay: 0.8s; }
 .firework-10 { --x: 0px; --y: 260px; top: 50%; left: 50%; animation-delay: 0.9s; }
 
 .page-shell.survey-page-shell,

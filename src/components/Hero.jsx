@@ -141,7 +141,40 @@ function Hero() {
     setCurrent(index);
   };
 
- 
+  const navigate = (href) => {
+    if (!href) return;
+
+    if (href.startsWith('/')) {
+      window.history.pushState({}, '', href);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      return;
+    }
+
+    if (href.startsWith('#')) {
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+    }
+
+    window.open(href, '_blank', 'noopener,noreferrer');
+  };
+
+  const renderAction = (label, href, variant = 'primary') => {
+    const internal = href && (href.startsWith('/') || href.startsWith('#'));
+    if (!label || !href) return null;
+
+    return internal ? (
+      <button type="button" className={`btn btn-${variant}`} onClick={() => navigate(href)}>
+        {label}
+      </button>
+    ) : (
+      <a className={`btn btn-${variant}`} href={href} target="_blank" rel="noreferrer">
+        {label}
+      </a>
+    );
+  };
 
   return (
     <header className="hero hero-slider">
@@ -160,7 +193,7 @@ function Hero() {
         />
       </div>
       <div className="hero-marquee" aria-hidden>
-        <div className="marquee-inner">ADMISSIONS OPEN — Apply for 2026/2027 • Limited spaces available • Apply now</div>
+        <div className="marquee-inner">ADMISSIONS OPEN — Apply for 2026/2027 • Click the  • <a href="https://portal.flourishtendercare.com.ng/apply">Apply now</a> </div>
       </div>
       <div className="hero-glow hero-glow-one" />
       <div className="hero-glow hero-glow-two" />
@@ -177,7 +210,8 @@ function Hero() {
                 <h2 className="hero-title">{slide.title}</h2>
                 <p className="hero-copy-text">{slide.description}</p>
                 <div className="hero-actions">
-                  <a className="btn btn-primary" href={slide.ctaPrimaryHref}>{slide.ctaPrimary}</a>
+                  {renderAction(slide.ctaPrimary, slide.ctaPrimaryHref, 'primary')}
+                  {renderAction(slide.ctaSecondary, slide.ctaSecondaryHref, 'secondary')}
                 </div>
               </div>
             </div>
