@@ -1,8 +1,22 @@
+import { useEffect } from 'react';
 import NavBar from '../components/NavBar';
 import TestimonialSection from '../components/TestimonialSection';
 import Footer from '../components/Footer';
 
 export default function TestimonialPage() {
+  useEffect(() => {
+    const el = document.getElementById('testimonial-form');
+    if (el) {
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
+        const input = el.querySelector('input, textarea, select');
+        if (input && typeof input.focus === 'function') {
+          try { input.focus({ preventScroll: true }); } catch (e) { input.focus(); }
+        }
+      }, 60);
+    }
+  }, []);
+
   return (
     <div className="page-shell testimonial-page-shell">
       <NavBar />
