@@ -1693,6 +1693,26 @@ a { color: inherit; text-decoration: none; }
     pointer-events: none;
   }
 
+  .admin-table-detail-trigger {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .admin-table-detail-trigger:hover .admin-table-cell-content,
+  .admin-table-detail-trigger:focus-visible .admin-table-cell-content {
+    color: var(--accent-strong);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
   .detail-record-backdrop {
     position: absolute;
     inset: 0;

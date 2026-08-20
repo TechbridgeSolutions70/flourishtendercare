@@ -146,7 +146,7 @@ function DetailRecordModal({ logoUrl, heading, item, columns, onClose, onPrint }
   );
 }
 
-function DataTable({ title, items, columns, emptyText, rowSelection, rowActions, printScope }) {
+function DataTable({ title, items, columns, emptyText, rowSelection, rowActions, printScope, detailHeading, onDetail }) {
   const tableRef = useRef(null);
   const scrollStep = 320;
 
@@ -225,7 +225,14 @@ function DataTable({ title, items, columns, emptyText, rowSelection, rowActions,
                       const value = column.render ? column.render(item) : (item[rawKey] ?? item[snakeKey] ?? '—');
                       return (
                         <td key={column.key} className="admin-table-cell" style={styles.td}>
-                          <div className="admin-table-cell-content">{value}</div>
+                          <button
+                            type="button"
+                            className="admin-table-detail-trigger"
+                            onClick={() => onDetail?.(item, detailHeading, columns)}
+                            aria-label={`View ${column.label} details`}
+                          >
+                            <span className="admin-table-cell-content">{value}</span>
+                          </button>
                         </td>
                       );
                     })}
@@ -782,6 +789,8 @@ export default function AdminDashboard() {
             columns={surveyColumns}
             emptyText="No survey submissions yet."
             rowSelection={{ selectedIds: selectedSurveyIds, onToggle: toggleSelectSurvey }}
+            detailHeading="Survey submission details"
+            onDetail={openDetailRecord}
             rowActions={{
               header: 'Actions',
               buttons: [
@@ -856,6 +865,8 @@ export default function AdminDashboard() {
             columns={testimonialColumns}
             emptyText="No messages sent yet."
             rowSelection={{ selectedIds: selectedTestimonialIds, onToggle: toggleSelectTestimonial }}
+            detailHeading="Testimonial details"
+            onDetail={openDetailRecord}
             rowActions={{
               header: 'Actions',
               buttons: [
@@ -929,6 +940,8 @@ export default function AdminDashboard() {
           columns={contactColumns}
           emptyText="No visitor records yet."
           rowSelection={{ selectedIds: selectedContactIds, onToggle: toggleSelectContact }}
+          detailHeading="Visitor record details"
+          onDetail={openDetailRecord}
           rowActions={{
             header: 'Actions',
             buttons: [
