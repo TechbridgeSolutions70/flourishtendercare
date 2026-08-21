@@ -93,7 +93,9 @@ export default function AdminLogin() {
       <div className="admin-panel-container" style={styles.container}>
         <div className="admin-login-panel" style={styles.panel}>
           <div className="admin-login-brand">
-            <img src={logoUrl} alt="School logo" className="admin-login-logo" />
+            <a href="/" aria-label="Go to Flourish Tender Care home">
+              <img src={logoUrl} alt="School logo" className="admin-login-logo" />
+            </a>
             <div>
               <p className="admin-login-tag">Your Webapp Admin portal</p>
               <h1 className="admin-login-title">Admin Login</h1>

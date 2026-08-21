@@ -32,9 +32,11 @@ function NavBar() {
       </div>
       <nav className="topbar">
         <div className="brand">
-          <img src={logo} alt="Flourish Tender Care logo" className="brand-logo" />
+          <a href="/" className="brand-logo-link" aria-label="Go to Flourish Tender Care home">
+            <img src={logo} alt="Flourish Tender Care logo" className="brand-logo" />
+          </a>
           <div>
-            <h1>Flourish Tendercare</h1>
+            <h1><span>Flourish</span> <strong>Tendercare</strong></h1>
             <p>Nurturing for Greatness</p>
           </div>
         </div>
