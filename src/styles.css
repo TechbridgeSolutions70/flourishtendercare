@@ -4488,6 +4488,12 @@ main > .section:first-child {
     font-size: 1rem;
     line-height: 1.05;
   }
+  .brand p {
+    display: block;
+    font-size: 0.68rem;
+    line-height: 1.05;
+    white-space: nowrap;
+  }
   .brand-logo {
     width: 72px;
     height: 72px;
