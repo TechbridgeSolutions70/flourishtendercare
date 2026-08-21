@@ -54,7 +54,9 @@ export default function PrintHandler({
   return (
     <section className={`admin-print-layout ${visibilityClass}`}>
       <div className="admin-print-header">
-        <img src={logoUrl} alt="School logo" className="admin-print-logo" />
+        <a href="/" aria-label="Go to Flourish Tender Care home">
+          <img src={logoUrl} alt="School logo" className="admin-print-logo" />
+        </a>
         <div className="admin-print-branding">
           <h1>Flourish Tender Care</h1>
           <p>123 Flourish Drive, Ikorodu, Lagos, Nigeria</p>

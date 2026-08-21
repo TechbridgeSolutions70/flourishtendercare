@@ -93,7 +93,9 @@ function DetailRecordModal({ logoUrl, heading, item, columns, onClose, onPrint }
       <div className="detail-record-card">
         <div className="detail-record-letterhead">
           <div className="detail-record-letterhead-branding">
-            <img src={logoUrl} alt="Flourish Tender Care" className="detail-record-letterhead-logo" />
+            <a href="/" aria-label="Go to Flourish Tender Care home">
+              <img src={logoUrl} alt="Flourish Tender Care" className="detail-record-letterhead-logo" />
+            </a>
             <div>
               <p className="detail-record-letterhead-eyebrow">Flourish Tender Care</p>
               <h2 className="detail-record-letterhead-title">Comprehensive Summary Details</h2>
@@ -1107,7 +1109,9 @@ export default function AdminDashboard() {
           {isMobile && (
             <div className="admin-dashboard-mobile-navbar">
               <div className="mobile-nav-left">
-                <img src={logoUrl} alt="School logo" className="mobile-nav-logo" />
+                <a href="/" aria-label="Go to Flourish Tender Care home">
+                  <img src={logoUrl} alt="School logo" className="mobile-nav-logo" />
+                </a>
                 <p className="mobile-nav-title">Flourish Tender Care</p>
               </div>
               <div className="mobile-nav-right">
