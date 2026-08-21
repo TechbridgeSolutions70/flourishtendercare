@@ -4414,7 +4414,7 @@ main > .section:first-child {
     min-width: 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 3px;
     max-width: calc(100% - 58px);
     flex-shrink: 1;
     overflow: hidden;
@@ -4465,15 +4465,23 @@ main > .section:first-child {
 }
 
 @media (max-width: 780px) {
+  .brand {
+    gap: 3px;
+  }
+  .brand h1 {
+    font-family: 'Comic Sans MS', 'Bradley Hand', 'Segoe Print', cursive;
+    font-size: 1rem;
+    line-height: 1.05;
+  }
   .brand-logo {
-    width: 88px;
-    height: 88px;
-    flex-basis: 88px;
+    width: 72px;
+    height: 72px;
+    flex-basis: 72px;
   }
   .topbar {
     width: 100%;
     max-width: 100vw;
-    padding: 14px 16px;
+    padding: 6px 16px;
     min-width: 0;
   }
   .brand p {
