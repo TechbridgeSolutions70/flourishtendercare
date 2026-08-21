@@ -4505,9 +4505,6 @@ main > .section:first-child {
     padding: 6px 16px;
     min-width: 0;
   }
-  .brand p {
-    display: none;
-  }
   .brand h1 {
     font-size: 1rem;
   }
