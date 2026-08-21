@@ -4465,6 +4465,19 @@ main > .section:first-child {
 }
 
 @media (max-width: 780px) {
+  .brand-logo-link {
+    width: 72px !important;
+    flex-basis: 72px !important;
+  }
+  .brand-logo {
+    width: 72px !important;
+    height: 72px !important;
+    flex-basis: 72px !important;
+  }
+  .topbar {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
   .brand {
     gap: 3px;
   }
