@@ -49,6 +49,12 @@ export async function saveTestimonial(payload) {
   return saveRecord('parent_testimonials', payload);
 }
 
+export async function publishTestimonial(id) {
+  return safeQuery(
+    supabase.from('parent_testimonials').update({ is_published: true }).eq('id', id).select().single()
+  );
+}
+
 export async function fetchSurveyResponses() {
   return safeQuery(
     supabase.from('survey_responses').select('*').order('created_at', { ascending: false }).limit(100)
