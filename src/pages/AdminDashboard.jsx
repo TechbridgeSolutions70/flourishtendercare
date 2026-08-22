@@ -13,6 +13,7 @@ import {
   fetchSurveyResponses,
   fetchTestimonials,
   getCurrentSession,
+  publishTestimonial,
   supabase,
 } from '../lib/supabaseClient';
 import { Mail, FileText, MessageCircle, RefreshCw, LogOut, ShieldCheck, Menu } from 'lucide-react';
@@ -82,10 +83,12 @@ function formatFieldValue(item, column) {
   return String(value);
 }
 
-function DetailRecordModal({ logoUrl, heading, item, columns, onClose, onPrint }) {
+function DetailRecordModal({ logoUrl, heading, item, columns, onClose, onPrint, onPublish }) {
   const [showAllFields, setShowAllFields] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const visibleColumns = showAllFields ? columns : columns.slice(0, 8);
   const hiddenCount = Math.max(0, columns.length - 8);
+  const canPublish = Boolean(onPublish) && item?.is_published !== true;
 
   return (
     <div className="detail-record-modal" role="dialog" aria-modal="true" aria-label="Record details">
@@ -114,6 +117,20 @@ function DetailRecordModal({ logoUrl, heading, item, columns, onClose, onPrint }
             <p style={{ margin: '0.35rem 0 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Important fields are shown on cards below.</p>
           </div>
           <div className="detail-record-actions">
+            {canPublish && (
+              <button
+                type="button"
+                className="admin-action-btn"
+                onClick={async () => {
+                  setPublishing(true);
+                  await onPublish(item);
+                  setPublishing(false);
+                }}
+                disabled={publishing}
+              >
+                {publishing ? 'Posting...' : 'Post to testimonial slider'}
+              </button>
+            )}
             <button type="button" className="admin-action-btn admin-action-secondary" onClick={onClose}>
               Close
             </button>
@@ -378,6 +395,20 @@ export default function AdminDashboard() {
     window.setTimeout(() => {
       window.print();
     }, 250);
+  };
+
+  const handlePublishTestimonial = async (item) => {
+    const { error } = await publishTestimonial(item.id);
+    if (error) {
+      addToast(error.message || 'Unable to post testimonial to the slider.', { type: 'error', duration: 5000 });
+      return;
+    }
+
+    setTestimonials((current) => current.map((testimonial) => (
+      testimonial.id === item.id ? { ...testimonial, is_published: true } : testimonial
+    )));
+    setDetailRecord((current) => (current ? { ...current, is_published: true } : current));
+    addToast('Testimonial posted to the slider.', { type: 'success', duration: 4000 });
   };
 
   const sendEmailNotification = async (event) => {
@@ -1232,6 +1263,7 @@ export default function AdminDashboard() {
           columns={detailRecordColumns}
           onClose={closeDetailRecord}
           onPrint={printDetailRecord}
+          onPublish={detailRecordHeading === 'Testimonial details' ? handlePublishTestimonial : undefined}
         />,
         document.body
       )}

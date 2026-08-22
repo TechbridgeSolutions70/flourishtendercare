@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useToast } from './ToastProvider';
-import { saveTestimonial } from '../lib/supabaseClient';
+import { fetchTestimonials, saveTestimonial } from '../lib/supabaseClient';
 
-const testimonials = [
+const defaultTestimonials = [
   {
     name: 'Mrs. Amina Kazeem',
     excerpt:
@@ -34,6 +34,7 @@ const testimonials = [
 ];
 
 function TestimonialSection({ modalMode = false, onClose }) {
+  const [testimonials, setTestimonials] = useState(defaultTestimonials);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedTestimonial, setSelectedTestimonial] = useState(null);
   const [testimonialName, setTestimonialName] = useState('');
@@ -43,12 +44,29 @@ function TestimonialSection({ modalMode = false, onClose }) {
   const { addToast } = useToast();
 
   useEffect(() => {
+    const loadTestimonials = async () => {
+      const { data, error } = await fetchTestimonials();
+      if (error || !data?.length) return;
+
+      const savedTestimonials = data.map((item) => ({
+        id: item.id,
+        name: item.name,
+        excerpt: item.text,
+        full: item.text,
+      }));
+      setTestimonials([...savedTestimonials, ...defaultTestimonials]);
+    };
+
+    loadTestimonials();
+  }, []);
+
+  useEffect(() => {
     const timer = window.setInterval(() => {
       setActiveIndex((value) => (value + 1) % testimonials.length);
     }, 6000);
 
     return () => window.clearInterval(timer);
-  }, []);
+  }, [testimonials.length]);
 
   const goToPrev = () => setActiveIndex((value) => (value - 1 + testimonials.length) % testimonials.length);
   const goToNext = () => setActiveIndex((value) => (value + 1) % testimonials.length);
