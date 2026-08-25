@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { CheckCircle2, CircleAlert, Info } from 'lucide-react';
 
 const ToastContext = createContext(null);
 let nextToastId = 0;
@@ -13,6 +14,12 @@ export function useToast() {
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
+
+  const toastIcons = {
+    info: Info,
+    success: CheckCircle2,
+    error: CircleAlert,
+  };
 
   const addToast = useCallback((message, { type = 'info', duration = 5000, action, actions, autoDismiss = true } = {}) => {
     const id = ++nextToastId;
@@ -54,8 +61,12 @@ export function ToastProvider({ children }) {
       <div className="toast-viewport" aria-live="polite" aria-atomic="true">
         {toasts.map((toast) => (
           <div key={toast.id} className={`toast toast-${toast.type}`} role="status">
+            {(() => {
+              const ToastIcon = toastIcons[toast.type] || Info;
+              return <ToastIcon className="toast-icon" aria-hidden="true" />;
+            })()}
             <div className="toast-content">
-              <span>{toast.message}</span>
+              <span className="toast-message">{toast.message}</span>
               {(toast.action || toast.actions?.length) && (
                 <div className="toast-actions">
                   {toast.actions?.map((item) => (
