@@ -768,9 +768,6 @@ export default function AdminDashboard() {
     <section className="admin-dashboard-tab-panel admin-email-notification">
       <h3>Flourish email centre</h3>
       <p className="admin-dashboard-tab-description">Send a polished update to the Flourish Tender Care admin inbox.</p>
-      <span style={{ display: 'inline-flex', padding: '0.5rem 0.9rem', borderRadius: '999px', background: 'var(--accent-soft)', color: 'var(--accent-strong)' }}>
-        Email service: Resend
-      </span>
       <form onSubmit={sendEmailNotification} style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
         <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
           Recipient email
@@ -1037,9 +1034,6 @@ export default function AdminDashboard() {
             <div>
               <h2 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-main)' }}>Send notification email</h2>
               <p style={{ margin: '0.6rem 0 0', color: 'var(--text-muted)', lineHeight: 1.6 }}>Send a notification directly from the visitors tab.</p>
-            </div>
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <span style={{ padding: '0.5rem 0.9rem', borderRadius: '999px', background: 'var(--accent-soft)', color: 'var(--accent-strong)' }}>Email service: Resend</span>
             </div>
           </div>
 
