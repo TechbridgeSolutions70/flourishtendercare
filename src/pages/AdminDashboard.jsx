@@ -308,6 +308,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [emailSubject, setEmailSubject] = useState('Admin dashboard notification');
   const [emailBody, setEmailBody] = useState('Here is an important update from the admin dashboard.');
+  const [recipientEmail, setRecipientEmail] = useState('');
   const [sendingEmail, setSendingEmail] = useState(false);
   const { addToast } = useToast();
   const { isMobile } = useResponsive();
@@ -413,6 +414,12 @@ export default function AdminDashboard() {
 
   const sendEmailNotification = async (event) => {
     event.preventDefault();
+
+    const trimmedRecipient = recipientEmail.trim();
+    if (!trimmedRecipient) {
+      addToast('A recipient email is required to send a custom client email.', { type: 'error' });
+      return;
+    }
     if (!emailSubject.trim() || !emailBody.trim()) {
       addToast('Subject and body are required to send the notification.', { type: 'error' });
       return;
@@ -423,7 +430,7 @@ export default function AdminDashboard() {
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject: emailSubject, body: emailBody }),
+        body: JSON.stringify({ to: trimmedRecipient, subject: emailSubject, body: emailBody }),
       });
 
       const result = await response.json();
@@ -431,7 +438,8 @@ export default function AdminDashboard() {
         throw new Error(result.error || 'Failed to send notification email.');
       }
 
-      addToast('Notification email sent successfully.', { type: 'success' });
+      addToast('Client email sent successfully.', { type: 'success' });
+      setRecipientEmail('');
     } catch (error) {
       addToast(error.message || 'Failed to send notification email.', { type: 'error' });
     } finally {
@@ -764,6 +772,10 @@ export default function AdminDashboard() {
         Email service: Resend
       </span>
       <form onSubmit={sendEmailNotification} style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
+        <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
+          Recipient email
+          <input type="email" value={recipientEmail} onChange={(event) => setRecipientEmail(event.target.value)} placeholder="family@example.com" style={styles.input} />
+        </label>
         <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
           Subject
           <input type="text" value={emailSubject} onChange={(event) => setEmailSubject(event.target.value)} style={styles.input} />
