@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Sparkles } from 'lucide-react';
+import { getIndependenceAge, getNigeriaYear, isIndependenceDayActive, isIndependenceDayPreview } from './IndependenceDayEffect';
 
 const heroImageFiles = import.meta.glob('../Public/hero/*', {
   eager: true,
@@ -101,25 +102,83 @@ const heroSlides = heroImageUrls.length
       },
     ];
 
+const getIndependenceHeroSlides = () => {
+  const independenceAge = getIndependenceAge();
+  const nigeriaYear = getNigeriaYear();
+
+  return [
+  {
+    caption: `Celebrating Nigeria at ${independenceAge}`,
+    title: 'One nation, many voices, one shared future.',
+    description: 'Today we honour Nigeria’s independence, culture, courage, and the people who continue to build a brighter tomorrow.',
+    backgroundImage: 'https://upload.wikimedia.org/wikipedia/commons/7/79/Flag_of_Nigeria.svg',
+    thumbnailImage: 'https://upload.wikimedia.org/wikipedia/commons/7/79/Flag_of_Nigeria.svg',
+    backgroundPosition: 'center',
+    ctaPrimary: 'Celebrate Nigeria',
+    ctaPrimaryHref: '#about',
+    ctaSecondary: 'Our Independence Story',
+    ctaSecondaryHref: '#news',
+  },
+  {
+    caption: `1 October 1960 - ${nigeriaYear}`,
+    title: 'Freedom, unity, and hope in every generation.',
+    description: 'From our history to our future, Nigeria’s strength lives in its people, communities, creativity, and enduring hope.',
+    backgroundImage: 'https://upload.wikimedia.org/wikipedia/commons/7/77/Bola_Tinubu_portrait.jpg',
+    thumbnailImage: 'https://upload.wikimedia.org/wikipedia/commons/7/77/Bola_Tinubu_portrait.jpg',
+    backgroundPosition: 'center',
+    ctaPrimary: 'Mark the Moment',
+    ctaPrimaryHref: '#about',
+    ctaSecondary: 'Share the Joy',
+    ctaSecondaryHref: '#contact',
+  },
+  {
+    caption: 'Green and white, proudly Nigerian',
+    title: 'May peace, progress, and possibility lead us forward.',
+    description: 'Happy Independence Day to every Nigerian at home and around the world. Our story continues with courage and togetherness.',
+    backgroundImage: 'https://upload.wikimedia.org/wikipedia/commons/b/bc/Coat_of_arms_of_Nigeria.svg',
+    thumbnailImage: 'https://upload.wikimedia.org/wikipedia/commons/b/bc/Coat_of_arms_of_Nigeria.svg',
+    backgroundPosition: 'center',
+    ctaPrimary: 'Happy Independence Day',
+    ctaPrimaryHref: '#contact',
+    ctaSecondary: 'Keep Celebrating',
+    ctaSecondaryHref: '#news',
+  },
+  ];
+};
+
 function Hero() {
   const [current, setCurrent] = useState(0);
   const [previous, setPrevious] = useState(null);
+  const [independenceActive, setIndependenceActive] = useState(() => isIndependenceDayActive() || isIndependenceDayPreview());
   const progressRef = useRef(null);
   const intervalMs = 6500;
+  const slides = independenceActive ? getIndependenceHeroSlides() : heroSlides;
+
+  useEffect(() => {
+    const updateSchedule = () => setIndependenceActive(isIndependenceDayActive() || isIndependenceDayPreview());
+    updateSchedule();
+    const timer = window.setInterval(updateSchedule, 30 * 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    setCurrent(0);
+    setPrevious(null);
+  }, [independenceActive]);
 
   useEffect(() => {
     const tick = () => {
       setCurrent((value) => {
         setPrevious(value);
-        return (value + 1) % heroSlides.length;
+        return (value + 1) % slides.length;
       });
     };
     const interval = setInterval(tick, intervalMs);
     return () => clearInterval(interval);
-  }, []);
+  }, [slides.length]);
 
-  const slide = heroSlides[current];
-  const prevSlide = previous !== null ? heroSlides[previous] : null;
+  const slide = slides[current];
+  const prevSlide = previous !== null ? slides[previous] : null;
 
   useEffect(() => {
     const el = progressRef.current;
@@ -178,7 +237,7 @@ function Hero() {
   };
 
   return (
-    <header className="hero hero-slider">
+    <header className={`hero hero-slider ${independenceActive ? 'independence-hero-mode' : ''}`}>
       <div className="hero-background-layer">
         {prevSlide && (
           <div
@@ -222,7 +281,7 @@ function Hero() {
 
       <div className="hero-thumbs" aria-hidden>
         <div className="thumbs-list">
-          {heroSlides.map((slideItem, index) => (
+          {slides.map((slideItem, index) => (
             <button
               key={index}
               type="button"
@@ -230,17 +289,17 @@ function Hero() {
               onClick={() => goTo(index)}
               aria-label={`Go to slide ${index + 1}`}
             >
-              <img src={slideItem.backgroundImage} alt="" loading="lazy" />
+              <img src={slideItem.thumbnailImage || slideItem.backgroundImage} alt={independenceActive ? `${slideItem.caption} thumbnail` : ''} loading="lazy" />
             </button>
           ))}
         </div>
-        <div className="thumb-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={(current / heroSlides.length) * 100}>
+          <div className="thumb-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={(current / slides.length) * 100}>
           <div ref={progressRef} className="thumb-progress-inner" />
         </div>
       </div>
 
       <div className="hero-pagination">
-        {heroSlides.map((_, index) => (
+        {slides.map((_, index) => (
           <button
             key={index}
             className={`hero-dot ${index === current ? 'active' : ''}`}

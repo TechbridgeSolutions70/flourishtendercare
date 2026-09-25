@@ -44,6 +44,408 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Nigeria Independence Day theme: active only from midnight Oct 1 to midnight Oct 2 in WAT. */
+html.independence-day {
+  --bg-app: linear-gradient(135deg, #f4fbf6 0%, #ffffff 48%, #f1faf4 100%);
+  --bg-surface: #ffffff;
+  --bg-surface-alt: #f1faf4;
+  --text-main: #123524;
+  --text-muted: #315743;
+  --accent: #00843d;
+  --accent-strong: #006b32;
+  --accent-soft: rgba(0, 132, 61, 0.12);
+  --border-color: rgba(0, 107, 50, 0.2);
+  --topbar-bg: #00843d;
+  --topbar-text: #ffffff;
+  --topbar-link: #ffffff;
+}
+
+html.independence-day body {
+  background: var(--bg-app);
+  color: var(--text-main);
+}
+
+html.independence-day .survey-section,
+html.independence-day .survey-page-main,
+html.independence-day .testimonial-section,
+html.independence-day .contact-section,
+html.independence-day .admissions-section {
+  color: var(--text-main);
+}
+
+html.independence-day .survey-section [style*="#7c3aed"],
+html.independence-day .survey-section [style*="#6d28d9"],
+html.independence-day .survey-section [style*="#8b5cf6"] {
+  color: var(--accent-strong) !important;
+  border-color: rgba(0, 132, 61, 0.25) !important;
+}
+
+html.independence-day .survey-section [style*="linear-gradient"] {
+  background: linear-gradient(135deg, rgba(0, 132, 61, 0.12), rgba(255, 255, 255, 0.95)) !important;
+}
+
+.independence-day-effects {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.independence-day-banner {
+  position: fixed;
+  top: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.42rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 999px;
+  background: rgba(0, 107, 50, 0.92);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 22px rgba(0, 107, 50, 0.2);
+  animation: independence-banner-pulse 2.8s ease-in-out infinite;
+}
+
+.independence-flag {
+  position: absolute;
+  left: var(--flag-left);
+  top: var(--flag-top);
+  display: flex;
+  align-items: flex-start;
+  opacity: 0;
+  transform-origin: left center;
+  animation: independence-flag-fly var(--flag-duration) ease-in-out var(--flag-delay) infinite;
+}
+
+.independence-flag-cloth {
+  display: inline-block;
+  padding: 0.28rem 0.45rem;
+  border: 1px solid rgba(0, 80, 35, 0.3);
+  border-radius: 0 0.3rem 0.3rem 0;
+  background: linear-gradient(90deg, #00843d 0 33%, #ffffff 33% 66%, #00843d 66%);
+  color: #063c20;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-shadow: 0 1px rgba(255, 255, 255, 0.7);
+}
+
+.independence-flag-cloth b { color: #ffffff; text-shadow: 0 1px #006b32; }
+
+.independence-flag-pole {
+  width: 2px;
+  height: 2rem;
+  order: -1;
+  background: #006b32;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.independence-firework {
+  position: absolute;
+  left: var(--burst-left);
+  top: var(--burst-top);
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 -2.1rem #00843d, 0 2.1rem #00843d, 2.1rem 0 #00843d, -2.1rem 0 #00843d, 1.5rem 1.5rem #ffffff, -1.5rem -1.5rem #ffffff, 1.5rem -1.5rem #ffffff, -1.5rem 1.5rem #ffffff;
+  opacity: 0;
+  animation: independence-firework-burst 2.6s ease-out var(--burst-delay) infinite;
+}
+
+.independence-firework-green {
+  background: #ffffff;
+  box-shadow: 0 -2.1rem #00843d, 0 2.1rem #00843d, 2.1rem 0 #00843d, -2.1rem 0 #00843d, 1.5rem 1.5rem #00843d, -1.5rem -1.5rem #00843d, 1.5rem -1.5rem #00843d, -1.5rem 1.5rem #00843d;
+}
+
+.independence-firework-white {
+  background: #006b32;
+  box-shadow: 0 -2.1rem #ffffff, 0 2.1rem #ffffff, 2.1rem 0 #ffffff, -2.1rem 0 #ffffff, 1.5rem 1.5rem #ffffff, -1.5rem -1.5rem #ffffff, 1.5rem -1.5rem #ffffff, -1.5rem 1.5rem #ffffff;
+}
+
+html.independence-day button,
+html.independence-day .btn,
+html.independence-day a.btn {
+  background: #006b32 !important;
+  border-color: #006b32 !important;
+  color: #ffffff !important;
+}
+
+html.independence-day button:hover,
+html.independence-day button:focus-visible,
+html.independence-day .btn:hover,
+html.independence-day .btn:focus-visible,
+html.independence-day a.btn:hover,
+html.independence-day a.btn:focus-visible {
+  background: #00843d !important;
+  border-color: #00843d !important;
+  color: #ffffff !important;
+}
+
+html.independence-day button:disabled,
+html.independence-day .btn:disabled {
+  background: #315743 !important;
+  border-color: #315743 !important;
+  color: #ffffff !important;
+}
+
+@keyframes independence-banner-pulse {
+  50% { transform: translateX(-50%) scale(1.04); }
+}
+
+@keyframes independence-flag-fly {
+  0% { opacity: 0; transform: translate(-8vw, 12vh) rotate(-8deg); }
+  12%, 76% { opacity: 0.92; }
+  100% { opacity: 0; transform: translate(18vw, -18vh) rotate(10deg); }
+}
+
+@keyframes independence-firework-burst {
+  0%, 58% { opacity: 0; transform: scale(0.15); }
+  68% { opacity: 0.9; transform: scale(0.8); }
+  85%, 100% { opacity: 0; transform: scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .independence-flag,
+  .independence-firework,
+  .independence-day-banner { animation: none; }
+  .independence-day-banner { opacity: 1; }
+}
+
+html.independence-day .independence-day-page {
+  --independence-green: #006b32;
+  --independence-bright: #00843d;
+  --independence-deep: #063c20;
+  --independence-white: #ffffff;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--independence-white);
+  color: var(--independence-deep);
+}
+
+html.independence-day .independence-hero-mode {
+  background: #ffffff;
+}
+
+html.independence-day .independence-hero-mode .hero-background-layer,
+html.independence-day .independence-hero-mode .hero-background {
+  background-color: rgba(0, 107, 50, 0.4);
+  background-blend-mode: multiply;
+}
+
+html.independence-day .independence-hero-mode .hero-background {
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: right center !important;
+  filter: brightness(0.88) saturate(1.08) !important;
+  transform: none !important;
+}
+
+html.independence-day .independence-hero-mode .hero-copy-panel {
+  width: min(48%, 620px);
+  border: none;
+  background: transparent !important;
+  box-shadow: none;
+  color: #ffffff;
+  text-shadow: 0 2px 18px rgba(0, 34, 16, 0.95);
+}
+
+html.independence-day .independence-hero-mode .hero-badge,
+html.independence-day .independence-hero-mode .eyebrow,
+html.independence-day .independence-hero-mode .hero-title,
+html.independence-day .independence-hero-mode .hero-copy-text {
+  color: #ffffff;
+  text-shadow: 0 2px 18px rgba(0, 34, 16, 0.95);
+}
+
+html.independence-day .independence-hero-mode .hero-badge {
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+html.independence-day .independence-hero-mode .hero-thumbs .thumb {
+  border-color: #ffffff;
+  background: #006b32;
+  box-shadow: 0 0 0 2px rgba(0, 107, 50, 0.45);
+}
+
+html.independence-day .independence-hero-mode .hero-thumbs .thumb.active {
+  border-color: #006b32;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #006b32;
+}
+
+@media (max-width: 780px) {
+  html.independence-day .independence-hero-mode .hero-background {
+    background-size: contain !important;
+    background-position: center top !important;
+  }
+
+  html.independence-day .independence-hero-mode .hero-copy-panel {
+    width: 100%;
+    padding-top: 1rem;
+    text-shadow: 0 2px 14px rgba(0, 34, 16, 0.98);
+  }
+
+  html.independence-day .independence-hero-mode .hero-content {
+    padding-top: 190px;
+    background: linear-gradient(180deg, transparent 0 28%, rgba(0, 78, 36, 0.72) 52%, rgba(0, 49, 23, 0.92) 100%);
+  }
+}
+
+html.independence-day .independence-hero-mode .btn-primary {
+  background: #006b32;
+  color: #ffffff;
+}
+
+html.independence-day .independence-hero-mode .btn-secondary {
+  border-color: #006b32;
+  background: #ffffff;
+  color: #006b32;
+}
+
+.independence-day-hero {
+  position: relative;
+  display: grid;
+  min-height: min(760px, 88vh);
+  place-items: center;
+  padding: clamp(6rem, 14vw, 10rem) 1.5rem clamp(5rem, 12vw, 8rem);
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(135deg, var(--independence-green) 0 33%, #ffffff 33% 66%, var(--independence-bright) 66%);
+}
+
+.independence-day-hero::after {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.82);
+  content: '';
+  z-index: -1;
+}
+
+.independence-day-hero-content {
+  width: min(780px, 100%);
+  padding: clamp(2rem, 6vw, 4.5rem);
+  border: 3px solid var(--independence-green);
+  border-radius: 2rem;
+  background: rgba(255, 255, 255, 0.97);
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0, 70, 35, 0.18);
+}
+
+.independence-day-kicker {
+  margin: 0 0 1rem;
+  color: var(--independence-green);
+  font-size: clamp(0.78rem, 2vw, 1rem);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.independence-day-hero h1 {
+  margin: 0;
+  color: var(--independence-deep);
+  font-size: clamp(3.5rem, 12vw, 8.5rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.independence-day-lede {
+  max-width: 620px;
+  margin: 1.5rem auto 2rem;
+  color: var(--independence-deep);
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  line-height: 1.7;
+}
+
+.independence-day-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.2rem;
+  padding: 0.85rem 1.3rem;
+  border: 2px solid var(--independence-green);
+  border-radius: 999px;
+  background: var(--independence-green);
+  color: #ffffff;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+}
+
+.independence-day-button:hover,
+.independence-day-button:focus-visible {
+  background: var(--independence-deep);
+  color: #ffffff;
+}
+
+.independence-day-sun {
+  position: absolute;
+  right: 8%;
+  bottom: -7rem;
+  width: 18rem;
+  height: 18rem;
+  border: 2rem solid rgba(0, 132, 61, 0.18);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.independence-day-story {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: clamp(4rem, 10vw, 7rem) 1.5rem;
+  text-align: center;
+}
+
+.independence-day-story h2 {
+  margin: 0 auto 1.3rem;
+  color: var(--independence-deep);
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.independence-day-story p:not(.independence-day-kicker) {
+  max-width: 680px;
+  margin: 1rem auto;
+  color: var(--independence-deep);
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  line-height: 1.85;
+}
+
+.independence-day-flag-mark {
+  display: flex;
+  width: 8rem;
+  height: 4.5rem;
+  margin: 0 auto 2rem;
+  border: 2px solid var(--independence-green);
+}
+
+.independence-day-flag-mark span { flex: 1; background: var(--independence-bright); }
+.independence-day-flag-mark span:nth-child(2) { background: #ffffff; }
+
+.independence-day-footer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.3rem 1.5rem;
+  background: var(--independence-green);
+  color: #ffffff;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+html.independence-day .independence-day-footer span { color: #ffffff; }
+
 /* Skeleton loader styles */
 .skeleton {
   background: linear-gradient(90deg, #eef2f7 25%, #e2e8f0 37%, #eef2f7 63%);
