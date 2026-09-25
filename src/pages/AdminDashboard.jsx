@@ -50,6 +50,13 @@ import logoUrl from '../Public/logo/logo1.jpeg';
 
 let hasShownSupabaseWarning = false;
 
+const splitEmailList = (value) => [...new Set(String(value || '')
+  .split(/[,;\n]+/)
+  .map((item) => item.trim())
+  .filter(Boolean))];
+
+const isEmailAddress = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
 const styles = {
   page: { minHeight: '100vh', padding: '1.25rem', background: 'var(--bg-app)', color: 'var(--text-main)' },
   container: { maxWidth: '1040px', margin: '0 auto' },
@@ -490,9 +497,14 @@ export default function AdminDashboard() {
   const sendEmailNotification = async (event) => {
     event.preventDefault();
 
-    const trimmedRecipient = recipientEmail.trim();
-    if (!trimmedRecipient) {
+    const recipients = splitEmailList(recipientEmail);
+    const carbonCopies = splitEmailList(carbonCopyEmails);
+    if (!recipients.length) {
       addToast('A recipient email is required to send a custom client email.', { type: 'error' });
+      return;
+    }
+    if ([...recipients, ...carbonCopies].some((address) => !isEmailAddress(address))) {
+      addToast('Enter valid email addresses separated by commas, semicolons, or new lines.', { type: 'error' });
       return;
     }
     if (!emailSubject.trim() || !emailBody.trim()) {
@@ -506,8 +518,8 @@ export default function AdminDashboard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          to: trimmedRecipient,
-          cc: carbonCopyEmails.trim(),
+          to: recipients,
+          cc: carbonCopies,
           subject: emailSubject,
           body: emailBody,
           ctaLabel: ctaLabel.trim() || 'Visit our website',
@@ -528,8 +540,8 @@ export default function AdminDashboard() {
 
       const sentEmail = {
         id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        to: trimmedRecipient,
-        cc: carbonCopyEmails.trim(),
+        to: recipients.join(', '),
+        cc: carbonCopies.join(', '),
         subject: emailSubject.trim(),
         body: emailBody,
         ctaLabel: ctaLabel.trim() || 'Visit our website',

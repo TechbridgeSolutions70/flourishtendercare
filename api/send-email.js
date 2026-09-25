@@ -12,10 +12,14 @@ const escapeHtml = (value) => String(value ?? '')
   .replace(/'/g, '&#039;');
 
 const recipientsFrom = (value) => {
-  if (Array.isArray(value)) return value.map((item) => String(item).trim()).filter(Boolean);
-  if (typeof value === 'string') return value.split(',').map((item) => item.trim()).filter(Boolean);
-  return [];
+  const values = Array.isArray(value) ? value : [value];
+  return [...new Set(values
+    .flatMap((item) => String(item ?? '').split(/[,;\n]+/))
+    .map((item) => item.trim())
+    .filter(Boolean))];
 };
+
+const isEmailAddress = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 const decodeEditorHtml = (value) => {
   if (typeof value !== 'string') return '';
@@ -98,16 +102,25 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { subject, body, type, data, to, cc, ctaLabel, ctaLink } = req.body || {};
-  const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
-  const defaultRecipient = process.env.RESEND_TO_EMAIL || 'techbridgesolutions3@gmail.com';
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const fromEmail = process.env.RESEND_FROM_EMAIL?.trim();
+  const defaultRecipient = process.env.RESEND_TO_EMAIL?.trim();
   const appName = process.env.MAIL_APP_NAME || 'Flourish Tender Care';
   const isActivity = Boolean(type && activityLabels[type] && data);
   const recipients = recipientsFrom(to);
+  const carbonCopy = recipientsFrom(cc);
 
-  if (!apiKey || !fromEmail) return res.status(500).json({ error: 'Resend email service is not configured.' });
+  if (!apiKey || !fromEmail) {
+    return res.status(500).json({ error: 'Resend email service is not configured. Set RESEND_API_KEY and RESEND_FROM_EMAIL in the production environment.' });
+  }
+  if (isActivity && !defaultRecipient) {
+    return res.status(500).json({ error: 'Automatic email notifications are not configured. Set RESEND_TO_EMAIL in the production environment.' });
+  }
   if (!isActivity && (!subject || !body)) return res.status(400).json({ error: 'Subject and body are required.' });
   if (!isActivity && !recipients.length) return res.status(400).json({ error: 'At least one recipient email is required.' });
+  if (!isActivity && [...recipients, ...carbonCopy].some((recipient) => !isEmailAddress(recipient))) {
+    return res.status(400).json({ error: 'All recipient and CC values must be valid email addresses separated by commas, semicolons, or new lines.' });
+  }
 
   const buttonLabel = String(ctaLabel || 'Visit our website').trim() || 'Visit our website';
   const buttonLink = String(ctaLink || 'https://flourishtendercare.com.ng').trim() || 'https://flourishtendercare.com.ng';
@@ -126,8 +139,7 @@ export default async function handler(req, res) {
     html,
     text,
   };
-  const carbonCopy = isActivity ? [] : recipientsFrom(cc);
-  if (carbonCopy.length) payload.cc = carbonCopy;
+  if (!isActivity && carbonCopy.length) payload.cc = carbonCopy;
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -135,7 +147,24 @@ export default async function handler(req, res) {
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (!response.ok) return res.status(response.status).json({ error: await response.text() || 'Failed to send email.' });
+    if (!response.ok) {
+      const responseText = await response.text();
+      let providerMessage = responseText;
+      try {
+        const providerError = responseText ? JSON.parse(responseText) : null;
+        providerMessage = providerError?.message || providerError?.error || responseText;
+      } catch {
+        providerMessage = responseText;
+      }
+
+      if (/only send testing emails|verify a domain/i.test(providerMessage)) {
+        return res.status(response.status).json({
+          error: 'Resend is still in testing mode. Verify flourishtendercare.com.ng in Resend Domains, then deploy again before sending to other recipients.',
+        });
+      }
+
+      return res.status(response.status).json({ error: providerMessage || 'Failed to send email.' });
+    }
     return res.status(200).json({ success: true });
   } catch (error) {
     return res.status(500).json({ error: error.message || 'Email send failed.' });
