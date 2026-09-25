@@ -5,8 +5,8 @@ export default async function handler(req, res) {
 
   const { subject, body, type, data, to } = req.body || {};
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL;
-  const RESEND_TO_EMAIL = process.env.RESEND_TO_EMAIL || 'admin@flourishtendercare.com.ng';
+  const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+  const RESEND_TO_EMAIL = process.env.RESEND_TO_EMAIL || 'techbridgesolutions3@gmail.com';
   const MAIL_APP_NAME = process.env.MAIL_APP_NAME || 'Flourish Tender Care';
   const activityLabels = {
     testimonial: 'New parent testimonial',
