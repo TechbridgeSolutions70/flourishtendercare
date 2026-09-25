@@ -433,7 +433,13 @@ export default function AdminDashboard() {
         body: JSON.stringify({ to: trimmedRecipient, subject: emailSubject, body: emailBody }),
       });
 
-      const result = await response.json();
+      const responseText = await response.text();
+      let result = {};
+      try {
+        result = responseText ? JSON.parse(responseText) : {};
+      } catch {
+        result = {};
+      }
       if (!response.ok) {
         throw new Error(result.error || 'Failed to send notification email.');
       }
