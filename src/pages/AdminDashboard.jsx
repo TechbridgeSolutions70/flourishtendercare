@@ -16,7 +16,34 @@ import {
   publishTestimonial,
   supabase,
 } from '../lib/supabaseClient';
-import { Mail, FileText, MessageCircle, RefreshCw, LogOut, ShieldCheck, Menu } from 'lucide-react';
+import {
+  Mail,
+  FileText,
+  MessageCircle,
+  RefreshCw,
+  LogOut,
+  ShieldCheck,
+  Menu,
+  Globe,
+  Instagram,
+  Linkedin,
+  Facebook,
+  MapPin,
+  Phone,
+  ArrowRight,
+  Bold,
+  Italic,
+  Underline,
+  List,
+  ListOrdered,
+  Link2,
+  AlignLeft,
+  AlignCenter,
+  Quote,
+  Undo2,
+  Redo2,
+  Heading1,
+} from 'lucide-react';
 import { useToast } from '../components/ToastProvider';
 import PrintHandler from '../components/PrintHandler';
 import logoUrl from '../Public/logo/logo1.jpeg';
@@ -307,9 +334,46 @@ export default function AdminDashboard() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
   const [emailSubject, setEmailSubject] = useState('Admin dashboard notification');
-  const [emailBody, setEmailBody] = useState('Here is an important update from the admin dashboard.');
+  const [emailBody, setEmailBody] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');
+  const [carbonCopyEmails, setCarbonCopyEmails] = useState('');
+  const [ctaLabel, setCtaLabel] = useState('Visit our website');
+  const [ctaLink, setCtaLink] = useState('https://flourishtendercare.com.ng');
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [sentEmails, setSentEmails] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = window.localStorage.getItem('flourish-sent-emails');
+      if (!stored) return [];
+      const parsed = JSON.parse(stored);
+      if (!Array.isArray(parsed)) return [];
+      return parsed.filter((entry) => entry?.body);
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const stored = window.localStorage.getItem('flourish-sent-emails');
+      if (!stored) return;
+
+      const parsed = JSON.parse(stored);
+      if (!Array.isArray(parsed)) {
+        window.localStorage.removeItem('flourish-sent-emails');
+        setSentEmails([]);
+        return;
+      }
+
+    } catch {
+      window.localStorage.removeItem('flourish-sent-emails');
+      setSentEmails([]);
+    }
+  }, []);
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [linkUrlInput, setLinkUrlInput] = useState('https://');
   const { addToast } = useToast();
   const { isMobile } = useResponsive();
   const [surveys, setSurveys] = useState([]);
@@ -412,6 +476,17 @@ export default function AdminDashboard() {
     addToast('Testimonial posted to the slider.', { type: 'success', duration: 4000 });
   };
 
+  const handleResendEmail = (entry) => {
+    setEmailSubject(entry.subject || 'Admin dashboard notification');
+    setEmailBody('');
+    setRecipientEmail(entry.to || '');
+    setCarbonCopyEmails(entry.cc || '');
+    setCtaLabel(entry.ctaLabel || 'Visit our website');
+    setCtaLink(entry.ctaLink || 'https://flourishtendercare.com.ng');
+    setActiveTab('email');
+    addToast('Fresh branded email loaded into the composer. You can edit it before sending again.', { type: 'success', duration: 4000 });
+  };
+
   const sendEmailNotification = async (event) => {
     event.preventDefault();
 
@@ -430,7 +505,14 @@ export default function AdminDashboard() {
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: trimmedRecipient, subject: emailSubject, body: emailBody }),
+        body: JSON.stringify({
+          to: trimmedRecipient,
+          cc: carbonCopyEmails.trim(),
+          subject: emailSubject,
+          body: emailBody,
+          ctaLabel: ctaLabel.trim() || 'Visit our website',
+          ctaLink: ctaLink.trim() || 'https://flourishtendercare.com.ng',
+        }),
       });
 
       const responseText = await response.text();
@@ -444,14 +526,36 @@ export default function AdminDashboard() {
         throw new Error(result.error || 'Failed to send notification email.');
       }
 
+      const sentEmail = {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        to: trimmedRecipient,
+        cc: carbonCopyEmails.trim(),
+        subject: emailSubject.trim(),
+        body: emailBody,
+        ctaLabel: ctaLabel.trim() || 'Visit our website',
+        ctaLink: ctaLink.trim() || 'https://flourishtendercare.com.ng',
+        sentAt: new Date().toISOString(),
+      };
+
+      setSentEmails((current) => [sentEmail, ...current].slice(0, 12));
       addToast('Client email sent successfully.', { type: 'success' });
       setRecipientEmail('');
+      setCarbonCopyEmails('');
     } catch (error) {
       addToast(error.message || 'Failed to send notification email.', { type: 'error' });
     } finally {
       setSendingEmail(false);
     }
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const cleaned = (Array.isArray(sentEmails) ? sentEmails : [])
+        .filter((entry) => entry?.body);
+
+      window.localStorage.setItem('flourish-sent-emails', JSON.stringify(cleaned));
+    }
+  }, [sentEmails]);
 
   useEffect(() => {
     const init = async () => {
@@ -766,37 +870,337 @@ export default function AdminDashboard() {
       { key: 'visitors', label: 'Visitors', count: contacts.length, subtitle: 'Visitors on the main site' },
       { key: 'survey', label: 'Survey', count: surveys.length, subtitle: 'Survey responses received' },
       { key: 'messages', label: 'Messages', count: testimonials.length, subtitle: 'Testimonials and messages' },
+      { key: 'email', label: 'Email', count: 0, subtitle: 'Compose and send a branded email' },
+      { key: 'sent-email', label: 'Sent Email', count: sentEmails.length, subtitle: 'Emails sent from this dashboard' },
     ],
-    [contacts.length, surveys.length, testimonials.length]
+    [contacts.length, surveys.length, testimonials.length, sentEmails.length]
   );
 
+  const applyRichTextFormat = (command, value = null) => {
+    if (typeof document === 'undefined') return;
+    const editor = document.getElementById('email-message-editor');
+    if (editor) {
+      editor.focus();
+    }
+    document.execCommand(command, false, value);
+    if (editor) {
+      setEmailBody(editor.innerHTML);
+    }
+  };
+
+  const openLinkModal = () => {
+    setLinkUrlInput('https://');
+    setLinkModalOpen(true);
+  };
+
+  const confirmLinkInsert = () => {
+    const trimmedUrl = linkUrlInput.trim();
+    if (!trimmedUrl) {
+      addToast('Please provide a valid website link.', { type: 'error', duration: 3000 });
+      return;
+    }
+
+    applyRichTextFormat('createLink', trimmedUrl);
+    setLinkModalOpen(false);
+    setLinkUrlInput('https://');
+  };
+
+  const socialLinks = useMemo(() => [
+    { label: 'Facebook', href: 'https://facebook.com/flourishtendercare1', icon: Facebook },
+    { label: 'Instagram', href: 'https://instagram.com/flourishtendercare1', icon: Instagram },
+    { label: 'LinkedIn', href: 'https://linkedin.com/company/flourishtendercare1', icon: Linkedin },
+    { label: 'Website', href: 'https://flourishtendercare.com.ng', icon: Globe },
+  ], []);
+
   const renderEmailComposer = () => (
-    <section className="admin-dashboard-tab-panel admin-email-notification">
-      <h3>Flourish email centre</h3>
-      <p className="admin-dashboard-tab-description">Send a polished update to the Flourish Tender Care admin inbox.</p>
-      <form onSubmit={sendEmailNotification} style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
-        <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
-          Recipient email
-          <input type="email" value={recipientEmail} onChange={(event) => setRecipientEmail(event.target.value)} placeholder="family@example.com" style={styles.input} />
-        </label>
-        <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
-          Subject
-          <input type="text" value={emailSubject} onChange={(event) => setEmailSubject(event.target.value)} style={styles.input} />
-        </label>
-        <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
-          Message
-          <textarea value={emailBody} onChange={(event) => setEmailBody(event.target.value)} rows={8} style={{ ...styles.input, resize: 'vertical' }} />
-        </label>
-        <button type="submit" className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton, width: 'fit-content' }} disabled={sendingEmail}>
-          {sendingEmail ? 'Sending...' : 'Send Flourish email'}
-        </button>
-      </form>
+    <section className="admin-dashboard-tab-panel admin-email-notification" style={{ display: 'grid', gap: '1.25rem' }}>
+      <div style={{ background: '#f3f6f5', border: '1px solid rgba(11, 95, 85, 0.15)', borderRadius: '18px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', padding: '0.75rem 0.9rem 0', background: '#eef3f2' }}>
+          {['Compose Email', 'Send Email'].map((item, index) => (
+            <button
+              key={item}
+              type="button"
+              style={{
+                border: 'none',
+                borderRadius: index === 0 ? '10px 10px 0 0' : '10px',
+                padding: '0.7rem 1rem',
+                background: index === 0 ? '#ffffff' : '#edf5f3',
+                color: index === 0 ? '#123a3a' : '#375266',
+                fontWeight: 700,
+                boxShadow: index === 0 ? '0 -1px 0 rgba(11,95,85,0.08)' : 'none',
+                cursor: 'pointer',
+              }}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: 'grid', gap: '1rem', padding: '1rem', background: '#ffffff' }}>
+          <div style={{ display: 'grid', gap: '0.5rem' }}>
+            <label style={{ display: 'grid', gap: '0.5rem', color: '#1a2e2f', fontWeight: 700 }}>
+              Email Subject
+              <input type="text" value={emailSubject} onChange={(event) => setEmailSubject(event.target.value)} style={{ ...styles.input, borderColor: 'rgba(11,95,85,0.2)', background: '#f8fbfa', borderRadius: '12px' }} />
+            </label>
+          </div>
+
+          <div style={{ display: 'grid', gap: '0.6rem' }}>
+            <label style={{ display: 'grid', gap: '0.5rem', color: '#1a2e2f', fontWeight: 700 }}>
+              Email message
+            </label>
+
+            <div style={{ border: '1px solid rgba(11,95,85,0.2)', borderRadius: '16px', overflow: 'hidden', background: '#f8fbfa' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0.7rem 0.8rem', borderBottom: '1px solid rgba(11,95,85,0.12)', background: '#edf3f2' }}>
+                {[
+                  { action: 'bold', label: 'Bold', icon: Bold },
+                  { action: 'italic', label: 'Italic', icon: Italic },
+                  { action: 'underline', label: 'Underline', icon: Underline },
+                  { action: 'formatBlock', value: 'h1', label: 'Heading', icon: Heading1 },
+                  { action: 'insertUnorderedList', label: 'Bullet list', icon: List },
+                  { action: 'insertOrderedList', label: 'Numbered list', icon: ListOrdered },
+                  { action: 'justifyLeft', label: 'Align left', icon: AlignLeft },
+                  { action: 'justifyCenter', label: 'Align center', icon: AlignCenter },
+                  { action: 'formatBlock', value: 'blockquote', label: 'Quote', icon: Quote },
+                  { action: 'createLink', label: 'Link', icon: Link2 },
+                  { action: 'undo', label: 'Undo', icon: Undo2 },
+                  { action: 'redo', label: 'Redo', icon: Redo2 },
+                ].map(({ action, label, icon: Icon, value }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    title={label}
+                    aria-label={label}
+                    onClick={() => {
+                      if (action === 'createLink') {
+                        openLinkModal();
+                        return;
+                      }
+                      applyRichTextFormat(action, value ?? null);
+                    }}
+                    style={{
+                      border: '1px solid rgba(11,95,85,0.18)',
+                      background: '#fff',
+                      borderRadius: '8px',
+                      padding: '0.5rem 0.7rem',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#183a41',
+                    }}
+                  >
+                    <Icon size={15} />
+                  </button>
+                ))}
+              </div>
+
+              <div
+                id="email-message-editor"
+                contentEditable
+                suppressContentEditableWarning
+                onInput={(event) => setEmailBody(event.currentTarget.innerHTML)}
+                dangerouslySetInnerHTML={{ __html: emailBody || '<p>Here is an important update from the admin dashboard.</p>' }}
+                style={{
+                  minHeight: '180px',
+                  padding: '1rem',
+                  lineHeight: 1.7,
+                  color: '#20333f',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  background: '#ffffff',
+                }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+            <label style={{ display: 'grid', gap: '0.5rem', color: '#1a2e2f', fontWeight: 700 }}>
+              Recipient email
+              <input type="text" value={recipientEmail} onChange={(event) => setRecipientEmail(event.target.value)} placeholder="family@example.com, parent@example.com" style={{ ...styles.input, borderColor: 'rgba(11,95,85,0.2)', background: '#f8fbfa' }} />
+            </label>
+
+            <label style={{ display: 'grid', gap: '0.5rem', color: '#1a2e2f', fontWeight: 700 }}>
+              CC emails
+              <input type="text" value={carbonCopyEmails} onChange={(event) => setCarbonCopyEmails(event.target.value)} placeholder="Optional copied emails" style={{ ...styles.input, borderColor: 'rgba(11,95,85,0.2)', background: '#f8fbfa' }} />
+            </label>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+            <label style={{ display: 'grid', gap: '0.5rem', color: '#1a2e2f', fontWeight: 700 }}>
+              Button label
+              <input type="text" value={ctaLabel} onChange={(event) => setCtaLabel(event.target.value)} placeholder="Visit our website" style={{ ...styles.input, borderColor: 'rgba(11,95,85,0.2)', background: '#f8fbfa' }} />
+            </label>
+
+            <label style={{ display: 'grid', gap: '0.5rem', color: '#1a2e2f', fontWeight: 700 }}>
+              Button link
+              <input type="url" value={ctaLink} onChange={(event) => setCtaLink(event.target.value)} placeholder="https://flourishtendercare.com.ng" style={{ ...styles.input, borderColor: 'rgba(11,95,85,0.2)', background: '#f8fbfa' }} />
+            </label>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button type="submit" className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton, width: 'min(100%, 260px)', minHeight: '48px' }} disabled={sendingEmail} onClick={(event) => sendEmailNotification(event)}>
+              {sendingEmail ? 'Sending...' : 'Send Email'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ borderRadius: '22px', overflow: 'hidden', border: '1px solid rgba(11,95,85,0.15)', background: '#f8fbfa', boxShadow: '0 18px 40px rgba(11,95,85,0.08)' }}>
+        <div style={{ background: 'linear-gradient(135deg, #0b5f55 0%, #1d7c72 100%)', padding: '1.6rem 1rem 1.1rem', textAlign: 'center', color: '#fff' }}>
+          <img src={logoUrl} alt="Flourish Tender Care" style={{ width: '88px', height: '88px', objectFit: 'cover', borderRadius: '22px', border: '2px solid rgba(255,255,255,0.25)', background: '#fff', padding: '5px' }} />
+          <div style={{ marginTop: '0.8rem', fontSize: '0.72rem', letterSpacing: '0.22rem', fontWeight: 800, opacity: 0.9 }}>FLOURISH TENDER CARE</div>
+          <h4 style={{ margin: '0.85rem 0 0', fontSize: 'clamp(1.5rem, 2vw, 2.5rem)', fontWeight: 800, textAlign: 'center' }}>{emailSubject || 'Admin dashboard notification'}</h4>
+        </div>
+
+        <div style={{ background: '#ffffff', padding: '1.6rem 1.2rem 1.3rem', color: '#1d2f38' }}>
+          <div dangerouslySetInnerHTML={{ __html: emailBody || '<p>Here is an important update from the admin dashboard.</p>' }} style={{ fontSize: '1rem', lineHeight: 1.8 }} />
+          {ctaLink && (
+            <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+              <a
+                href={ctaLink}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  background: 'linear-gradient(135deg, #d91c7d 0%, #c23087 100%)',
+                  color: '#fff',
+                  textDecoration: 'none',
+                  padding: '0.9rem 1.4rem',
+                  borderRadius: '999px',
+                  fontWeight: 700,
+                  boxShadow: '0 12px 24px rgba(217, 28, 125, 0.18)',
+                }}
+              >
+                {ctaLabel}
+                <ArrowRight size={16} />
+              </a>
+            </div>
+          )}
+        </div>
+
+        <div style={{ background: '#edf5f2', padding: '1.15rem 1rem 1.5rem', borderTop: '1px solid rgba(11,95,85,0.1)' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+            {socialLinks.map(({ label, href, icon: Icon }) => (
+              <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={label} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '2.2rem', height: '2.2rem', borderRadius: '50%', background: '#ffffff', color: '#0b5f55', border: '1px solid rgba(11,95,85,0.12)' }}>
+                <Icon size={16} />
+              </a>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.9rem' }}>
+            <a
+              href={ctaLink || 'https://flourishtendercare.com.ng'}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: 'linear-gradient(135deg, #d91c7d 0%, #c23087 100%)',
+                color: '#fff',
+                textDecoration: 'none',
+                padding: '0.8rem 1.2rem',
+                borderRadius: '999px',
+                fontWeight: 700,
+                boxShadow: '0 12px 24px rgba(217, 28, 125, 0.18)',
+              }}
+            >
+              {ctaLabel || 'Visit website'}
+              <ArrowRight size={16} />
+            </a>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', color: '#3d5d6b', fontSize: '0.82rem' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}><MapPin size={14} /> Peaceville Estate, Badore, Ajah</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}><Phone size={14} /> +234 803 738 3820</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderSentEmailTab = () => (
+    <section className="admin-dashboard-tab-panel" style={{ display: 'grid', gap: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
+        <div>
+          <h3 style={{ margin: 0, color: 'var(--text-main)' }}>Sent email</h3>
+          <p style={{ margin: '0.6rem 0 0', color: 'var(--text-muted)', lineHeight: 1.6 }}>All emails sent from this dashboard are listed here for quick review.</p>
+        </div>
+        <span style={{ fontSize: '0.8rem', color: '#46656d', background: '#edf6f4', borderRadius: '999px', padding: '0.35rem 0.7rem' }}>{sentEmails.length} saved</span>
+      </div>
+
+      {sentEmails.length === 0 ? (
+        <div style={{ background: '#ffffff', border: '1px solid rgba(11,95,85,0.1)', borderRadius: '16px', padding: '1rem' }}>
+          <p style={{ margin: 0, color: '#56707a', lineHeight: 1.6 }}>No emails have been sent yet. Once a message is sent, it will appear here.</p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gap: '0.8rem' }}>
+          {sentEmails.map((entry) => (
+            <article key={entry.id} style={{ background: '#ffffff', border: '1px solid rgba(11,95,85,0.12)', borderRadius: '16px', padding: '1rem', boxShadow: '0 10px 24px rgba(15, 23, 42, 0.04)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
+                <strong style={{ color: '#123a3a', fontSize: '1rem' }}>{entry.subject}</strong>
+                <span style={{ color: '#46656d', fontSize: '0.78rem' }}>{new Date(entry.sentAt).toLocaleString()}</span>
+              </div>
+              <div style={{ color: '#47626a', fontSize: '0.85rem', marginBottom: '0.5rem' }}>To: {entry.to}{entry.cc ? ` • CC: ${entry.cc}` : ''}</div>
+              <div dangerouslySetInnerHTML={{ __html: entry.body || '<p></p>' }} style={{ color: '#1d2f38', lineHeight: 1.7, fontSize: '0.95rem' }} />
+              {entry.ctaLink && (
+                <div style={{ marginTop: '0.9rem' }}>
+                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <a
+                      href={entry.ctaLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.45rem',
+                        background: 'linear-gradient(135deg, #d91c7d 0%, #c23087 100%)',
+                        color: '#fff',
+                        textDecoration: 'none',
+                        padding: '0.7rem 1.1rem',
+                        borderRadius: '999px',
+                        fontWeight: 700,
+                        boxShadow: '0 10px 20px rgba(217, 28, 125, 0.15)',
+                      }}
+                    >
+                      {entry.ctaLabel || 'Visit website'}
+                      <ArrowRight size={16} />
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => handleResendEmail(entry)}
+                      style={{
+                        border: 'none',
+                        background: '#edf5f3',
+                        color: '#123a3a',
+                        borderRadius: '999px',
+                        padding: '0.7rem 1.1rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Resend email
+                    </button>
+                  </div>
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 
   const renderTabContent = () => {
     if (activeTab === 'email') {
       return renderEmailComposer();
+    }
+
+    if (activeTab === 'sent-email') {
+      return renderSentEmailTab();
     }
 
     if (activeTab === 'survey') {
@@ -1259,22 +1663,54 @@ export default function AdminDashboard() {
                 onClick={() => setActiveTab(tab.key)}
               >
                 <span className="admin-dashboard-tab-label">{tab.label}</span>
-                <span className="admin-dashboard-tab-count">{tab.count}</span>
+                <span className="admin-dashboard-tab-count">{tab.count > 0 ? tab.count : <Mail size={14} />}</span>
               </button>
             ))}
-            <button
-              type="button"
-              className={`admin-dashboard-tab ${activeTab === 'email' ? 'active' : ''}`}
-              onClick={() => setActiveTab('email')}
-            >
-              <span className="admin-dashboard-tab-label">Email</span>
-              <span className="admin-dashboard-tab-count"><Mail size={14} /></span>
-            </button>
           </div>
 
           {renderTabContent()}
         </div>
       </div>
+
+      {linkModalOpen && (
+        <div className="link-modal-backdrop" style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.56)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '1rem' }}>
+          <div style={{ width: 'min(100%, 560px)', background: '#1b1a2a', borderRadius: '18px', boxShadow: '0 20px 45px rgba(15, 23, 42, 0.32)', border: '1px solid rgba(255,255,255,0.08)', padding: '1.4rem 1.3rem 1.1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.95rem' }}>
+              <div>
+                <h3 style={{ margin: 0, color: '#f3f4f6', fontSize: '1.1rem' }}>Add link</h3>
+                <p style={{ margin: '0.4rem 0 0', color: '#d7d8df', fontSize: '0.9rem' }}>Paste the URL for this link.</p>
+              </div>
+            </div>
+
+            <input
+              type="url"
+              value={linkUrlInput}
+              onChange={(event) => setLinkUrlInput(event.target.value)}
+              autoFocus
+              placeholder="https://"
+              style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', background: '#2a2940', color: '#fff', padding: '0.9rem 1rem', fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }}
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+              <button
+                type="button"
+                onClick={() => setLinkModalOpen(false)}
+                style={{ border: 'none', background: '#c7b9ef', color: '#1d1832', borderRadius: '999px', padding: '0.7rem 1.2rem', fontWeight: 700, cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmLinkInsert}
+                style={{ border: 'none', background: '#8d7ae8', color: '#fff', borderRadius: '999px', padding: '0.7rem 1.4rem', fontWeight: 700, cursor: 'pointer' }}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showPrintPreview && (
         <div className="print-preview-modal visible" role="dialog" aria-modal="true">
           <div className="print-preview-backdrop" onClick={() => setShowPrintPreview(false)} />
