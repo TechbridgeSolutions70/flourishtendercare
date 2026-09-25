@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useToast } from './ToastProvider';
 import { fetchTestimonials, saveTestimonial } from '../lib/supabaseClient';
+import { notifyAdminOfActivity } from '../lib/emailNotifications';
 
 const defaultTestimonials = [
   {
@@ -147,6 +148,7 @@ function TestimonialSection({ modalMode = false, onClose }) {
                         return;
                       }
 
+                      await notifyAdminOfActivity('testimonial', { name: testimonialName, text: testimonialText });
                       setSubmitted(true);
                       setTestimonialName('');
                       setTestimonialText('');

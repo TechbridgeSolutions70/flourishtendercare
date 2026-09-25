@@ -3,58 +3,53 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { subject, body } = req.body || {};
-  const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-  const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL;
-  const SENDGRID_TO_EMAIL = process.env.SENDGRID_TO_EMAIL;
-  const MAIL_APP_NAME = process.env.MAIL_APP_NAME || 'Admin Dashboard';
-  const MAIL_SIGNATURE = process.env.MAIL_SIGNATURE || 'Best regards,\nYour school team';
+  const { subject, body, type, data } = req.body || {};
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL;
+  const RESEND_TO_EMAIL = process.env.RESEND_TO_EMAIL || 'admin@flourishtendercare.com.ng';
+  const MAIL_APP_NAME = process.env.MAIL_APP_NAME || 'Flourish Tender Care';
+  const activityLabels = {
+    testimonial: 'New parent testimonial',
+    contact: 'New contact message',
+    survey: 'New parent feedback survey',
+  };
+  const isActivity = type && activityLabels[type] && data;
 
-  if (!subject || !body) {
+  if (!isActivity && (!subject || !body)) {
     return res.status(400).json({ error: 'Subject and body are required.' });
   }
 
-  // In development, allow a graceful mock so the dashboard can function
-  const isProd = process.env.NODE_ENV === 'production';
-  if (!SENDGRID_API_KEY || !SENDGRID_FROM_EMAIL || !SENDGRID_TO_EMAIL) {
-    if (!isProd) {
-      // Log the email payload server-side for debugging and return success
-      // This prevents the dashboard from breaking in local development when
-      // SendGrid credentials are not provided.
-      // eslint-disable-next-line no-console
-      console.log('[dev-email-mock] subject:', subject);
-      // eslint-disable-next-line no-console
-      console.log('[dev-email-mock] body:', body);
-      return res.status(200).json({ success: true, mocked: true });
-    }
-
-    return res.status(500).json({ error: 'Email service is not configured.' });
+  if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
+    return res.status(500).json({ error: 'Resend email service is not configured.' });
   }
 
+  const escapeHtml = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+  const displayData = isActivity ? data : { message: body };
+  const emailSubject = isActivity ? activityLabels[type] : subject;
+  const emailTitle = isActivity ? 'A new Flourish update needs your attention' : subject;
+  const emailRows = Object.entries(displayData)
+    .filter(([, value]) => value !== undefined && value !== null && value !== '')
+    .map(([key, value]) => `<tr><td style="padding:12px 0;color:#5b6b78;font-weight:700;vertical-align:top;width:30%;">${escapeHtml(key.replace(/_/g, ' '))}</td><td style="padding:12px 0;color:#173042;white-space:pre-wrap;">${escapeHtml(typeof value === 'object' ? JSON.stringify(value) : value)}</td></tr>`)
+    .join('');
+  const html = `<!doctype html><html><body style="margin:0;background:#f4faf8;font-family:Arial,sans-serif;color:#173042;"><div style="max-width:640px;margin:32px auto;background:#ffffff;border:1px solid #dcebe5;border-radius:20px;overflow:hidden;"><div style="padding:28px 32px;background:#0b5f55;color:#ffffff;"><div style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#b9eee0;">Flourish Tender Care</div><h1 style="margin:12px 0 0;font-size:25px;line-height:1.2;">${escapeHtml(emailTitle)}</h1></div><div style="padding:28px 32px;"><p style="margin:0 0 18px;color:#5b6b78;line-height:1.6;">${isActivity ? 'A form was submitted through the Flourish Tender Care website.' : 'A message was sent from the Flourish Tender Care admin dashboard.'}</p>${isActivity ? `<table style="width:100%;border-collapse:collapse;">${emailRows}</table>` : `<p style="margin:0;white-space:pre-wrap;line-height:1.7;">${escapeHtml(body)}</p>`}<p style="margin:28px 0 0;padding-top:18px;border-top:1px solid #e7f0ed;color:#6d7c85;font-size:13px;">With care,<br><strong>Flourish Tender Care</strong></p></div></div></body></html>`;
   const payload = {
-    personalizations: [
-      {
-        to: [{ email: SENDGRID_TO_EMAIL }],
-      },
-    ],
-    from: {
-      email: SENDGRID_FROM_EMAIL,
-      name: MAIL_APP_NAME,
-    },
-    subject,
-    content: [
-      {
-        type: 'text/plain',
-        value: `${body}\n\n${MAIL_SIGNATURE}`,
-      },
-    ],
+    from: `${MAIL_APP_NAME} <${RESEND_FROM_EMAIL}>`,
+    to: [RESEND_TO_EMAIL],
+    subject: emailSubject,
+    html,
+    text: isActivity ? Object.entries(displayData).map(([key, value]) => `${key}: ${typeof value === 'object' ? JSON.stringify(value) : value}`).join('\n') : body,
   };
 
   try {
-    const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${SENDGRID_API_KEY}`,
+        Authorization: `Bearer ${RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),

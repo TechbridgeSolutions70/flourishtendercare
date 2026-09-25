@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { useToast } from './ToastProvider';
 import { saveSurveyResponse } from '../lib/supabaseClient';
+import { notifyAdminOfActivity } from '../lib/emailNotifications';
 
 const styles = {
   section: {
@@ -502,6 +503,7 @@ export default function Survey() {
         return;
       }
 
+      await notifyAdminOfActivity('survey', formData);
       setSubmitted(true);
       addToast('Survey submitted successfully. Thank you for your feedback.', { type: 'success', duration: 5000 });
       setSubmitStatus('success');

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useToast } from './ToastProvider';
 import { saveContactMessage } from '../lib/supabaseClient';
+import { notifyAdminOfActivity } from '../lib/emailNotifications';
 
 function ContactSection() {
   const { addToast } = useToast();
@@ -25,6 +26,7 @@ function ContactSection() {
         return;
       }
 
+      await notifyAdminOfActivity('contact', formData);
       setStatus('sent');
       addToast('Message sent successfully. We will get back to you soon.', { type: 'success', duration: 5000 });
       setFormData({ name: '', email: '', message: '' });

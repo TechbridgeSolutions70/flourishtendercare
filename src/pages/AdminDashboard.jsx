@@ -756,7 +756,34 @@ export default function AdminDashboard() {
     [contacts.length, surveys.length, testimonials.length]
   );
 
+  const renderEmailComposer = () => (
+    <section className="admin-dashboard-tab-panel admin-email-notification">
+      <h3>Flourish email centre</h3>
+      <p className="admin-dashboard-tab-description">Send a polished update to the Flourish Tender Care admin inbox.</p>
+      <span style={{ display: 'inline-flex', padding: '0.5rem 0.9rem', borderRadius: '999px', background: 'var(--accent-soft)', color: 'var(--accent-strong)' }}>
+        Email service: Resend
+      </span>
+      <form onSubmit={sendEmailNotification} style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
+        <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
+          Subject
+          <input type="text" value={emailSubject} onChange={(event) => setEmailSubject(event.target.value)} style={styles.input} />
+        </label>
+        <label style={{ display: 'grid', gap: '0.5rem', color: 'var(--text-main)', fontWeight: 700 }}>
+          Message
+          <textarea value={emailBody} onChange={(event) => setEmailBody(event.target.value)} rows={8} style={{ ...styles.input, resize: 'vertical' }} />
+        </label>
+        <button type="submit" className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton, width: 'fit-content' }} disabled={sendingEmail}>
+          {sendingEmail ? 'Sending...' : 'Send Flourish email'}
+        </button>
+      </form>
+    </section>
+  );
+
   const renderTabContent = () => {
+    if (activeTab === 'email') {
+      return renderEmailComposer();
+    }
+
     if (activeTab === 'survey') {
       return (
         <section className="admin-dashboard-tab-panel">
@@ -1000,7 +1027,7 @@ export default function AdminDashboard() {
               <p style={{ margin: '0.6rem 0 0', color: 'var(--text-muted)', lineHeight: 1.6 }}>Send a notification directly from the visitors tab.</p>
             </div>
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <span style={{ padding: '0.5rem 0.9rem', borderRadius: '999px', background: 'var(--accent-soft)', color: 'var(--accent-strong)' }}>Email service: SendGrid</span>
+              <span style={{ padding: '0.5rem 0.9rem', borderRadius: '999px', background: 'var(--accent-soft)', color: 'var(--accent-strong)' }}>Email service: Resend</span>
             </div>
           </div>
 
@@ -1223,6 +1250,14 @@ export default function AdminDashboard() {
                 <span className="admin-dashboard-tab-count">{tab.count}</span>
               </button>
             ))}
+            <button
+              type="button"
+              className={`admin-dashboard-tab ${activeTab === 'email' ? 'active' : ''}`}
+              onClick={() => setActiveTab('email')}
+            >
+              <span className="admin-dashboard-tab-label">Email</span>
+              <span className="admin-dashboard-tab-count"><Mail size={14} /></span>
+            </button>
           </div>
 
           {renderTabContent()}

@@ -11,17 +11,17 @@ Example `.env` contents:
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 
-# Optional (server-side email sending via SendGrid). Required only for real email sends.
-SENDGRID_API_KEY=your-sendgrid-api-key
-SENDGRID_FROM_EMAIL=sender@example.com
-SENDGRID_TO_EMAIL=recipient@example.com
+# Optional (server-side email sending via Resend). Required for real email sends.
+RESEND_API_KEY=re_your-resend-api-key
+RESEND_FROM_EMAIL=notifications@your-verified-domain.com
+RESEND_TO_EMAIL=admin@flourishtendercare.com.ng
 MAIL_APP_NAME=Flourish Tender Care
-MAIL_SIGNATURE=Best regards,\nFlourish Tender Care Team
 ```
 
 Notes:
 - Variables prefixed with `VITE_` are available to the frontend via `import.meta.env`.
 - Server-side API functions read from `process.env` (these must be set in your deployment provider or in `.env` when running locally).
+- Add and verify the sending domain in Resend, then use an address from that domain for `RESEND_FROM_EMAIL`. `RESEND_TO_EMAIL` receives automatic alerts for testimonials, contact messages, and surveys, plus messages sent from the admin Email tab.
 
 ## Run locally
 

@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { Sparkles } from 'lucide-react';
 
-const heroImageFiles = import.meta.glob('../Public/hero/*.{jpg,jpeg,png,webp}', {
+const heroImageFiles = import.meta.glob('../Public/hero/*', {
   eager: true,
   query: '?url',
   import: 'default',
 });
 
 const heroImageUrls = Object.entries(heroImageFiles)
+  .filter(([filePath]) => /\.(jpe?g|png|webp)$/i.test(filePath))
   .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
   .map(([, url]) => url);
 

@@ -1,48 +1,33 @@
 import { useEffect, useState } from 'react';
-
-const newsImageFiles = import.meta.glob('../Public/news/*.{jpg,jpeg,png,webp}', {
-  eager: true,
-  query: '?url',
-  import: 'default',
-});
-
-const newsImageUrls = Object.entries(newsImageFiles)
-  .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
-  .map(([, url]) => url);
-
-const newsImageSources = {
-  creche: newsImageUrls.find((url) => url.toLowerCase().includes('creche')),
-  heroPic4: newsImageUrls.find((url) => url.toLowerCase().includes('hero pic4')),
-  heropic1: newsImageUrls.find((url) => url.toLowerCase().includes('heropic1')),
-  heropic2: newsImageUrls.find((url) => url.toLowerCase().includes('heropic2')),
-  heropic3: newsImageUrls.find((url) => url.toLowerCase().includes('heropic3')),
-  heropic5: newsImageUrls.find((url) => url.toLowerCase().includes('heropic5')),
-};
+import crecheNewsImage from '../Public/news/Creche.jpg.jpeg';
+import heroPic4NewsImage from '../Public/news/hero pic4.jpeg';
+import nurseryStoryImage from '../Public/news/heropic1.jpeg';
+import outdoorLearningImage from '../Public/news/heropic3.jpeg';
 
 const galleryItems = [
   {
     title: 'Creche welcome day',
     description: 'Little learners arrive in calm, colourful creche spaces designed for curiosity, comfort, and safe exploration.',
-    image: newsImageSources.creche || newsImageUrls[0],
+    image: crecheNewsImage,
     alt: 'Young children arriving at a creche learning environment',
   },
   {
     title: 'Active class learning',
     description: 'A busy classroom scene celebrating movement, teamwork, and hands-on learning across early school groups.',
-    image: newsImageSources.heroPic4 || newsImageUrls[1],
+    image: heroPic4NewsImage,
     alt: 'Children engaged in active school activities',
   },
   {
     title: 'Nursery story time',
     description: 'Nursery learners gather for story time and social play in a bright, welcoming space built for gentle growth.',
-    image: newsImageSources.heropic1 || newsImageUrls[2],
+    image: nurseryStoryImage,
     alt: 'Nursery children enjoying story time together',
     focusTop: true,
   },
   {
     title: 'Playful outdoor moments',
     description: 'Young learners enjoy outdoor play and discovery with friends, building confidence in every step.',
-    image: newsImageSources.heropic3 || newsImageUrls[3],
+    image: outdoorLearningImage,
     alt: 'Children playing together during outdoor school activities',
   },
 ];
