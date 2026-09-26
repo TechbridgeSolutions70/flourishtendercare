@@ -135,8 +135,9 @@ export default function AdminLogin() {
               </div>
             </label>
 
-            <button type="submit" style={styles.submit} className="admin-login-submit" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign in'}
+            <button type="submit" style={styles.submit} className="admin-login-submit" disabled={loading} aria-busy={loading}>
+              {loading && <span className="btn-spinner" aria-hidden="true" />}
+              {loading ? 'SIGNING IN...' : 'SIGN IN'}
             </button>
 
             {error && <div className="admin-alert" style={styles.alert}>{error}</div>}

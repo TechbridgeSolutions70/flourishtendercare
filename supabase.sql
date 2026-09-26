@@ -36,6 +36,7 @@ create table if not exists public.survey_responses (
   created_at timestamptz not null default timezone('utc'::text, now())
 );
 
+
 create table if not exists public.contact_messages (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -52,6 +53,23 @@ create table if not exists public.parent_testimonials (
   created_at timestamptz not null default timezone('utc'::text, now())
 );
 
+create table if not exists public.sent_emails (
+  id uuid primary key default gen_random_uuid(),
+  email_type text not null,
+  sender_email text not null,
+  recipients text[] not null default '{}',
+  cc text[] not null default '{}',
+  subject text not null,
+  html_body text not null,
+  text_body text not null,
+  metadata jsonb not null default '{}'::jsonb,
+  status text not null default 'pending' check (status in ('pending', 'sent', 'failed')),
+  provider_message_id text,
+  error text,
+  created_at timestamptz not null default timezone('utc'::text, now()),
+  sent_at timestamptz
+);
+
 alter table public.parent_testimonials
   add column if not exists is_published boolean not null default false;
 
@@ -61,10 +79,13 @@ create index if not exists contact_messages_created_at_idx
   on public.contact_messages (created_at desc);
 create index if not exists parent_testimonials_created_at_idx
   on public.parent_testimonials (created_at desc);
+create index if not exists sent_emails_created_at_idx
+  on public.sent_emails (created_at desc);
 
 alter table public.survey_responses enable row level security;
 alter table public.contact_messages enable row level security;
 alter table public.parent_testimonials enable row level security;
+alter table public.sent_emails enable row level security;
 
 -- Public visitors may submit forms.
 drop policy if exists "Public can submit survey responses" on public.survey_responses;
@@ -125,6 +146,18 @@ create policy "Authenticated admins can read testimonials"
   to authenticated
   using (auth.uid() = '0491c1b1-c2cc-41e8-ae93-15fd7d2d642a'::uuid);
 
+drop policy if exists "Authenticated admins can read sent emails" on public.sent_emails;
+create policy "Authenticated admins can read sent emails"
+  on public.sent_emails for select
+  to authenticated
+  using (auth.uid() = '0491c1b1-c2cc-41e8-ae93-15fd7d2d642a'::uuid);
+
+drop policy if exists "Authenticated admins can delete sent emails" on public.sent_emails;
+create policy "Authenticated admins can delete sent emails"
+  on public.sent_emails for delete
+  to authenticated
+  using (auth.uid() = '0491c1b1-c2cc-41e8-ae93-15fd7d2d642a'::uuid);
+
 drop policy if exists "Authenticated admins can delete testimonials" on public.parent_testimonials;
 create policy "Authenticated admins can delete testimonials"
   on public.parent_testimonials for delete
@@ -142,4 +175,6 @@ grant usage on schema public to anon, authenticated;
 grant insert on public.survey_responses, public.contact_messages, public.parent_testimonials to anon, authenticated;
 grant select on public.parent_testimonials to anon, authenticated;
 grant select, delete on public.survey_responses, public.contact_messages, public.parent_testimonials to authenticated;
+grant select, delete on public.sent_emails to authenticated;
+grant insert, update on public.sent_emails to service_role;
 grant update (is_published) on public.parent_testimonials to authenticated;

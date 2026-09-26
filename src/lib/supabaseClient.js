@@ -97,6 +97,12 @@ export async function deleteTestimonials(ids) {
   );
 }
 
+export async function deleteSentEmail(id) {
+  return safeQuery(
+    supabase.from('sent_emails').delete().eq('id', id).select('id').single()
+  );
+}
+
 export async function fetchContactMessages() {
   return safeQuery(
     supabase.from('contact_messages').select('*').order('created_at', { ascending: false }).limit(100)

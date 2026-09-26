@@ -1,3 +1,5 @@
+import { createClient } from '@supabase/supabase-js';
+
 const activityLabels = {
   testimonial: 'New parent testimonial',
   contact: 'New contact message',
@@ -104,7 +106,9 @@ export default async function handler(req, res) {
   const { subject, body, type, data, to, cc, ctaLabel, ctaLink } = req.body || {};
   const apiKey = process.env.RESEND_API_KEY?.trim();
   const fromEmail = process.env.RESEND_FROM_EMAIL?.trim();
-  const defaultRecipient = process.env.RESEND_TO_EMAIL?.trim();
+  const supabaseUrl = process.env.SUPABASE_URL?.trim() || process.env.VITE_SUPABASE_URL?.trim();
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  const notificationRecipients = recipientsFrom(process.env.RESEND_TO_EMAIL);
   const appName = process.env.MAIL_APP_NAME || 'Flourish Tender Care';
   const isActivity = Boolean(type && activityLabels[type] && data);
   const recipients = recipientsFrom(to);
@@ -113,8 +117,14 @@ export default async function handler(req, res) {
   if (!apiKey || !fromEmail) {
     return res.status(500).json({ error: 'Resend email service is not configured. Set RESEND_API_KEY and RESEND_FROM_EMAIL in the production environment.' });
   }
-  if (isActivity && !defaultRecipient) {
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    return res.status(500).json({ error: 'Supabase email logging is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in the production environment.' });
+  }
+  if (isActivity && !notificationRecipients.length) {
     return res.status(500).json({ error: 'Automatic email notifications are not configured. Set RESEND_TO_EMAIL in the production environment.' });
+  }
+  if (isActivity && notificationRecipients.some((recipient) => !isEmailAddress(recipient))) {
+    return res.status(500).json({ error: 'Automatic email notification recipients must be valid email addresses separated by commas, semicolons, or new lines.' });
   }
   if (!isActivity && (!subject || !body)) return res.status(400).json({ error: 'Subject and body are required.' });
   if (!isActivity && !recipients.length) return res.status(400).json({ error: 'At least one recipient email is required.' });
@@ -134,12 +144,59 @@ export default async function handler(req, res) {
     : plainTextFromHtml(body);
   const payload = {
     from: `${appName} <${fromEmail}>`,
-    to: isActivity ? [defaultRecipient] : recipients,
+    to: isActivity ? notificationRecipients : recipients,
     subject: title,
     html,
     text,
   };
   if (!isActivity && carbonCopy.length) payload.cc = carbonCopy;
+
+  let supabase;
+  try {
+    supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+  } catch (error) {
+    console.error('Supabase email logging setup failed:', error);
+    return res.status(500).json({ error: 'Unable to initialize Supabase email logging.' });
+  }
+
+  let emailLogId;
+  try {
+    const { data: emailLog, error } = await supabase
+      .from('sent_emails')
+      .insert({
+        email_type: isActivity ? type : 'manual',
+        sender_email: fromEmail,
+        recipients: payload.to,
+        cc: payload.cc || [],
+        subject: title,
+        html_body: html,
+        text_body: text,
+        metadata: isActivity ? data : {},
+        status: 'pending',
+      })
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('Supabase email record insert failed:', error);
+      return res.status(500).json({ error: 'Email was not sent because it could not be saved to Supabase.' });
+    }
+    emailLogId = emailLog.id;
+  } catch (error) {
+    console.error('Supabase email record insert failed:', error);
+    return res.status(500).json({ error: 'Email was not sent because it could not be saved to Supabase.' });
+  }
+
+  const updateEmailLog = async (updates) => {
+    try {
+      const { error } = await supabase.from('sent_emails').update(updates).eq('id', emailLogId);
+      if (error) console.error('Supabase email record update failed:', error);
+    } catch (error) {
+      console.error('Supabase email record update failed:', error);
+    }
+  };
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -157,6 +214,8 @@ export default async function handler(req, res) {
         providerMessage = responseText;
       }
 
+      await updateEmailLog({ status: 'failed', error: providerMessage || 'Failed to send email.' });
+
       if (/only send testing emails|verify a domain/i.test(providerMessage)) {
         return res.status(response.status).json({
           error: 'Resend is still in testing mode. Verify flourishtendercare.com.ng in Resend Domains, then deploy again before sending to other recipients.',
@@ -165,8 +224,15 @@ export default async function handler(req, res) {
 
       return res.status(response.status).json({ error: providerMessage || 'Failed to send email.' });
     }
-    return res.status(200).json({ success: true });
+    const providerResult = await response.json().catch(() => ({}));
+    await updateEmailLog({
+      status: 'sent',
+      provider_message_id: providerResult.id || null,
+      sent_at: new Date().toISOString(),
+    });
+    return res.status(200).json({ success: true, emailLogId });
   } catch (error) {
+    await updateEmailLog({ status: 'failed', error: error.message || 'Email send failed.' });
     return res.status(500).json({ error: error.message || 'Email send failed.' });
   }
 }

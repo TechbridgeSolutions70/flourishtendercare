@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
+import { Facebook, Instagram, Linkedin } from 'lucide-react';
 import PrivacyModal from './PrivacyModal';
 
 function Footer() {
   const [privacyOpen, setPrivacyOpen] = useState(false);
 
   const socialLinks = useMemo(() => [
-    { label: 'Facebook', href: 'https://facebook.com/flourishtendercare1', icon: 'f' },
-    { label: 'Instagram', href: 'https://instagram.com/flourishtendercare1', icon: 'i' },
-    { label: 'LinkedIn', href: 'https://linkedin.com/company/flourishtendercare1', icon: 'in' },
+    { label: 'Facebook', href: 'https://www.facebook.com/flourishtendercare1', icon: Facebook },
+    { label: 'Instagram', href: 'https://www.instagram.com/flourishtendercare1', icon: Instagram },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/company/flourishtendercare1', icon: Linkedin },
   ], []);
 
   return (
@@ -35,9 +36,9 @@ function Footer() {
               </button>
             </div>
             <div className="footer-socials" aria-label="Social links">
-              {socialLinks.map((link) => (
-                <a key={link.label} href={link.href} target="_blank" rel="noreferrer" className="social-link" aria-label={link.label}>
-                  {link.label === 'Facebook' ? 'f' : link.label === 'Instagram' ? '◉' : 'in'}
+              {socialLinks.map(({ label, href, icon: Icon }) => (
+                <a key={label} href={href} target="_blank" rel="noreferrer" className="social-link" aria-label={label}>
+                  <Icon size={18} aria-hidden="true" />
                 </a>
               ))}
             </div>

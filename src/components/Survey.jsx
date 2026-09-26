@@ -704,7 +704,10 @@ export default function Survey() {
             {activeSection < sectionMeta.length - 1 ? (
               <button type="button" style={{ ...styles.navButton, ...styles.navButtonPrimary }} onClick={goNext}>Next →</button>
             ) : (
-              <button type="submit" style={{ ...styles.navButton, ...styles.navButtonPrimary }}>{submitted ? 'Submitted' : 'Submit Survey'}</button>
+              <button type="submit" style={{ ...styles.navButton, ...styles.navButtonPrimary }} disabled={submitStatus === 'sending'} aria-busy={submitStatus === 'sending'}>
+                {submitStatus === 'sending' && <span className="btn-spinner" aria-hidden="true" />}
+                {submitStatus === 'sending' ? 'SUBMITTING...' : submitted ? 'SUBMITTED' : 'SUBMIT SURVEY'}
+              </button>
             )}
           </div>
 

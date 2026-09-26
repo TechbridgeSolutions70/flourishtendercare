@@ -43,6 +43,7 @@ import {
   Undo2,
   Redo2,
   Heading1,
+  Trash2,
 } from 'lucide-react';
 import { useToast } from '../components/ToastProvider';
 import PrintHandler from '../components/PrintHandler';
@@ -359,6 +360,8 @@ export default function AdminDashboard() {
       return [];
     }
   });
+  const [emailPendingDelete, setEmailPendingDelete] = useState(null);
+  const [deletingSentEmail, setDeletingSentEmail] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -494,6 +497,25 @@ export default function AdminDashboard() {
     addToast('Fresh branded email loaded into the composer. You can edit it before sending again.', { type: 'success', duration: 4000 });
   };
 
+  const handleDeleteSentEmail = async () => {
+    if (!emailPendingDelete) return;
+    setDeletingSentEmail(true);
+    try {
+      if (emailPendingDelete.supabaseId) {
+        const { error } = await deleteSentEmail(emailPendingDelete.supabaseId);
+        if (error) throw error;
+      }
+
+      setSentEmails((current) => current.filter((entry) => entry.id !== emailPendingDelete.id));
+      setEmailPendingDelete(null);
+      addToast('Email removed from saved history.', { type: 'success', duration: 4000 });
+    } catch (error) {
+      addToast(error.message || 'Unable to delete saved email.', { type: 'error', duration: 5000 });
+    } finally {
+      setDeletingSentEmail(false);
+    }
+  };
+
   const sendEmailNotification = async (event) => {
     event.preventDefault();
 
@@ -540,6 +562,7 @@ export default function AdminDashboard() {
 
       const sentEmail = {
         id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        supabaseId: result.emailLogId,
         to: recipients.join(', '),
         cc: carbonCopies.join(', '),
         subject: emailSubject.trim(),
@@ -1050,8 +1073,9 @@ export default function AdminDashboard() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <button type="submit" className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton, width: 'min(100%, 260px)', minHeight: '48px' }} disabled={sendingEmail} onClick={(event) => sendEmailNotification(event)}>
-              {sendingEmail ? 'Sending...' : 'Send Email'}
+            <button type="submit" className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton, width: 'min(100%, 260px)', minHeight: '48px' }} disabled={sendingEmail} aria-busy={sendingEmail} onClick={(event) => sendEmailNotification(event)}>
+              {sendingEmail && <span className="btn-spinner" aria-hidden="true" />}
+              {sendingEmail ? 'SENDING...' : 'SEND EMAIL'}
             </button>
           </div>
         </div>
@@ -1153,7 +1177,19 @@ export default function AdminDashboard() {
             <article key={entry.id} style={{ background: '#ffffff', border: '1px solid rgba(11,95,85,0.12)', borderRadius: '16px', padding: '1rem', boxShadow: '0 10px 24px rgba(15, 23, 42, 0.04)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
                 <strong style={{ color: '#123a3a', fontSize: '1rem' }}>{entry.subject}</strong>
-                <span style={{ color: '#46656d', fontSize: '0.78rem' }}>{new Date(entry.sentAt).toLocaleString()}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ color: '#46656d', fontSize: '0.78rem' }}>{new Date(entry.sentAt).toLocaleString()}</span>
+                  <button
+                    type="button"
+                    onClick={() => setEmailPendingDelete(entry)}
+                    aria-label={`Delete email: ${entry.subject}`}
+                    title="Delete email"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', border: '1px solid #f1b5b5', background: '#fff5f5', color: '#a61b1b', borderRadius: '8px', padding: '0.4rem 0.6rem', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    <Trash2 size={15} aria-hidden="true" />
+                    Delete
+                  </button>
+                </div>
               </div>
               <div style={{ color: '#47626a', fontSize: '0.85rem', marginBottom: '0.5rem' }}>To: {entry.to}{entry.cc ? ` • CC: ${entry.cc}` : ''}</div>
               <div dangerouslySetInnerHTML={{ __html: entry.body || '<p></p>' }} style={{ color: '#1d2f38', lineHeight: 1.7, fontSize: '0.95rem' }} />
@@ -1480,8 +1516,9 @@ export default function AdminDashboard() {
               />
             </label>
 
-            <button type="submit" className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton, width: 'fit-content' }} disabled={sendingEmail}>
-              {sendingEmail ? 'Sending…' : 'Send notification'}
+            <button type="submit" className="admin-action-btn" style={{ ...styles.button, ...styles.primaryButton, width: 'fit-content' }} disabled={sendingEmail} aria-busy={sendingEmail}>
+              {sendingEmail && <span className="btn-spinner" aria-hidden="true" />}
+              {sendingEmail ? 'SENDING...' : 'SEND NOTIFICATION'}
             </button>
           </form>
         </div>
@@ -1720,6 +1757,31 @@ export default function AdminDashboard() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {emailPendingDelete && (
+        <div
+          role="presentation"
+          onClick={(event) => {
+            if (event.target === event.currentTarget && !deletingSentEmail) setEmailPendingDelete(null);
+          }}
+          style={{ position: 'fixed', inset: 0, zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: 'rgba(15, 23, 42, 0.56)' }}
+        >
+          <section role="dialog" aria-modal="true" aria-labelledby="delete-sent-email-title" style={{ width: 'min(100%, 440px)', background: 'var(--bg-surface)', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.3rem', boxShadow: '0 24px 64px rgba(15, 23, 42, 0.28)' }}>
+            <h3 id="delete-sent-email-title" style={{ margin: 0, fontSize: '1.1rem' }}>Delete saved email?</h3>
+            <p style={{ margin: '0.7rem 0 0', color: 'var(--text-muted)', lineHeight: 1.55 }}>
+              “{emailPendingDelete.subject}” will be removed from saved history. This does not recall the email from recipients.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.65rem', marginTop: '1.2rem' }}>
+              <button type="button" onClick={() => setEmailPendingDelete(null)} disabled={deletingSentEmail} style={{ ...styles.button, ...styles.secondaryButton }}>
+                Cancel
+              </button>
+              <button type="button" onClick={handleDeleteSentEmail} disabled={deletingSentEmail} style={{ ...styles.button, background: '#b42318', color: '#fff', opacity: deletingSentEmail ? 0.7 : 1 }}>
+                {deletingSentEmail ? 'Deleting...' : 'Delete email'}
+              </button>
+            </div>
+          </section>
         </div>
       )}
 

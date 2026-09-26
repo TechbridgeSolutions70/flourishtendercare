@@ -42,6 +42,7 @@ function TestimonialSection({ modalMode = false, onClose }) {
   const [testimonialText, setTestimonialText] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -138,6 +139,7 @@ function TestimonialSection({ modalMode = false, onClose }) {
                   className="testimonial-form"
                   onSubmit={async (event) => {
                     event.preventDefault();
+                    setSubmitting(true);
                     setSubmitError('');
 
                     try {
@@ -156,6 +158,8 @@ function TestimonialSection({ modalMode = false, onClose }) {
                     } catch (_unexpectedError) {
                       setSubmitError('Unable to send testimonial. Please try again.');
                       addToast('Unable to send testimonial. Please try again.', { type: 'error', duration: 5000 });
+                    } finally {
+                      setSubmitting(false);
                     }
                   }}
                 >
@@ -189,8 +193,9 @@ function TestimonialSection({ modalMode = false, onClose }) {
                     }}>
                       Reset
                     </button>
-                    <button className="btn btn-primary" type="submit">
-                      Send Testimonial
+                    <button className="btn btn-primary" type="submit" disabled={submitting} aria-busy={submitting}>
+                      {submitting && <span className="btn-spinner" aria-hidden="true" />}
+                      {submitting ? 'SENDING...' : 'SEND TESTIMONIAL'}
                     </button>
                   </div>
                   {submitError && <p className="form-error">{submitError}</p>}

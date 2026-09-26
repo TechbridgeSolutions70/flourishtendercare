@@ -26,9 +26,14 @@ function ContactSection() {
         return;
       }
 
-      await notifyAdminOfActivity('contact', formData);
+      const notification = await notifyAdminOfActivity('contact', formData);
       setStatus('sent');
-      addToast('Message sent successfully. We will get back to you soon.', { type: 'success', duration: 5000 });
+      addToast(
+        notification.success
+          ? 'Message sent successfully. We will get back to you soon.'
+          : 'Message received, but the email notification could not be sent.',
+        { type: notification.success ? 'success' : 'error', duration: 5000 },
+      );
       setFormData({ name: '', email: '', message: '' });
     } catch (_unexpectedError) {
       setStatus('error');
@@ -95,8 +100,9 @@ function ContactSection() {
               placeholder="Tell us how we can help"
             />
           </label>
-          <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
-            {status === 'sent' ? 'Message sent' : status === 'sending' ? 'Sending…' : 'Send message'}
+          <button type="submit" className="btn btn-primary" disabled={status === 'sending'} aria-busy={status === 'sending'}>
+            {status === 'sending' && <span className="btn-spinner" aria-hidden="true" />}
+            {status === 'sent' ? 'MESSAGE SENT' : status === 'sending' ? 'SENDING...' : 'SEND MESSAGE'}
           </button>
           {status === 'sent' && (
             <p className="form-success">Thanks! We’ll reach out soon.</p>
