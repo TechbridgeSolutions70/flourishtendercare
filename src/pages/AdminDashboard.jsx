@@ -10,11 +10,15 @@ import {
   deleteTestimonial,
   deleteTestimonials,
   fetchContactMessages,
+  fetchAdminTestimonials,
+  fetchSentEmails,
   fetchSurveyResponses,
   fetchTestimonials,
   getCurrentSession,
-  publishTestimonial,
+  saveSentEmail,
+  setTestimonialPublished,
   supabase,
+  updateSentEmail,
 } from '../lib/supabaseClient';
 import {
   Mail,
@@ -57,6 +61,19 @@ const splitEmailList = (value) => [...new Set(String(value || '')
   .filter(Boolean))];
 
 const isEmailAddress = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+const sentEmailFromRecord = (record) => ({
+  id: record.id,
+  supabaseId: record.id,
+  to: (record.recipients || []).join(', '),
+  cc: (record.cc || []).join(', '),
+  subject: record.subject,
+  body: record.html_body || '',
+  ctaLabel: record.metadata?.ctaLabel || 'Visit website',
+  ctaLink: record.metadata?.ctaLink || '',
+  sentAt: record.sent_at || record.created_at,
+  status: record.status,
+});
 
 const styles = {
   page: { minHeight: '100vh', padding: '1.25rem', background: 'var(--bg-app)', color: 'var(--text-main)' },
@@ -118,12 +135,11 @@ function formatFieldValue(item, column) {
   return String(value);
 }
 
-function DetailRecordModal({ logoUrl, heading, item, columns, onClose, onPrint, onPublish }) {
+function DetailRecordModal({ logoUrl, heading, item, columns, onClose, onPrint, onTogglePublish }) {
   const [showAllFields, setShowAllFields] = useState(false);
-  const [publishing, setPublishing] = useState(false);
   const visibleColumns = showAllFields ? columns : columns.slice(0, 8);
   const hiddenCount = Math.max(0, columns.length - 8);
-  const canPublish = Boolean(onPublish) && item?.is_published !== true;
+  const canTogglePublish = Boolean(onTogglePublish);
 
   return (
     <div className="detail-record-modal" role="dialog" aria-modal="true" aria-label="Record details">
@@ -152,18 +168,13 @@ function DetailRecordModal({ logoUrl, heading, item, columns, onClose, onPrint, 
             <p style={{ margin: '0.35rem 0 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Important fields are shown on cards below.</p>
           </div>
           <div className="detail-record-actions">
-            {canPublish && (
+            {canTogglePublish && (
               <button
                 type="button"
                 className="admin-action-btn"
-                onClick={async () => {
-                  setPublishing(true);
-                  await onPublish(item);
-                  setPublishing(false);
-                }}
-                disabled={publishing}
+                onClick={() => onTogglePublish(item)}
               >
-                {publishing ? 'Posting...' : 'Post to testimonial slider'}
+                {item?.is_published ? 'Unpublish testimonial' : 'Publish to testimonial slider'}
               </button>
             )}
             <button type="button" className="admin-action-btn admin-action-secondary" onClick={onClose}>
@@ -300,7 +311,7 @@ function DataTable({ title, items, columns, emptyText, rowSelection, rowActions,
                             onClick={() => button.onClick(item)}
                             disabled={button.disabled}
                           >
-                            {button.label}
+                            {typeof button.label === 'function' ? button.label(item) : button.label}
                           </button>
                         ))}
                       </td>
@@ -348,40 +359,9 @@ export default function AdminDashboard() {
   const [ctaLabel, setCtaLabel] = useState('Visit our website');
   const [ctaLink, setCtaLink] = useState('https://flourishtendercare.com.ng');
   const [sendingEmail, setSendingEmail] = useState(false);
-  const [sentEmails, setSentEmails] = useState(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const stored = window.localStorage.getItem('flourish-sent-emails');
-      if (!stored) return [];
-      const parsed = JSON.parse(stored);
-      if (!Array.isArray(parsed)) return [];
-      return parsed.filter((entry) => entry?.body);
-    } catch {
-      return [];
-    }
-  });
+  const [sentEmails, setSentEmails] = useState([]);
   const [emailPendingDelete, setEmailPendingDelete] = useState(null);
   const [deletingSentEmail, setDeletingSentEmail] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    try {
-      const stored = window.localStorage.getItem('flourish-sent-emails');
-      if (!stored) return;
-
-      const parsed = JSON.parse(stored);
-      if (!Array.isArray(parsed)) {
-        window.localStorage.removeItem('flourish-sent-emails');
-        setSentEmails([]);
-        return;
-      }
-
-    } catch {
-      window.localStorage.removeItem('flourish-sent-emails');
-      setSentEmails([]);
-    }
-  }, []);
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [linkUrlInput, setLinkUrlInput] = useState('https://');
   const { addToast } = useToast();
@@ -392,6 +372,7 @@ export default function AdminDashboard() {
   const [selectedSurveyIds, setSelectedSurveyIds] = useState(new Set());
   const [selectedContactIds, setSelectedContactIds] = useState(new Set());
   const [selectedTestimonialIds, setSelectedTestimonialIds] = useState(new Set());
+  const [previewedTestimonialIds, setPreviewedTestimonialIds] = useState(new Set());
   const [classFilter, setClassFilter] = useState('All');
   const [printScope, setPrintScope] = useState('all');
   const [printTimestamp, setPrintTimestamp] = useState('');
@@ -400,6 +381,8 @@ export default function AdminDashboard() {
   const [detailRecord, setDetailRecord] = useState(null);
   const [detailRecordHeading, setDetailRecordHeading] = useState('');
   const [detailRecordColumns, setDetailRecordColumns] = useState([]);
+  const [testimonialAction, setTestimonialAction] = useState(null);
+  const [processingTestimonialAction, setProcessingTestimonialAction] = useState(false);
   const [isDetailPrinting, setIsDetailPrinting] = useState(false);
   const printUrl = typeof window !== 'undefined' ? window.location.origin : 'https://flourishtendercare.com.ng';
   const [supabaseReady, setSupabaseReady] = useState(null);
@@ -409,13 +392,14 @@ export default function AdminDashboard() {
   const refreshData = async () => {
     setLoading(true);
 
-    const [surveyResult, contactResult, testimonialResult] = await Promise.all([
+    const [surveyResult, contactResult, testimonialResult, sentEmailResult] = await Promise.all([
       fetchSurveyResponses(),
       fetchContactMessages(),
-      fetchTestimonials(),
+      fetchAdminTestimonials(),
+      fetchSentEmails(),
     ]);
 
-    if (surveyResult.error || contactResult.error || testimonialResult.error) {
+    if (surveyResult.error || contactResult.error || testimonialResult.error || sentEmailResult.error) {
       const message = 'Unable to load dashboard data. Confirm Supabase is configured and that the tables exist.';
       addToast(message, { type: 'error', duration: 5000 });
     }
@@ -423,6 +407,7 @@ export default function AdminDashboard() {
     setSurveys(surveyResult.data || []);
     setContacts(contactResult.data || []);
     setTestimonials(testimonialResult.data || []);
+    setSentEmails((sentEmailResult.data || []).map(sentEmailFromRecord));
     setLoading(false);
   };
 
@@ -472,18 +457,46 @@ export default function AdminDashboard() {
     }, 250);
   };
 
-  const handlePublishTestimonial = async (item) => {
-    const { error } = await publishTestimonial(item.id);
-    if (error) {
-      addToast(error.message || 'Unable to post testimonial to the slider.', { type: 'error', duration: 5000 });
+  const handlePublishTestimonial = (item) => {
+    if (!item.is_published && !previewedTestimonialIds.has(item.id)) {
+      addToast('Preview the testimonial before publishing it.', { type: 'error', duration: 5000 });
       return;
     }
+    setTestimonialAction({ kind: item.is_published ? 'unpublish' : 'publish', item });
+  };
 
-    setTestimonials((current) => current.map((testimonial) => (
-      testimonial.id === item.id ? { ...testimonial, is_published: true } : testimonial
-    )));
-    setDetailRecord((current) => (current ? { ...current, is_published: true } : current));
-    addToast('Testimonial posted to the slider.', { type: 'success', duration: 4000 });
+  const confirmTestimonialAction = async () => {
+    if (!testimonialAction) return;
+    const { kind, item } = testimonialAction;
+    setProcessingTestimonialAction(true);
+    try {
+      if (kind === 'delete' || kind === 'delete-selected') {
+        const items = kind === 'delete-selected' ? testimonialAction.items : [item];
+        const ids = items.map((testimonial) => testimonial.id);
+        const { error } = kind === 'delete-selected'
+          ? await deleteTestimonials(ids)
+          : await deleteTestimonial(item.id);
+        if (error) throw error;
+        setTestimonials((current) => current.filter((testimonial) => !ids.includes(testimonial.id)));
+        setSelectedTestimonialIds((current) => new Set([...current].filter((id) => !ids.includes(id))));
+        if (detailRecord && ids.includes(detailRecord.id)) closeDetailRecord();
+        addToast(kind === 'delete-selected' ? 'Selected testimonials deleted.' : 'Testimonial deleted.', { type: 'success', duration: 4000 });
+      } else {
+        const isPublished = kind === 'publish';
+        const { error } = await setTestimonialPublished(item.id, isPublished);
+        if (error) throw error;
+        setTestimonials((current) => current.map((testimonial) => (
+          testimonial.id === item.id ? { ...testimonial, is_published: isPublished } : testimonial
+        )));
+        setDetailRecord((current) => (current?.id === item.id ? { ...current, is_published: isPublished } : current));
+        addToast(isPublished ? 'Testimonial published to the slider.' : 'Testimonial unpublished from the slider.', { type: 'success', duration: 4000 });
+      }
+      setTestimonialAction(null);
+    } catch (error) {
+      addToast(error.message || 'Unable to update testimonial.', { type: 'error', duration: 5000 });
+    } finally {
+      setProcessingTestimonialAction(false);
+    }
   };
 
   const handleResendEmail = (entry) => {
@@ -535,7 +548,31 @@ export default function AdminDashboard() {
     }
 
     setSendingEmail(true);
+    let pendingRecord = null;
+    let emailSent = false;
     try {
+      const callToActionLabel = ctaLabel.trim() || 'Visit our website';
+      const callToActionLink = ctaLink.trim() || 'https://flourishtendercare.com.ng';
+      const { data: savedRecord, error: saveError } = await saveSentEmail({
+        email_type: 'manual',
+        sender_email: session?.user?.email || 'admin@flourishtendercare.com.ng',
+        recipients,
+        cc: carbonCopies,
+        subject: emailSubject.trim(),
+        html_body: emailBody,
+        text_body: emailBody
+          .replace(/<br\s*\/?>(\s*)/gi, '\n')
+          .replace(/<\/(p|div|li)>/gi, '\n')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/&nbsp;/gi, ' ')
+          .replace(/[ \t]+/g, ' ')
+          .trim(),
+        metadata: { ctaLabel: callToActionLabel, ctaLink: callToActionLink },
+        status: 'pending',
+      });
+      if (saveError) throw new Error('Email was not sent because its history could not be saved to Supabase.');
+      pendingRecord = savedRecord;
+
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -544,8 +581,8 @@ export default function AdminDashboard() {
           cc: carbonCopies,
           subject: emailSubject,
           body: emailBody,
-          ctaLabel: ctaLabel.trim() || 'Visit our website',
-          ctaLink: ctaLink.trim() || 'https://flourishtendercare.com.ng',
+          ctaLabel: callToActionLabel,
+          ctaLink: callToActionLink,
         }),
       });
 
@@ -559,38 +596,48 @@ export default function AdminDashboard() {
       if (!response.ok) {
         throw new Error(result.error || 'Failed to send notification email.');
       }
+      emailSent = true;
+      const sentAt = new Date().toISOString();
+      const { data: updatedRecord, error: updateError } = await updateSentEmail(pendingRecord.id, {
+        status: 'sent',
+        provider_message_id: result.providerMessageId || null,
+        sent_at: sentAt,
+      });
 
       const sentEmail = {
-        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        supabaseId: result.emailLogId,
+        id: pendingRecord.id,
+        supabaseId: pendingRecord.id,
         to: recipients.join(', '),
         cc: carbonCopies.join(', '),
         subject: emailSubject.trim(),
         body: emailBody,
         ctaLabel: ctaLabel.trim() || 'Visit our website',
         ctaLink: ctaLink.trim() || 'https://flourishtendercare.com.ng',
-        sentAt: new Date().toISOString(),
+        sentAt,
+        status: updatedRecord?.status || (updateError ? 'pending' : 'sent'),
       };
 
-      setSentEmails((current) => [sentEmail, ...current].slice(0, 12));
-      addToast('Client email sent successfully.', { type: 'success' });
+      setSentEmails((current) => [sentEmail, ...current.filter((entry) => entry.id !== pendingRecord.id)].slice(0, 100));
+      addToast(
+        updateError ? 'Email sent and saved, but its delivery status could not be updated.' : 'Client email sent successfully.',
+        { type: updateError ? 'error' : 'success', duration: 5000 }
+      );
       setRecipientEmail('');
       setCarbonCopyEmails('');
     } catch (error) {
-      addToast(error.message || 'Failed to send notification email.', { type: 'error' });
+      if (pendingRecord && !emailSent) {
+        const { data: failedRecord } = await updateSentEmail(pendingRecord.id, {
+          status: 'failed',
+          error: error.message || 'Email send failed.',
+        });
+        const failedEmail = sentEmailFromRecord(failedRecord || { ...pendingRecord, status: 'failed' });
+        setSentEmails((current) => [failedEmail, ...current.filter((entry) => entry.id !== pendingRecord.id)].slice(0, 100));
+      }
+      addToast(error.message || 'Failed to send notification email.', { type: 'error', duration: 5000 });
     } finally {
       setSendingEmail(false);
     }
   };
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const cleaned = (Array.isArray(sentEmails) ? sentEmails : [])
-        .filter((entry) => entry?.body);
-
-      window.localStorage.setItem('flourish-sent-emails', JSON.stringify(cleaned));
-    }
-  }, [sentEmails]);
 
   useEffect(() => {
     const init = async () => {
@@ -700,23 +747,8 @@ export default function AdminDashboard() {
     setLoading(false);
   };
 
-  const handleDeleteTestimonial = async (id) => {
-    if (!window.confirm('Delete this testimonial?')) return;
-    setLoading(true);
-    const { error } = await deleteTestimonial(id);
-    if (error) {
-      const message = error.message || 'Unable to delete testimonial.';
-      addToast(message, { type: 'error', duration: 5000 });
-    } else {
-      addToast('Testimonial deleted.', { type: 'success', duration: 4000 });
-      refreshData();
-      setSelectedTestimonialIds((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-    }
-    setLoading(false);
+  const handleDeleteTestimonial = (item) => {
+    setTestimonialAction({ kind: 'delete', item });
   };
 
   const handleDeleteSelected = async () => {
@@ -743,6 +775,11 @@ export default function AdminDashboard() {
     }
 
     if (!ids.length) return;
+    if (activeTab === 'messages') {
+      const items = testimonials.filter((testimonial) => selectedTestimonialIds.has(testimonial.id));
+      setTestimonialAction({ kind: 'delete-selected', items });
+      return;
+    }
     if (!window.confirm(`Delete selected ${messageLabel}?`)) return;
 
     setLoading(true);
@@ -870,6 +907,7 @@ export default function AdminDashboard() {
       { key: 'name', label: 'Name' },
       { key: 'text', label: 'Testimonial' },
       { key: 'created_at', label: 'Received', render: (item) => new Date(item.created_at).toLocaleString() },
+      { key: 'is_published', label: 'Status', render: (item) => item.is_published ? 'Published' : 'Awaiting review' },
     ],
     []
   );
@@ -904,7 +942,7 @@ export default function AdminDashboard() {
     () => [
       { key: 'visitors', label: 'Visitors', count: contacts.length, subtitle: 'Visitors on the main site' },
       { key: 'survey', label: 'Survey', count: surveys.length, subtitle: 'Survey responses received' },
-      { key: 'messages', label: 'Messages', count: testimonials.length, subtitle: 'Testimonials and messages' },
+      { key: 'messages', label: 'Testimonials', count: testimonials.filter((item) => !item.is_published).length, subtitle: 'Review pending submissions' },
       { key: 'email', label: 'Email', count: 0, subtitle: 'Compose and send a branded email' },
       { key: 'sent-email', label: 'Sent Email', count: sentEmails.length, subtitle: 'Emails sent from this dashboard' },
     ],
@@ -1390,7 +1428,7 @@ export default function AdminDashboard() {
             title={`Testimonials (${testimonials.length})`}
             items={testimonials}
             columns={testimonialColumns}
-            emptyText="No messages sent yet."
+            emptyText="No testimonials have been submitted yet."
             rowSelection={{ selectedIds: selectedTestimonialIds, onToggle: toggleSelectTestimonial }}
             detailHeading="Testimonial details"
             onDetail={openDetailRecord}
@@ -1399,14 +1437,22 @@ export default function AdminDashboard() {
               buttons: [
                 {
                   key: 'view',
-                  label: 'View',
+                  label: 'Preview',
                   variant: 'primary',
-                  onClick: (item) => openDetailRecord(item, 'Testimonial details', testimonialColumns),
+                  onClick: (item) => {
+                    setPreviewedTestimonialIds((current) => new Set([...current, item.id]));
+                    openDetailRecord(item, 'Testimonial details', testimonialColumns);
+                  },
+                },
+                {
+                  key: 'toggle-publish',
+                  label: (item) => item.is_published ? 'Unpublish' : 'Publish',
+                  onClick: handlePublishTestimonial,
                 },
                 {
                   key: 'delete',
                   label: 'Delete',
-                  onClick: (item) => handleDeleteTestimonial(item.id),
+                  onClick: (item) => handleDeleteTestimonial(item),
                 },
               ],
             }}
@@ -1785,7 +1831,46 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {showPrintPreview && (
+      {testimonialAction && (
+        <div
+                  role="presentation"
+                  onClick={(event) => {
+                    if (event.target === event.currentTarget && !processingTestimonialAction) setTestimonialAction(null);
+                  }}
+                  style={{ position: 'fixed', inset: 0, zIndex: 10002, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: 'rgba(15, 23, 42, 0.56)' }}
+                >
+                  <section role="dialog" aria-modal="true" aria-labelledby="testimonial-action-title" style={{ width: 'min(100%, 440px)', background: 'var(--bg-surface)', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.3rem', boxShadow: '0 24px 64px rgba(15, 23, 42, 0.28)' }}>
+                    <h3 id="testimonial-action-title" style={{ margin: 0, fontSize: '1.1rem' }}>
+                      {testimonialAction.kind === 'delete-selected'
+                        ? `Delete ${testimonialAction.items.length} selected testimonials?`
+                        : testimonialAction.kind === 'delete'
+                          ? 'Delete testimonial?'
+                          : testimonialAction.kind === 'publish'
+                            ? 'Publish testimonial?'
+                            : 'Unpublish testimonial?'}
+                    </h3>
+                    <p style={{ margin: '0.7rem 0 0', color: 'var(--text-muted)', lineHeight: 1.55 }}>
+                      {testimonialAction.kind === 'delete-selected'
+                        ? `${testimonialAction.items.length} selected testimonials will be permanently removed.`
+                        : testimonialAction.kind === 'delete'
+                        ? `“${testimonialAction.item.name}” will be permanently removed.`
+                        : testimonialAction.kind === 'publish'
+                          ? `“${testimonialAction.item.name}” will appear in the public testimonial slider.`
+                          : `“${testimonialAction.item.name}” will be hidden from the public testimonial slider.`}
+                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.65rem', marginTop: '1.2rem' }}>
+                      <button type="button" onClick={() => setTestimonialAction(null)} disabled={processingTestimonialAction} style={{ ...styles.button, ...styles.secondaryButton }}>
+                        Cancel
+                      </button>
+                      <button type="button" onClick={confirmTestimonialAction} disabled={processingTestimonialAction} style={{ ...styles.button, background: testimonialAction.kind.startsWith('delete') ? '#b42318' : 'var(--accent-strong)', color: '#fff', opacity: processingTestimonialAction ? 0.7 : 1 }}>
+                        {processingTestimonialAction ? 'Working...' : testimonialAction.kind.startsWith('delete') ? 'Delete' : testimonialAction.kind === 'publish' ? 'Publish' : 'Unpublish'}
+                      </button>
+                    </div>
+                  </section>
+                </div>
+              )}
+
+            {showPrintPreview && (
         <div className="print-preview-modal visible" role="dialog" aria-modal="true">
           <div className="print-preview-backdrop" onClick={() => setShowPrintPreview(false)} />
           <div className="print-preview-content">
@@ -1820,7 +1905,7 @@ export default function AdminDashboard() {
           columns={detailRecordColumns}
           onClose={closeDetailRecord}
           onPrint={printDetailRecord}
-          onPublish={detailRecordHeading === 'Testimonial details' ? handlePublishTestimonial : undefined}
+          onTogglePublish={detailRecordHeading === 'Testimonial details' ? handlePublishTestimonial : undefined}
         />,
         document.body
       )}

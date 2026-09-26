@@ -104,7 +104,7 @@ drop policy if exists "Public can submit testimonials" on public.parent_testimon
 create policy "Public can submit testimonials"
   on public.parent_testimonials for insert
   to anon, authenticated
-  with check (true);
+  with check (is_published = false);
 
 drop policy if exists "Public can view testimonials" on public.parent_testimonials;
 create policy "Public can view testimonials"
@@ -152,6 +152,19 @@ create policy "Authenticated admins can read sent emails"
   to authenticated
   using (auth.uid() = '0491c1b1-c2cc-41e8-ae93-15fd7d2d642a'::uuid);
 
+drop policy if exists "Authenticated admins can create sent emails" on public.sent_emails;
+create policy "Authenticated admins can create sent emails"
+  on public.sent_emails for insert
+  to authenticated
+  with check (auth.uid() = '0491c1b1-c2cc-41e8-ae93-15fd7d2d642a'::uuid);
+
+drop policy if exists "Authenticated admins can update sent emails" on public.sent_emails;
+create policy "Authenticated admins can update sent emails"
+  on public.sent_emails for update
+  to authenticated
+  using (auth.uid() = '0491c1b1-c2cc-41e8-ae93-15fd7d2d642a'::uuid)
+  with check (auth.uid() = '0491c1b1-c2cc-41e8-ae93-15fd7d2d642a'::uuid);
+
 drop policy if exists "Authenticated admins can delete sent emails" on public.sent_emails;
 create policy "Authenticated admins can delete sent emails"
   on public.sent_emails for delete
@@ -175,6 +188,5 @@ grant usage on schema public to anon, authenticated;
 grant insert on public.survey_responses, public.contact_messages, public.parent_testimonials to anon, authenticated;
 grant select on public.parent_testimonials to anon, authenticated;
 grant select, delete on public.survey_responses, public.contact_messages, public.parent_testimonials to authenticated;
-grant select, delete on public.sent_emails to authenticated;
-grant insert, update on public.sent_emails to service_role;
+grant select, insert, update, delete on public.sent_emails to authenticated;
 grant update (is_published) on public.parent_testimonials to authenticated;

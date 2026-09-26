@@ -46,12 +46,18 @@ export async function saveContactMessage(payload) {
 }
 
 export async function saveTestimonial(payload) {
-  return saveRecord('parent_testimonials', payload);
+  return saveRecord('parent_testimonials', { ...payload, is_published: false });
 }
 
 export async function publishTestimonial(id) {
   return safeQuery(
     supabase.from('parent_testimonials').update({ is_published: true }).eq('id', id).select().single()
+  );
+}
+
+export async function setTestimonialPublished(id, isPublished) {
+  return safeQuery(
+    supabase.from('parent_testimonials').update({ is_published: isPublished }).eq('id', id).select().single()
   );
 }
 
@@ -103,6 +109,24 @@ export async function deleteSentEmail(id) {
   );
 }
 
+export async function fetchSentEmails() {
+  return safeQuery(
+    supabase.from('sent_emails').select('*').order('created_at', { ascending: false }).limit(100)
+  );
+}
+
+export async function saveSentEmail(payload) {
+  return safeQuery(
+    supabase.from('sent_emails').insert(payload).select('*').single()
+  );
+}
+
+export async function updateSentEmail(id, updates) {
+  return safeQuery(
+    supabase.from('sent_emails').update(updates).eq('id', id).select('*').single()
+  );
+}
+
 export async function fetchContactMessages() {
   return safeQuery(
     supabase.from('contact_messages').select('*').order('created_at', { ascending: false }).limit(100)
@@ -110,6 +134,12 @@ export async function fetchContactMessages() {
 }
 
 export async function fetchTestimonials() {
+  return safeQuery(
+    supabase.from('parent_testimonials').select('*').eq('is_published', true).order('created_at', { ascending: false }).limit(100)
+  );
+}
+
+export async function fetchAdminTestimonials() {
   return safeQuery(
     supabase.from('parent_testimonials').select('*').order('created_at', { ascending: false }).limit(100)
   );
