@@ -56,10 +56,10 @@ export default function HeroStatsSection() {
 
           <div className="welcome-profile-card">
             <div className="welcome-profile-avatar">
-              <img src={directorPhoto} alt="Roselime Iraoya" />
+              <img src={directorPhoto} alt="Roseline Iraoya" />
             </div>
             <div className="welcome-profile-copy">
-              <h3>Roselime Iraoya</h3>
+              <h3>Roseline Iraoya</h3>
               <span>Propietress, Flourish Tender Care</span>
             </div>
           </div>
